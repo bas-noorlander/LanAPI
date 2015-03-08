@@ -27,8 +27,9 @@ public class Projecting {
 			RSTile[] tilesOnScreen = area.getAllTiles();
 			
 			for (RSTile tile : tilesOnScreen) {
-				if (Projection.getTileBoundsPoly(tile, 0).contains(p))
-					return tile;
+				if (tile != null && tile.isOnScreen())
+					if (Projection.getTileBoundsPoly(tile, 0).contains(p))
+						return tile;
 			}
 		}
 		

@@ -23,7 +23,8 @@ public class Objects {
 	 * 
 	 */
 	public static RSObject getAt(final Positionable location) {
-		return org.tribot.api2007.Objects.getAt(location)[0];
+		RSObject[] res = org.tribot.api2007.Objects.getAt(location);
+		return res.length > 0 ? res[0] : null;
 	}
 
 	/**
@@ -37,7 +38,8 @@ public class Objects {
 	 * 
 	 */
 	public static RSObject findNearest(final int modelPoints) {
-		return findNear(modelPoints)[0];
+		RSObject[] res = findNear(modelPoints);
+		return res.length > 0 ? res[0] : null;
 	}
 
 	/**
@@ -62,8 +64,9 @@ public class Objects {
 	 * @param contains - if true, will search for objects who have the action, if false will search for objects who do not.
 	 * @return The object or null
 	 */
-	public static RSObject findNearest(final String action, final boolean contains) {		
-		return findNear(action, contains)[0];
+	public static RSObject findNearest(final String action, final boolean contains) {
+		RSObject[] res = findNear(action, contains);
+		return res.length > 0 ? res[0] : null;
 	}
 
 	/**
@@ -87,7 +90,8 @@ public class Objects {
 	 * @return The object or null
 	 */
 	public static RSObject findNearest(final String name) {
-		return findNear(name)[0];
+		RSObject[] res = findNear(name);
+		return res.length > 0 ? res[0] : null;
 	}
 
 	/**
@@ -111,7 +115,8 @@ public class Objects {
 	 * @deprecated Because Object IDs should NOT be used!
 	 */
 	public static RSObject findNearestById(final int id) {
-		return findNearById(id)[0];
+		RSObject[] res = findNearById(id);
+		return res.length > 0 ? res[0] : null;
 	}
 
 	/**

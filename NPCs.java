@@ -26,7 +26,8 @@ public class NPCs {
 	 * @return The npc or null
 	 */
 	public static RSNPC findNearest(final String name) {
-		return findNear(name)[0];
+		RSNPC[] res = findNear(name);
+		return res.length > 0 ? res[0] : null;
 	}
 
 	/**
@@ -46,7 +47,8 @@ public class NPCs {
 	 * @return The npc or null
 	 */
 	public static RSNPC findNearest(final int modelPoints){
-		return findNear(modelPoints)[0];
+		RSNPC[] res = findNear(modelPoints);
+		return res.length > 0 ? res[0] : null;
 	}
 
 	/**
@@ -67,7 +69,8 @@ public class NPCs {
 	 * @return The npc or null
 	 */
 	public static RSNPC findNearest(final String action, final boolean contains){
-		return findNear(action, contains)[0];
+		RSNPC[] res = findNear(action, contains);
+		return res.length > 0 ? res[0] : null;
 	}
 
 	/**
