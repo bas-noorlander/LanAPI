@@ -32,7 +32,9 @@ public class Looting {
 	 * @return if successfully looted the item, false if otherwise.
 	 */
 	public static boolean lootGroundItem(final String name, final int addHeight) {
+		
 		RSGroundItem lootItems[] = GroundItems.findNearest(name);
+		
 		if (lootItems.length > 0) {
 			for (final RSGroundItem item : lootItems) {
 				if (Inventory.isFull())
