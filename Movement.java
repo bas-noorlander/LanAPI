@@ -34,7 +34,6 @@ public class Movement {
 
 	}
 
-
 	/**
 	 * Sets the use of custom door objects.
 	 * Generally used if DPathNavigator cannot recognize a door.
@@ -57,47 +56,7 @@ public class Movement {
 			General.println("Unloaded custom doors.");
 		}
 	}
-
-	/**
-	 * Walks to the position using either DPathNavigator for close by precision or WebWalking for greater lengths.
-	 * 
-	 * Checks if run can be toggled.
-	 * 
-	 * @param posToWalk
-	 * @return if succesfully reached destination or not.
-	 */
-	//public static boolean walkTo(final Positionable posToWalk) {
-
-	//return walkToAccurate(posToWalk);
-	/*Antiban.doActivateRun();
-
-		int failsafe = 0;
-		while (!Player.getPosition().equals(posToWalk) && failsafe < 20) {
-
-			boolean faraway = false;// Player.getPosition().distanceTo(posToWalk) > 16 || posToWalk.getPosition().getPlane() != Player.getPosition().getPlane();// (!Projection.isInMinimap(Projection.tileToMinimap(posToWalk)));
-
-			if (faraway)  {
-				General.println("Using webwalking");
-				if (!WebWalking.walkTo(posToWalk)){
-					General.println("Webwalking failed");
-					walkToAccurate(posToWalk);
-				}
-			}else{// if (Projection.getPosition().distanceTo(posToWalk))
-				General.println("Using dpathnavigator");
-				walkToAccurate(posToWalk);
-			}
-			if (Timing.waitCondition(new Condition() {
-				public boolean active() {
-					return Player.getPosition().equals(posToWalk);
-				}}, General.random(1000, 2000)))
-				return true;
-
-			failsafe++;
-		}
-
-		return false;*/
-	//}
-
+	
 	/**
 	 * Walks to the position using either DPathNavigator for close by precision or WebWalking for greater lengths.
 	 * 
@@ -112,9 +71,9 @@ public class Movement {
 			Paint.destinationTile = (RSTile)posToWalk;
 
 		Antiban.doActivateRun();
-		
+
 		nav.setMaxDistance(20.0);
-		
+
 		int failsafe = 0;
 		while (!Player.getPosition().equals(posToWalk) && failsafe < 20) {
 
@@ -135,7 +94,7 @@ public class Movement {
 						Timing.waitCondition(new Condition() {
 							public boolean active() {
 								General.sleep(250);
-								return !Player.isMoving();
+								return Player.getPosition().equals(posToWalk);
 							}}, General.random(3000, 4000));
 
 						return true;
@@ -147,13 +106,12 @@ public class Movement {
 
 				if (nav.traverse(posToWalk)) {
 
-					Timing.waitCondition(new Condition() {
+					if (Timing.waitCondition(new Condition() {
 						public boolean active() {
 							General.sleep(250);
-							return !Player.isMoving();
-						}}, General.random(7000, 8000));
-
-					return true;
+							return Player.getPosition().equals(posToWalk);
+						}}, General.random(1000, 2000))) 
+						return true;
 				}
 			}
 			failsafe++;
@@ -175,22 +133,24 @@ public class Movement {
 		General.println("Walking using hand-made paths.");
 
 		for (int i = 0; i < path.length; i++) {
+			
+			final RSTile tile = path[i];
 
 			Antiban.doActivateRun();
 
-			Paint.destinationTile = path[i];
+			Paint.destinationTile = tile;
 
-			if (canReach(path[i])){
-				Walking.blindWalkTo(path[i]);
+			if (canReach(tile)){
+				Walking.blindWalkTo(tile);
 			} else {
-				nav.traverse(path[i]);
+				nav.traverse(tile);
 			}
 
 			Timing.waitCondition(new Condition() {
 				public boolean active() {
-					General.sleep(250);
-					return !Player.isMoving();
-				}}, General.random(7000, 8000));
+					General.sleep(50);
+					return Player.getPosition().distanceTo(tile) < 5;
+				}}, General.random(10000, 12000));
 		}
 
 		return true;
