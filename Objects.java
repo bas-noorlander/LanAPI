@@ -3,7 +3,6 @@ package scripts.LanAPI;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.Camera;
-import org.tribot.api2007.Player;
 import org.tribot.api2007.Projection;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSObject;
@@ -210,10 +209,6 @@ public class Objects {
 			return false;
 
 		if (!Projection.isInViewport(object.getModel().getCentrePoint())) {
-
-			if (Player.getPosition().distanceTo(object) > 3 || !Movement.canReach(object))
-				Movement.walkTo(object.getPosition());
-
 			Camera.turnToTile(object);
 		}
 
