@@ -7,6 +7,7 @@ import org.tribot.api2007.GameTab;
 import org.tribot.api2007.Inventory;
 import org.tribot.api2007.GameTab.TABS;
 import org.tribot.api2007.ext.Filters;
+import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.types.RSNPC;
 
 /**
@@ -34,19 +35,23 @@ public class Combat {
 
 		TABS oldTab = GameTab.getOpen();
 		GameTab.open(TABS.INVENTORY);
-		boolean reset = false;
-
-		while (org.tribot.api2007.Combat.getHPRatio() <= eatAtPercentage) {
-
-			if (Clicking.click(Inventory.find(Filters.Items.nameEquals(foodName)))) {
-				General.sleep(100,200);;
+		
+		RSItem[] food = Inventory.find(Filters.Items.nameEquals(foodName));
+		
+		if (food != null) {
+			
+			for (RSItem f : food) {
+				
+				if (org.tribot.api2007.Combat.getHPRatio() > eatAtPercentage)
+					break;
+				
+				if (f.click())
+					General.sleep(100,200);
 			}
-
-			if (!reset) {
-				Antiban.getUtil().INT_TRACKER.NEXT_EAT_AT.reset();
-				reset = true;
-			}
+			
+			Antiban.getUtil().INT_TRACKER.NEXT_EAT_AT.reset();
 		}
+
 		GameTab.open(oldTab);
 	}
 
@@ -88,7 +93,7 @@ public class Combat {
 			}
 
 			if (!hoverAndAttackNextTarget || !Antiban.mayHoverNextObject())
-				continue;
+				break;
 
 			if (npcs.length > i+1) {
 
@@ -105,7 +110,7 @@ public class Combat {
 
 						General.sleep(190, 310);
 					} else {
-						continue;
+						break;
 					}
 				}
 
