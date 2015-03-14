@@ -19,12 +19,29 @@ public class Skills {
 	 * Make sure to call this AFTER login.
 	 */
 	public static void setStartSkills() {
+		setStartSkills(SKILLS.values());
+	}
+	
+	/**
+	 * Save the amount of XP of specific skills so we can look back at it later (for paint, antiban etc)
+	 * Make sure to call this AFTER login.
+	 * @param skills - array of skills to save.
+	 */
+	public static void setStartSkills(SKILLS[] skills) {
 
 		startSkillInfo.clear();
 
-		for (SKILLS skill : SKILLS.values()) {
+		for (SKILLS skill : skills) {
 			startSkillInfo.put(skill, org.tribot.api2007.Skills.getXP(skill));
 		}
+	}
+	
+	/**
+	 * Get the list of all skills and start XP which were set by setStartSkills()
+	 * @return the amount of xp
+	 */
+	public static LinkedHashMap<SKILLS, Integer> getStartSkills() {
+		return startSkillInfo;
 	}
 
 	/**
@@ -33,7 +50,20 @@ public class Skills {
 	 * @return the amount of xp
 	 */
 	public static int getStartXP(SKILLS skill) {
-		return startSkillInfo.get(skill);
+		if (startSkillInfo.containsKey(skill))
+			return startSkillInfo.get(skill);
+		return 0;
+	}
+	
+	/**
+	 * Get's the amount of XP we gained in a skill.
+	 * Make sure setStartSkills() was called on this skill.
+	 * 
+	 * @param skill to check
+	 * @return true if xp was gained, false otherwise.
+	 */
+	public static int getReceivedXP(SKILLS skill) {
+		return org.tribot.api2007.Skills.getXP(skill) - getStartXP(skill);
 	}
 
 	/**
@@ -42,7 +72,7 @@ public class Skills {
 	 * @return true if xp was gained, false otherwise.
 	 */
 	public static boolean hasReceivedXP(SKILLS skill) {
-		return org.tribot.api2007.Skills.getXP(skill) > startSkillInfo.get(skill);
+		return getReceivedXP(skill) > 0;
 	}
 
 	/**
