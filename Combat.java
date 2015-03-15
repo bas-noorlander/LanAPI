@@ -3,9 +3,7 @@ package scripts.LanAPI;
 import org.tribot.api.Clicking;
 import org.tribot.api.General;
 import org.tribot.api2007.Camera;
-import org.tribot.api2007.GameTab;
 import org.tribot.api2007.Inventory;
-import org.tribot.api2007.GameTab.TABS;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.types.RSNPC;
@@ -32,9 +30,6 @@ public class Combat {
 	public static void checkAndEat(final String foodName) {
 
 		int eatAtPercentage = Antiban.getUtil().INT_TRACKER.NEXT_EAT_AT.next();
-
-		TABS oldTab = GameTab.getOpen();
-		GameTab.open(TABS.INVENTORY);
 		
 		RSItem[] food = Inventory.find(Filters.Items.nameEquals(foodName));
 		
@@ -51,8 +46,6 @@ public class Combat {
 			
 			Antiban.getUtil().INT_TRACKER.NEXT_EAT_AT.reset();
 		}
-
-		GameTab.open(oldTab);
 	}
 
 	/**
