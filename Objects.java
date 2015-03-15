@@ -132,24 +132,16 @@ public class Objects {
 	}
 
 	/**
-	 * Interacts with the nearest object based on its location.
-	 * 
-	 * @param location, the location is object is at
-	 * @param action, the action we should use.
-	 */
-	public static boolean interact(final RSTile location, final String action) {
-
-		return interact(getAt(location), action);
-	}
-
-	/**
 	 * Interacts with the nearest object based on its actions.
 	 * 
 	 * @param action, the action we should use.
 	 */
 	public static boolean interact(final String action) {
-
-		return interact(findNearest(action, true), action);
+		RSObject obj = findNearest(action, true);
+		if (obj != null)
+			return interact(obj, action);
+		
+		return false;
 	}
 
 	/**
@@ -159,8 +151,11 @@ public class Objects {
 	 * @param action, the action we should use.
 	 */
 	public static boolean interact(final String name, final String action) {
-
-		return interact(findNearest(name), action);
+		RSObject obj = findNearest(name);
+		if (obj != null)
+			return interact(obj, action);
+		
+		return false;
 	}
 
 	/**
@@ -170,8 +165,11 @@ public class Objects {
 	 * @param action, the action we should use.
 	 */
 	public static boolean interact(final int modelPoints, final String action) {
-
-		return interact(findNearest(modelPoints), action);
+		RSObject obj = findNearest(modelPoints);
+		if (obj != null)
+			return interact(obj, action);
+		
+		return false;
 	}
 
 	/**
@@ -181,8 +179,11 @@ public class Objects {
 	 * @param location, the location of the object
 	 */
 	public static boolean interact(final String action, final RSTile location) {
+		RSObject obj = getAt(location);
+		if (obj != null)
+			return interact(obj, action);
 		
-		return interact(getAt(location), action);
+		return false;
 	}
 
 	/**
@@ -193,8 +194,11 @@ public class Objects {
 	 * @deprecated Because Object IDs should NOT be used!
 	 */
 	public static boolean interactbyId(final int id, final String action) {
-
-		return interact(findNearestById(id), action);
+		RSObject obj = findNearestById(id);
+		if (obj != null)
+			return interact(obj, action);
+		
+		return false;
 	}
 
 	/**

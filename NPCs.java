@@ -101,8 +101,11 @@ public class NPCs {
 	 * @param name
 	 */
 	public static boolean talkTo(final String name) {
-
-		return talkTo(findNearest(name));
+		RSNPC npc = findNearest(name);
+		if (npc != null)
+			return talkTo(npc);
+		
+		return false;
 	}
 
 	/**
@@ -112,8 +115,11 @@ public class NPCs {
 	 * @param contains - if true, will search for npcs who have the action, if false will search for npcs who do not.
 	 */
 	public static boolean talkTo(final String action, final boolean contains) {
-
-		return talkTo(findNearest(action, contains));
+		RSNPC npc = findNearest(action, contains);
+		if (npc != null)
+			return talkTo(npc);
+		
+		return false;
 	}
 
 	/**
@@ -122,8 +128,11 @@ public class NPCs {
 	 * @param modelPoints - the amount of points the npc has.
 	 */
 	public static boolean talkTo(final int modelPoints) {
-
-		return talkTo(findNearest(modelPoints));
+		RSNPC npc = findNearest(modelPoints);
+		if (npc != null)
+			return talkTo(npc);
+		
+		return false;
 	}
 
 	/**
