@@ -56,6 +56,9 @@ public class Looting {
 				
 				if (Inventory.isFull())
 					return false;
+				
+				if (!Movement.canReach(item))
+					continue;
 
 				Camera.turnToTile(item);
 				item.setClickHeight(addHeight);
