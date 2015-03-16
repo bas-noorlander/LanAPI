@@ -54,7 +54,8 @@ public class Looting {
 			
 			for (final RSGroundItem item : items) {
 				
-				if (Inventory.isFull())
+				// If the item stacks and we have one already, we should pick it up even if the inventory is full.
+				if (Inventory.isFull() && (item.getStack() == 1 || Inventory.find(item.getID()).length == 0))
 					return false;
 				
 				if (!Movement.canReach(item))
