@@ -3,7 +3,9 @@ package scripts.LanAPI;
 import org.tribot.api.Clicking;
 import org.tribot.api.General;
 import org.tribot.api2007.Camera;
+import org.tribot.api2007.GameTab;
 import org.tribot.api2007.Inventory;
+import org.tribot.api2007.GameTab.TABS;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.types.RSNPC;
@@ -33,18 +35,17 @@ public class Combat {
 		
 		RSItem[] food = Inventory.find(Filters.Items.nameEquals(foodName));
 		
-		if (food != null) {
+		if (food != null && food.length > 0) {
 			
-			for (RSItem f : food) {
+			if (org.tribot.api2007.Combat.getHPRatio() <= eatAtPercentage || Inventory.isFull()) {
 				
-				if (org.tribot.api2007.Combat.getHPRatio() > eatAtPercentage)
-					break;
+				GameTab.open(TABS.INVENTORY);
 				
-				if (f.click())
-					General.sleep(100,200);
+				if (Clicking.click(food[0]))
+					General.sleep(200, 300);
+				
+				Antiban.getUtil().INT_TRACKER.NEXT_EAT_AT.reset();
 			}
-			
-			Antiban.getUtil().INT_TRACKER.NEXT_EAT_AT.reset();
 		}
 	}
 
@@ -101,7 +102,7 @@ public class Combat {
 
 						Clicking.hover(hoverNPC);
 
-						General.sleep(190, 310);
+						General.sleep(100, 200);
 					} else {
 						break;
 					}
@@ -114,7 +115,7 @@ public class Combat {
 					Camera.turnToTile(hoverNPC);
 
 				for (int it = 0; it < 20; it++) {
-					if (!hoverNPC.isInCombat() && hoverNPC.isValid() && !isUnderAttack()) {
+					if (!hoverNPC.isInCombat() && hoverNPC.isValid() && !isUnderAttack() && Movement.canReach(hoverNPC)) {
 						if (Clicking.click("Attack", hoverNPC)) {
 							continue;
 						}
