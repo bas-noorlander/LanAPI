@@ -22,15 +22,10 @@ import org.tribot.api2007.types.RSNPC;
 public class Antiban {
 
 	private static ABCUtil abcUtil;
-	private static String statusText = "";
 
 	// singleton
 	public static ABCUtil getUtil() {
 		return abcUtil = abcUtil == null ? new ABCUtil() : abcUtil;
-	}
-
-	public static String getStatusText() {
-		return statusText;
 	}
 
 	/**
@@ -56,7 +51,7 @@ public class Antiban {
 		if (!Game.isRunOn() && Game.getRunEnergy() >= getUtil().INT_TRACKER.NEXT_RUN_AT.next()) {
 
 			getUtil().INT_TRACKER.NEXT_RUN_AT.reset();
-			statusText = "Antiban - Activate Run";
+			Paint.statusText = "Antiban - Activate Run";
 
 			return Options.setRunOn(true);
 		}
@@ -145,7 +140,7 @@ public class Antiban {
 	 */
 	public static void doDelayForNewObject() {
 
-		statusText = "Antiban - Delay";
+		Paint.statusText = "Antiban - Delay";
 
 		General.sleep(getUtil().DELAY_TRACKER.NEW_OBJECT_COMBAT.next());
 		getUtil().DELAY_TRACKER.NEW_OBJECT_COMBAT.reset();
@@ -157,7 +152,7 @@ public class Antiban {
 	 */
 	public static void doDelayForSwitchObject() {
 
-		statusText = "Antiban - Delay";
+		Paint.statusText = "Antiban - Delay";
 
 		General.sleep(getUtil().DELAY_TRACKER.SWITCH_OBJECT_COMBAT.next());
 		getUtil().DELAY_TRACKER.SWITCH_OBJECT_COMBAT.reset();

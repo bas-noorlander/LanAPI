@@ -22,6 +22,8 @@ public class Magic {
 	 * @return true if in lumbridge, false if otherwise.
 	 */
 	public static boolean castLumbridgeHomeTeleport() {
+		
+		Paint.statusText = "Casting Home Teleport.";
 
 		GameTab.open(TABS.MAGIC);
 		if (org.tribot.api2007.Magic.selectSpell("Lumbridge Home Teleport")) {

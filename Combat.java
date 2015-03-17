@@ -72,6 +72,8 @@ public class Combat {
 
 			if (!attackNPC.isOnScreen())
 				Camera.turnToTile(attackNPC);
+			
+			Paint.statusText = "Attacking";
 
 			// as long as we both are alive and not in combat, we try to attack him.
 			for (int it = 0; it < 20; it++) {
@@ -115,6 +117,8 @@ public class Combat {
 				// Here we killed our current npc, lets check if our hover target is still alive and out of combat
 				if (!hoverNPC.isOnScreen())
 					Camera.turnToTile(hoverNPC);
+				
+				Paint.statusText = "Attacking";
 
 				for (int it = 0; it < 20; it++) {
 					if (!hoverNPC.isInCombat() && hoverNPC.isValid() && !isUnderAttack() && Movement.canReach(hoverNPC)) {
