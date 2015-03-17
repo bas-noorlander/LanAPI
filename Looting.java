@@ -1,5 +1,6 @@
 package scripts.LanAPI;
 
+import org.tribot.api.DynamicClicking;
 import org.tribot.api.General;
 import org.tribot.api.Timing;
 import org.tribot.api.types.generic.Condition;
@@ -61,14 +62,16 @@ public class Looting {
 				if (!Movement.canReach(item))
 					continue;
 
-				Camera.turnToTile(item);
+				if (!item.isOnScreen())
+					Camera.turnToTile(item);
+				
 				item.setClickHeight(addHeight);
 
 				final int preOwned = Inventory.getCount(item.getID());
 				final RSItemDefinition itemDef = item.getDefinition();
 
 				// Apparently just 'Take' would causes issues with multiple items on 1 tile.
-				if (itemDef != null && item.click("Take "+ itemDef.getName())) {
+				if (itemDef != null && DynamicClicking.clickRSGroundItem(item,"Take "+ itemDef.getName())) {
 
 					return Timing.waitCondition(new Condition() {
 						public boolean active() {

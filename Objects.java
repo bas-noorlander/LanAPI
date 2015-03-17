@@ -1,5 +1,6 @@
 package scripts.LanAPI;
 
+import org.tribot.api.DynamicClicking;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.Camera;
@@ -216,6 +217,6 @@ public class Objects {
 			Camera.turnToTile(object);
 		}
 
-		return object.click(action);
+		return DynamicClicking.clickRSObject(object, action);
 	}
 }

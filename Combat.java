@@ -1,6 +1,7 @@
 package scripts.LanAPI;
 
 import org.tribot.api.Clicking;
+import org.tribot.api.DynamicClicking;
 import org.tribot.api.General;
 import org.tribot.api2007.Camera;
 import org.tribot.api2007.GameTab;
@@ -75,10 +76,10 @@ public class Combat {
 			// as long as we both are alive and not in combat, we try to attack him.
 			for (int it = 0; it < 20; it++) {
 				if (!attackNPC.isInCombat() && !isUnderAttack() && attackNPC.isValid() && Movement.canReach(attackNPC)) {
-					if (Clicking.click("Attack", attackNPC)) {
-						General.sleep(250,320);
-					}
-				} else break;
+					DynamicClicking.clickRSNPC(attackNPC, "Attack");
+					General.sleep(250,320);
+				} else 
+					break;
 			}
 
 			// someone stole our npc =(
@@ -117,12 +118,10 @@ public class Combat {
 
 				for (int it = 0; it < 20; it++) {
 					if (!hoverNPC.isInCombat() && hoverNPC.isValid() && !isUnderAttack() && Movement.canReach(hoverNPC)) {
-						if (Clicking.click("Attack", hoverNPC)) {
-							continue;
-						}
-					} else break;
-
-					General.sleep(250,320);
+						DynamicClicking.clickRSNPC(hoverNPC, "Attack");
+						General.sleep(250,320);
+					} else 
+						break;
 				}
 			}
 		}
