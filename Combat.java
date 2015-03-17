@@ -74,7 +74,7 @@ public class Combat {
 
 			// as long as we both are alive and not in combat, we try to attack him.
 			for (int it = 0; it < 20; it++) {
-				if (!attackNPC.isInCombat()  && !isUnderAttack() && attackNPC.isValid()) {
+				if (!attackNPC.isInCombat() && !isUnderAttack() && attackNPC.isValid() && Movement.canReach(attackNPC)) {
 					if (Clicking.click("Attack", attackNPC)) {
 						General.sleep(250,320);
 					}
@@ -90,9 +90,10 @@ public class Combat {
 				break;
 
 			if (npcs.length > i+1) {
-
+				
 				final RSNPC hoverNPC = npcs[i+1];
-
+			
+				// Hovering over next npc as long as we are still attacking the current npc and hover npc is valid.
 				while (attackNPC.isInteractingWithMe()) {
 
 					if (!hoverNPC.isInCombat() && hoverNPC.isValid() && Movement.canReach(hoverNPC)) {
