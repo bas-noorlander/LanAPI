@@ -79,7 +79,7 @@ public class Looting {
 						public boolean active() {
 							General.sleep(50);
 							return preOwned > 0 ? Inventory.getCount(item.getID()) > preOwned : Inventory.find(item.getID()).length > 0;
-						}}, General.random(1000, 2000));
+						}}, General.random(3000, 4000));
 				}
 			}
 		}
