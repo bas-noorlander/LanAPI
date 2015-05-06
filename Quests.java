@@ -30,7 +30,7 @@ enum QuestStatus {
  * @author Laniax
  *
  */
-public class Quests implements EventBlockingOverride{
+public class Quests implements EventBlockingOverride {
 
 	private static final int QUEST_INTERFACE_MASTER = 274;
 	private static final int QUEST_INTERFACE_SCROLLBAR = 13;

@@ -97,7 +97,7 @@ public class Combat {
 				final RSNPC hoverNPC = npcs[i+1];
 			
 				// Hovering over next npc as long as we are still attacking the current npc and hover npc is valid.
-				while (attackNPC.isInteractingWithMe()) {
+				while (org.tribot.api2007.Combat.getAttackingEntities()[0] != null && org.tribot.api2007.Combat.getAttackingEntities()[0] == attackNPC) {
 
 					if (!hoverNPC.isInCombat() && hoverNPC.isValid() && Movement.canReach(hoverNPC)) {
 
