@@ -8,6 +8,7 @@ import org.tribot.api2007.GameTab;
 import org.tribot.api2007.Inventory;
 import org.tribot.api2007.GameTab.TABS;
 import org.tribot.api2007.ext.Filters;
+import org.tribot.api2007.types.RSCharacter;
 import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.types.RSNPC;
 
@@ -24,7 +25,15 @@ public class Combat {
 	 * @return true if we are under attack
 	 */
 	public static boolean isUnderAttack() {
-		return org.tribot.api2007.Combat.getAttackingEntities().length > 0;
+		return getAttackingEntities().length > 0;
+	}
+	
+	/**
+	 * Quick method equal to org.tribot.api2007.Combat.getAttackingEntities().
+	 * @return
+	 */
+	public static RSCharacter[] getAttackingEntities() {
+		return org.tribot.api2007.Combat.getAttackingEntities();
 	}
 
 	/**
@@ -95,9 +104,11 @@ public class Combat {
 			if (npcs.length > i+1) {
 				
 				final RSNPC hoverNPC = npcs[i+1];
+				
+				RSCharacter[] attackingCharacters = getAttackingEntities();
 			
 				// Hovering over next npc as long as we are still attacking the current npc and hover npc is valid.
-				while (org.tribot.api2007.Combat.getAttackingEntities()[0] != null && org.tribot.api2007.Combat.getAttackingEntities()[0] == attackNPC) {
+				while (attackingCharacters.length > 0 && attackingCharacters[0] == attackNPC) {
 
 					if (!hoverNPC.isInCombat() && hoverNPC.isValid() && Movement.canReach(hoverNPC)) {
 
@@ -110,6 +121,8 @@ public class Combat {
 					} else {
 						break;
 					}
+					
+					attackingCharacters = getAttackingEntities();
 				}
 
 				Antiban.doDelayForSwitchObject();
