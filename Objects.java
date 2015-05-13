@@ -1,11 +1,14 @@
 package scripts.LanAPI;
 
+import java.awt.Point;
+
 import org.tribot.api.DynamicClicking;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.Camera;
 import org.tribot.api2007.Projection;
 import org.tribot.api2007.ext.Filters;
+import org.tribot.api2007.types.RSModel;
 import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.types.RSTile;
 
@@ -213,8 +216,13 @@ public class Objects {
 		if (object == null)
 			return false;
 
-		if (!Projection.isInViewport(object.getModel().getCentrePoint())) {
-			Camera.turnToTile(object);
+		RSModel model = object.getModel();
+		
+		if (model != null) {
+			Point modelCenter = model.getCentrePoint();
+			if (modelCenter != null && !Projection.isInViewport(modelCenter)) {
+				Camera.turnToTile(object);
+			}
 		}
 
 		return DynamicClicking.clickRSObject(object, action);
