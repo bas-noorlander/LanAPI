@@ -4,6 +4,7 @@ import java.awt.Point;
 import java.awt.Polygon;
 
 import org.tribot.api.Screen;
+import org.tribot.api.interfaces.Positionable;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.Projection;
 import org.tribot.api2007.types.RSArea;
@@ -67,5 +68,11 @@ public class Projecting {
 
 		return null;
 	}
+	
+	public static boolean isInMinimap(Positionable t) {
+		
+		// minimap is 19 squares radius around you(center)
+		return Player.getPosition().distanceTo(t) < 20;
 
+	}
 }

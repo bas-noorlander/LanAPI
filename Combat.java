@@ -16,7 +16,7 @@ import org.tribot.api2007.types.RSNPC;
  * @author Laniax
  *
  */
-public class Combat {
+public abstract class Combat extends org.tribot.api2007.Combat{
 
 	/**
 	 * Checks if there is anything (or anyone) that is attacking us.
@@ -87,8 +87,8 @@ public class Combat {
 			// as long as we both are alive and not in combat, we try to attack him.
 			for (int it = 0; it < 20; it++) {
 				if (!attackNPC.isInCombat() && !isUnderAttack() && attackNPC.isValid() && Movement.canReach(attackNPC)) {
-					DynamicClicking.clickRSNPC(attackNPC, "Attack");
-					General.sleep(250,320);
+					if (DynamicClicking.clickRSNPC(attackNPC, "Attack"));
+						General.sleep(750,1320);
 				} else 
 					break;
 			}
