@@ -32,13 +32,17 @@ public class Antiban {
 	 * Do all the antiban actions we are supposed to do while idling.
 	 */
 	public static void doIdleActions() {
-		doCheckXP();
-		doRotateCamera();
-		doExamineObject();
-		doMouseLeaveGameApplet();
-		doMousePickUp();
-		doMouseRandomMovement();
-		doMouseRandomRightClick();
+		
+		SKILLS skillToCheck;
+		
+		SKILLS[] activeSkills = Skills.getAllSkillsWithIncrease();
+		if (activeSkills.length == 0) {
+			skillToCheck = SKILLS.values()[General.random(0, SKILLS.values().length)];
+		} else {
+			skillToCheck = activeSkills[General.random(0, activeSkills.length - 1)];
+		}
+		
+		abcUtil.performTimedActions(skillToCheck);
 	}
 
 	/**
@@ -76,7 +80,7 @@ public class Antiban {
 
 			for (RSNPC npc : npcs) {
 
-				if (npc.isInCombat() || !npc.isValid() || !Movement.canReach(npc))
+				if (npc.isInCombat() || !npc.isValid() || !Movement.canReach(npc) || npc.getInteractingCharacter() != null)
 					continue;
 
 				orderedNPCs.add(npc);
