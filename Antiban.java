@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 
 import org.tribot.api.General;
-import org.tribot.api.util.ABCUtil;
 import org.tribot.api2007.Game;
 import org.tribot.api2007.NPCs;
 import org.tribot.api2007.Options;
@@ -17,15 +16,14 @@ import org.tribot.api2007.types.RSNPC;
  * Helper class for Tribot's ABC system.
  * 
  * @author Laniax
- *
  */
-public class Antiban {
+public class Antiban extends org.tribot.api.util.ABCUtil {
 
-	private static ABCUtil abcUtil;
+	private static Antiban antiban;
 
 	// singleton
-	public static ABCUtil getUtil() {
-		return abcUtil = abcUtil == null ? new ABCUtil() : abcUtil;
+	public static Antiban getUtil() {
+		return antiban = antiban == null ? new Antiban() : antiban;
 	}
 
 	/**
@@ -38,11 +36,13 @@ public class Antiban {
 		SKILLS[] activeSkills = Skills.getAllSkillsWithIncrease();
 		if (activeSkills.length == 0) {
 			skillToCheck = SKILLS.values()[General.random(0, SKILLS.values().length)];
-		} else {
+		} else 
 			skillToCheck = activeSkills[General.random(0, activeSkills.length - 1)];
-		}
 		
-		abcUtil.performTimedActions(skillToCheck);
+		String preAntiban = Paint.statusText;
+		Paint.statusText = "Antiban";
+		antiban.performTimedActions(skillToCheck);
+		Paint.statusText = preAntiban;
 	}
 
 	/**
@@ -114,31 +114,6 @@ public class Antiban {
 	}
 
 	/**
-	 * Checks the xp in the GameTab.Skills of one of the skills we are currently training.
-	 * @return true if succesfully checked a skill
-	 */
-	public static boolean doCheckXP() {
-		SKILLS[] activeSkills = Skills.getAllSkillsWithIncrease();
-		if (activeSkills.length == 0)
-			return false;
-
-		SKILLS skillToCheck = activeSkills[General.random(0, activeSkills.length - 1)];
-
-		return getUtil().performXPCheck(skillToCheck);
-	}
-
-	/**
-	 * Rotates the camera for a random duration
-	 * @return true if succesfully rotated, false if not.
-	 */
-	public static boolean doRotateCamera() {
-
-		getUtil().performRotateCamera();
-
-		return true;
-	}
-
-	/**
 	 * Does a delay for a random amount of time.
 	 * Should be used when idling and a new object has spawned.
 	 */
@@ -161,56 +136,4 @@ public class Antiban {
 		General.sleep(getUtil().DELAY_TRACKER.SWITCH_OBJECT_COMBAT.next());
 		getUtil().DELAY_TRACKER.SWITCH_OBJECT_COMBAT.reset();
 	}
-
-	/**
-	 * Examines a random object
-	 * @return true if an object was examined.
-	 */
-	public static boolean doExamineObject() {
-
-		return getUtil().performExamineObject();
-
-	}
-
-	/**
-	 * Throws the cursor of the game window to simulate doing other work on the pc.
-	 * @return true if cursor was moved.
-	 */
-	public static boolean doMouseLeaveGameApplet() {
-
-		return getUtil().performLeaveGame();
-
-	}
-
-	/**
-	 * Move cursor as if a human picked up a mouse.
-	 * @return true if cursor was moved.
-	 */
-	public static boolean doMousePickUp() {
-
-		return getUtil().performPickupMouse();
-
-	}
-
-	/**
-	 * Move cursor randomly.
-	 * @return true if cursor was moved.
-	 */
-	public static boolean doMouseRandomMovement() {
-
-		return getUtil().performPickupMouse();
-
-	}
-
-	/**
-	 * Randomly right clicks somewhere in the game window
-	 * @return true if click succeeded.
-	 */
-	public static boolean doMouseRandomRightClick() {
-
-		return getUtil().performRandomRightClick();
-
-	}
-
-
 };
