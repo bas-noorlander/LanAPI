@@ -9,7 +9,7 @@ import org.tribot.api2007.types.RSItem;
 /**
  * @author Laniax
  */
-public class Banker { // Sadly, tribot's Banking class is declared final and cannot be extended.
+public class BankingHelper { // Sadly, tribot's Banking class is declared final and cannot be extended.
 
 	/** 
 	 * Fetches the item(s) from the bank.
