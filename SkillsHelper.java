@@ -3,6 +3,7 @@ package scripts.LanAPI;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
+import org.tribot.api2007.Skills;
 import org.tribot.api2007.Skills.SKILLS;
 
 
@@ -10,7 +11,7 @@ import org.tribot.api2007.Skills.SKILLS;
  * @author Laniax
  *
  */
-public class Skills {
+public class SkillsHelper {
 
 	public static LinkedHashMap<SKILLS, Integer> startSkillInfo = new LinkedHashMap<SKILLS, Integer>();
 
@@ -32,7 +33,7 @@ public class Skills {
 		startSkillInfo.clear();
 
 		for (SKILLS skill : skills) {
-			startSkillInfo.put(skill, org.tribot.api2007.Skills.getXP(skill));
+			startSkillInfo.put(skill, Skills.getXP(skill));
 		}
 	}
 	
@@ -63,7 +64,7 @@ public class Skills {
 	 * @return true if xp was gained, false otherwise.
 	 */
 	public static int getReceivedXP(SKILLS skill) {
-		return org.tribot.api2007.Skills.getXP(skill) - getStartXP(skill);
+		return Skills.getXP(skill) - getStartXP(skill);
 	}
 
 	/**

@@ -33,7 +33,7 @@ public class Antiban extends org.tribot.api.util.ABCUtil {
 		
 		SKILLS skillToCheck;
 		
-		SKILLS[] activeSkills = Skills.getAllSkillsWithIncrease();
+		SKILLS[] activeSkills = SkillsHelper.getAllSkillsWithIncrease();
 		if (activeSkills.length == 0) {
 			skillToCheck = SKILLS.values()[General.random(0, SKILLS.values().length)];
 		} else 
