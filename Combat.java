@@ -19,28 +19,10 @@ import org.tribot.api2007.types.RSNPC;
 public abstract class Combat extends org.tribot.api2007.Combat{
 
 	/**
-	 * Checks if there is anything (or anyone) that is attacking us.
-	 * Does not require the healthbar to be above our head.
-	 * 
-	 * @return true if we are under attack
-	 */
-	public static boolean isUnderAttack() {
-		return getAttackingEntities().length > 0;
-	}
-	
-	/**
-	 * Quick method equal to org.tribot.api2007.Combat.getAttackingEntities().
-	 * @return
-	 */
-	public static RSCharacter[] getAttackingEntities() {
-		return org.tribot.api2007.Combat.getAttackingEntities();
-	}
-
-	/**
 	 * Check if we have food and are in need of eating
 	 */
 	public static void checkAndEat(final String foodName) {
-
+		
 		int eatAtPercentage = Antiban.getUtil().INT_TRACKER.NEXT_EAT_AT.next();
 		
 		RSItem[] food = Inventory.find(Filters.Items.nameEquals(foodName));
