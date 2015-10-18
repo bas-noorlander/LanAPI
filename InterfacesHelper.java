@@ -14,7 +14,7 @@ import scripts.LanAPI.Constants.SpinningType;
  * @author Laniax
  *
  */
-public class Interfaces {
+public class InterfacesHelper { // Sadly, tribot's Interfaces class is declared final and cannot be extended.
 
 	private final static int MASTER_MAKE_X = 548;
 	private final static int CHILD_MAKE_X = 120;
@@ -79,11 +79,9 @@ public class Interfaces {
 
 
 	/**
-	 * 
 	 * Solver for the Combination Lock Door as seen in the Fremennik Trials quest.
 	 * 
 	 * @param answer, the answer to the riddle
-	 * @author Laniax
 	 */
 	public static boolean solveDoor(final String answer) {
 
