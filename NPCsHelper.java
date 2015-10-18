@@ -7,6 +7,7 @@ import org.tribot.api.types.generic.Condition;
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.Camera;
 import org.tribot.api2007.NPCChat;
+import org.tribot.api2007.NPCs;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSNPC;
@@ -17,7 +18,7 @@ import org.tribot.api2007.types.RSNPC;
  * @author Laniax
  *
  */
-public class NPCs {
+public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and cannot be extended.
 
 	/**
 	 * Find the nearest npc based on its name.
@@ -37,7 +38,7 @@ public class NPCs {
 	 * @return An array with all the npcs or an empty array if there are none.
 	 */
 	public static RSNPC[] findNear(final String name) {
-		return org.tribot.api2007.NPCs.findNearest(Filters.NPCs.nameEquals(name));
+		return NPCs.findNearest(Filters.NPCs.nameEquals(name));
 	}
 
 	/**
@@ -58,7 +59,7 @@ public class NPCs {
 	 * @return An array with all the npcs or an empty array if there are none.
 	 */
 	public static RSNPC[] findNear(final int modelPoints) {
-		return org.tribot.api2007.NPCs.findNearest(Filters.NPCs.modelIndexCount(modelPoints));
+		return NPCs.findNearest(Filters.NPCs.modelIndexCount(modelPoints));
 	}
 
 	/**
@@ -82,7 +83,7 @@ public class NPCs {
 	 */
 	public static RSNPC[] findNear(final String action, final boolean contains) {
 		Filter<RSNPC> filter = contains ? Filters.NPCs.actionsContains(action) : Filters.NPCs.actionsNotContains(action);
-		return org.tribot.api2007.NPCs.find(filter);
+		return NPCs.find(filter);
 	}
 
 	/**
@@ -92,7 +93,7 @@ public class NPCs {
 	 * @return An array with all the npcs or an empty array if there are none.
 	 */
 	public static RSNPC[] getAt(final Positionable pos) {
-		return org.tribot.api2007.NPCs.find(Filters.NPCs.tileEquals(pos));
+		return NPCs.find(Filters.NPCs.tileEquals(pos));
 	}
 
 	/**
@@ -156,7 +157,7 @@ public class NPCs {
 				Camera.turnToTile(npc);
 			}
 
-			if (npc.click("Talk-To")) {
+			if (npc.click("Talk-to")) {
 
 				if (Timing.waitCondition(new Condition() {
 					public boolean active() {
