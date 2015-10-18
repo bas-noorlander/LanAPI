@@ -1,6 +1,7 @@
 package scripts.LanAPI;
 
 import org.tribot.api.interfaces.Positionable;
+import org.tribot.api2007.Players;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSPlayer;
 
@@ -10,7 +11,7 @@ import org.tribot.api2007.types.RSPlayer;
  * @author Laniax
  *
  */
-public class Players {
+public class PlayersHelper { // Sadly, tribot's Players class is declared final and cannot be extended.
 
 	/**
 	 * Find the nearest player based on its name.
@@ -30,7 +31,7 @@ public class Players {
 	 * @return An array with all the players or an empty array if there are none.
 	 */
 	public static RSPlayer[] findNear(final String name) {
-		return org.tribot.api2007.Players.findNearest(Filters.Players.nameEquals(name));
+		return Players.findNearest(Filters.Players.nameEquals(name));
 	}
 	
 	/**
@@ -51,7 +52,7 @@ public class Players {
 	 * @return An array with all the players or an empty array if there are none.
 	 */
 	public static RSPlayer[] findNear(final Positionable pos) {
-		return org.tribot.api2007.Players.findNearest(Filters.Players.tileEquals(pos));
+		return Players.findNearest(Filters.Players.tileEquals(pos));
 	}
 
 }
