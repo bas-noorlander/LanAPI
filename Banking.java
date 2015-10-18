@@ -2,7 +2,6 @@ package scripts.LanAPI;
 
 import org.tribot.api.General;
 import org.tribot.api.Timing;
-import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Inventory;
 import org.tribot.api2007.WebWalking;
 import org.tribot.api2007.types.RSItem;
@@ -35,13 +34,7 @@ public class Banking {
 
 				// Pin is handled by Tribot.
 
-				Timing.waitCondition(new Condition() {
-					public boolean active() {
-						General.sleep(50);
-						return org.tribot.api2007.Banking.isBankScreenOpen();
-					}}, General.random(1000, 2000)
-						);
-
+				Timing.waitCondition(Condition.UntilBankOpen, General.random(1000, 2000));
 
 				for (final String name : names) {
 
