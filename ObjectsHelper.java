@@ -6,6 +6,7 @@ import org.tribot.api.DynamicClicking;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.Camera;
+import org.tribot.api2007.Objects;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.Projection;
 import org.tribot.api2007.ext.Filters;
@@ -17,7 +18,7 @@ import org.tribot.api2007.types.RSTile;
  * @author Laniax
  *
  */
-public class Objects {
+public class ObjectsHelper { // Sadly, tribot's Objects class is declared final and cannot be extended.
 
 	/**
 	 * Find the object based on its location.
@@ -27,7 +28,7 @@ public class Objects {
 	 * 
 	 */
 	public static RSObject getAt(final Positionable location) {
-		RSObject[] res = org.tribot.api2007.Objects.getAt(location);
+		RSObject[] res = Objects.getAt(location);
 		return res.length > 0 ? res[0] : null;
 	}
 
@@ -57,7 +58,7 @@ public class Objects {
 	 * 
 	 */
 	public static RSObject[] findNear(final int modelPoints) {
-		return org.tribot.api2007.Objects.findNearest(19, Filters.Objects.modelIndexCount(modelPoints));
+		return Objects.findNearest(19, Filters.Objects.modelIndexCount(modelPoints));
 	}
 	
 	/**
@@ -83,7 +84,7 @@ public class Objects {
 	 */
 	public static RSObject[] findNear(final String action, final boolean contains) {		
 		Filter<RSObject> filter = contains ? Filters.Objects.actionsContains(action) : Filters.Objects.actionsNotContains(action);
-		return org.tribot.api2007.Objects.find(19, filter);
+		return Objects.find(19, filter);
 	}
 
 	/**
@@ -106,7 +107,7 @@ public class Objects {
 	 * @return An array with all the objects or an empty array if there are none.
 	 */
 	public static RSObject[] findNear(final String name) {
-		return org.tribot.api2007.Objects.findNearest(19, Filters.Objects.nameEquals(name));
+		return Objects.findNearest(19, Filters.Objects.nameEquals(name));
 	}
 
 	/**
@@ -133,7 +134,7 @@ public class Objects {
 	 * @deprecated Because Object IDs should NOT be used!
 	 */
 	public static RSObject[] findNearById(final int id) {
-		return org.tribot.api2007.Objects.findNearest(19, Filters.Objects.idEquals(id));
+		return Objects.findNearest(19, Filters.Objects.idEquals(id));
 	}
 	
 	/**
@@ -142,7 +143,7 @@ public class Objects {
 	 * @param action, the action we should use.
 	 */
 	public static boolean interact(final RSTile location, final String action) {
-		RSObject obj = Objects.getAt(location);
+		RSObject obj = ObjectsHelper.getAt(location);
 		if (obj != null)
 			return interact(obj, action);
 		

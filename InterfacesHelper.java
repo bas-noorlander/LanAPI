@@ -48,7 +48,7 @@ public class InterfacesHelper { // Sadly, tribot's Interfaces class is declared 
 	public static boolean handleSpinningWheel(SpinningType typeToString, int amount) {
 
 		while (org.tribot.api2007.Interfaces.get(MASTER_SPINNING_WHEEL) == null) {
-			Objects.interact("Spin");
+			ObjectsHelper.interact("Spin");
 		}
 
 		General.sleep(1500, 3000);
