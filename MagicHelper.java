@@ -14,7 +14,7 @@ import scripts.LanAPI.Constants.Locations;
  * @author Laniax
  *
  */
-public class Magic {
+public class MagicHelper { // Sadly, tribot's Magic class is declared final and cannot be extended.
 
 	/**
 	 *  Casts the lumbridge home teleport and checks if it succeeded.
