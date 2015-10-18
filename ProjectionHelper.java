@@ -16,7 +16,7 @@ import org.tribot.api2007.types.RSTile;
  * @author Laniax
  *
  */
-public class Projecting {
+public class ProjectionHelper { // Sadly, tribot's Projection class is declared final and cannot be extended.
 
 	public static RSTile getTileAtPoint(Point p) {
 
