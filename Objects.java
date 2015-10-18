@@ -6,6 +6,7 @@ import org.tribot.api.DynamicClicking;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.Camera;
+import org.tribot.api2007.Player;
 import org.tribot.api2007.Projection;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSModel;
@@ -58,7 +59,7 @@ public class Objects {
 	public static RSObject[] findNear(final int modelPoints) {
 		return org.tribot.api2007.Objects.findNearest(19, Filters.Objects.modelIndexCount(modelPoints));
 	}
-
+	
 	/**
 	 * Find the nearest object based on the its actions.
 	 * Distance is set to 19.
@@ -133,6 +134,19 @@ public class Objects {
 	 */
 	public static RSObject[] findNearById(final int id) {
 		return org.tribot.api2007.Objects.findNearest(19, Filters.Objects.idEquals(id));
+	}
+	
+	/**
+	 * Interacts with the nearest object based on its actions.
+	 * 
+	 * @param action, the action we should use.
+	 */
+	public static boolean interact(final RSTile location, final String action) {
+		RSObject obj = Objects.getAt(location);
+		if (obj != null)
+			return interact(obj, action);
+		
+		return false;
 	}
 
 	/**
@@ -215,8 +229,12 @@ public class Objects {
 
 		if (object == null)
 			return false;
-
+		
 		RSModel model = object.getModel();
+		
+		if (Player.getPosition().distanceTo(object) > 5) {
+			Movement.walkTo(object);
+		}
 		
 		if (model != null) {
 			Point modelCenter = model.getCentrePoint();
