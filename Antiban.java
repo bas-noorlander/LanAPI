@@ -41,7 +41,7 @@ public class Antiban extends org.tribot.api.util.ABCUtil {
 		
 		String preAntiban = Paint.statusText;
 		Paint.statusText = "Antiban";
-		antiban.performTimedActions(skillToCheck);
+		getUtil().performTimedActions(skillToCheck);
 		Paint.statusText = preAntiban;
 	}
 
