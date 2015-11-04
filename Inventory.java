@@ -1,5 +1,8 @@
 package scripts.LanAPI;
 
+import org.tribot.api.types.generic.Filter;
+import org.tribot.api2007.types.RSItem;
+
 /**
  * @author Laniax
  */
@@ -30,6 +33,22 @@ public class Inventory extends org.tribot.api2007.Inventory {
 	 */
 	public static boolean hasItem(final int... itemIDs) {
 		
-		return Inventory.find(itemIDs).length > 0;
+		return Inventory.getCount(itemIDs) > 0;
+	}
+
+	/**
+	 * Returns the number of items in the inventory which are accepted by the filter.
+	 * @param filter
+	 * @return the number of items, takes stack size into account.
+	 */
+	public static int getCount(Filter<RSItem> filter) {
+
+		int result = 0;
+
+		for (RSItem item : Inventory.find(filter)) {
+			result += item.getStack();
+		}
+
+		return result;
 	}
 }
