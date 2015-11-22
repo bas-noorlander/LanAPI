@@ -39,6 +39,8 @@ public class Paint {
 	private static int pulseCounter = 0;
 	public static RSTile destinationTile = null;
 
+	public static long startTime = System.currentTimeMillis();
+
 	public static String statusText = "Starting";
 
 	/**
