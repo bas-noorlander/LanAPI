@@ -23,20 +23,18 @@ public abstract class Combat extends org.tribot.api2007.Combat{
 	 */
 	public static void checkAndEat(final String foodName) {
 		
-		int eatAtPercentage = Antiban.getUtil().INT_TRACKER.NEXT_EAT_AT.next();
-		
 		RSItem[] food = Inventory.find(Filters.Items.nameEquals(foodName));
 		
 		if (food != null && food.length > 0) {
 			
-			if (org.tribot.api2007.Combat.getHPRatio() <= eatAtPercentage || Inventory.isFull()) {
+			if (getHPRatio() <= Antiban.getEatPercentage() || Inventory.isFull()) {
 				
 				GameTab.open(TABS.INVENTORY);
 				
 				if (Clicking.click(food[0]))
 					General.sleep(200, 300);
-				
-				Antiban.getUtil().INT_TRACKER.NEXT_EAT_AT.reset();
+
+				Antiban.resetEatPercentage();
 			}
 		}
 	}
