@@ -21,6 +21,7 @@ public class ZipCompressor {
 
     /**
      * Zips the file to an archive.
+     *
      * @param inputPath
      * @param outputPath
      */
@@ -31,6 +32,7 @@ public class ZipCompressor {
 
     /**
      * Zips multiple files to an archive.
+     *
      * @param inputPaths
      * @param outputPath
      */

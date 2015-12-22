@@ -18,6 +18,7 @@ public final class Transmission {
 
     /**
      * Downloads a string from a text file.
+     *
      * @param url - the url to download from
      * @return a String with the downloaded data.
      */
@@ -38,8 +39,9 @@ public final class Transmission {
 
     /**
      * Download a file from a remote location.
+     *
      * @param remote - URL of the remote file
-     * @param local - The file where it should be stored locally.
+     * @param local  - The file where it should be stored locally.
      * @return true if successful, false otherwise.
      */
     public static boolean download(final String remote, final File local) {

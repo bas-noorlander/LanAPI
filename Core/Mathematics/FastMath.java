@@ -2,6 +2,7 @@ package scripts.LanAPI.Core.Mathematics;
 
 /**
  * Provides math logic which is generaly father then Math.
+ *
  * @author Laniax
  */
 public final class FastMath {
@@ -14,12 +15,12 @@ public final class FastMath {
     /**
      * Less precise Math.E but faster.
      */
-    public static final float E = (float)Math.E;
+    public static final float E = (float) Math.E;
 
     /**
      * Less precise Math.PI but faster.
      */
-    public static final float PI = (float)Math.PI;
+    public static final float PI = (float) Math.PI;
 
     /**
      * PI * 2
@@ -29,6 +30,7 @@ public final class FastMath {
 
     /**
      * Ensures that the value is between min and max
+     *
      * @param value
      * @param min
      * @param max
@@ -43,6 +45,7 @@ public final class FastMath {
 
     /**
      * Ensures that the value is between min and max
+     *
      * @param value
      * @param min
      * @param max
@@ -57,6 +60,7 @@ public final class FastMath {
 
     /**
      * Ensures that the value is between min and max
+     *
      * @param value
      * @param min
      * @param max
@@ -71,6 +75,7 @@ public final class FastMath {
 
     /**
      * Ensures that the value is between min and max
+     *
      * @param value
      * @param min
      * @param max
@@ -85,6 +90,7 @@ public final class FastMath {
 
     /**
      * Ensures that the value is between min and max
+     *
      * @param value
      * @param min
      * @param max
@@ -99,6 +105,7 @@ public final class FastMath {
 
     /**
      * Ensures that the value is between min and max
+     *
      * @param value
      * @param min
      * @param max

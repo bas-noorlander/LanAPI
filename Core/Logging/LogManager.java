@@ -8,7 +8,7 @@ import java.util.List;
 
 /**
  * Takes care of all the logging
- *
+ * <p>
  * Do not use this directly, use LogProxy instead.
  *
  * @author Laniax
@@ -36,7 +36,7 @@ public class LogManager {
         _builder.append("] ");
         _builder.append(String.format(message, args));
 
-        String result =_builder.toString();
+        String result = _builder.toString();
         _builder.setLength(0);
 
         return result;
@@ -44,7 +44,7 @@ public class LogManager {
 
     static void information(String source, String message, Object... args) {
         synchronized (_lock) {
-            for(ILogger log : _loggers) {
+            for (ILogger log : _loggers) {
 
                 String output = prepare(source, message, args);
                 log.writeInformation(output);
@@ -54,7 +54,7 @@ public class LogManager {
 
     static void warning(String source, String message, Object... args) {
         synchronized (_lock) {
-            for(ILogger log : _loggers) {
+            for (ILogger log : _loggers) {
 
                 String output = prepare(source, message, args);
                 log.writeWarning(output);
@@ -64,7 +64,7 @@ public class LogManager {
 
     static void error(String source, String message, Object... args) {
         synchronized (_lock) {
-            for(ILogger log : _loggers) {
+            for (ILogger log : _loggers) {
                 String output = prepare(source, message, args);
                 log.writeError(output);
             }
@@ -74,7 +74,7 @@ public class LogManager {
     static void debug(String source, String message, Object... args) {
 
         synchronized (_lock) {
-            for(ILogger log : _loggers) {
+            for (ILogger log : _loggers) {
                 String output = prepare(source, message, args);
                 log.writeDebug(output);
             }

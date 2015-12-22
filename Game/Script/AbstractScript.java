@@ -10,7 +10,9 @@ import org.tribot.script.interfaces.*;
 import scripts.LanAPI.Core.Logging.LogProxy;
 import scripts.LanAPI.Game.Concurrency.IStrategy;
 import scripts.LanAPI.Game.Concurrency.StrategyList;
-import scripts.LanAPI.Game.Painting.*;
+import scripts.LanAPI.Game.Painting.AbstractPaintInfo;
+import scripts.LanAPI.Game.Painting.PaintHelper;
+import scripts.LanAPI.Game.Painting.PaintString;
 
 import javax.swing.*;
 import java.awt.*;
@@ -32,6 +34,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
     private JFrame gui = null;
     private AbstractPaintInfo paintInfo = null;
+
     public abstract JFrame getGUI();
 
     /**
@@ -103,7 +106,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
         if (showPaint) {
 
-            Graphics2D g = (Graphics2D)g1;
+            Graphics2D g = (Graphics2D) g1;
 
             g.drawImage(paintInfo.getBackground(), paintInfo.getBackgroundPosition().x, paintInfo.getBackgroundPosition().y, null);
 
@@ -127,7 +130,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
     @Override
     public OVERRIDE_RETURN overrideMouseEvent(MouseEvent e) {
-        if ( gui != null && e.getID() == MouseEvent.MOUSE_CLICKED ) {
+        if (gui != null && e.getID() == MouseEvent.MOUSE_CLICKED) {
 
             if (paintInfo.getPaintToggleRectangle().contains(e.getPoint())) {
 
@@ -167,9 +170,13 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
     }
 
     // Unused overrides, feel free to override these in your script if you need them.
-    public void mouseReleased(Point point, int button, boolean isBot) {}
+    public void mouseReleased(Point point, int button, boolean isBot) {
+    }
+
     public void mouseMoved(Point point, boolean isBot) {
         PaintHelper.moveMouseTrail(point);
     }
-    public void mouseDragged(Point point, int button, boolean isBot) {}
+
+    public void mouseDragged(Point point, int button, boolean isBot) {
+    }
 }

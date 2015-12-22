@@ -2,6 +2,7 @@ package scripts.LanAPI.Core.Logging;
 
 /**
  * Interface for any text logger.
+ *
  * @author Laniax
  */
 public interface ILogger {

@@ -9,7 +9,7 @@ import java.util.List;
 
 /**
  * Takes care of all the frames the client or script produces
- *
+ * <p>
  * Do not use this directly.
  *
  * @author Laniax
@@ -32,7 +32,7 @@ public class FrameManager {
     public static void toFront() {
 
         synchronized (_lock) {
-            for(AbstractFrame frame : _frames) {
+            for (AbstractFrame frame : _frames) {
 
                 Frame gui;
                 if ((gui = frame.get()) != null) {
@@ -44,12 +44,13 @@ public class FrameManager {
 
     /**
      * Sets the window title of all registered frames.
+     *
      * @param title
      */
     public static void setTitle(String title) {
 
         synchronized (_lock) {
-            for(AbstractFrame frame : _frames) {
+            for (AbstractFrame frame : _frames) {
 
                 Frame gui;
                 if ((gui = frame.get()) != null) {

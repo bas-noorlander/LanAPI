@@ -1,9 +1,5 @@
 package scripts.LanAPI.Game.Antiban;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import org.tribot.api.General;
 import org.tribot.api2007.Game;
 import org.tribot.api2007.NPCs;
@@ -11,9 +7,13 @@ import org.tribot.api2007.Options;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.Skills.SKILLS;
 import org.tribot.api2007.types.RSNPC;
-import scripts.LanAPI.Game.Movement.Movement;
 import scripts.LanAPI.Game.Helpers.SkillsHelper;
+import scripts.LanAPI.Game.Movement.Movement;
 import scripts.LanAPI.Game.Painting.PaintHelper;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * Helper class for Tribot's ABC system.

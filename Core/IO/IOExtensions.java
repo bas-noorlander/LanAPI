@@ -16,6 +16,7 @@ public class IOExtensions {
 
     /**
      * Gets a SHA-1 hash of the file.
+     *
      * @param file the file to get the hash from.
      * @return the hash of the file, or an empty string if unsuccessful.
      */
@@ -37,7 +38,7 @@ public class IOExtensions {
 
             result = DatatypeConverter.printHexBinary(dg.digest());
             fis.close();
-        } catch(NoSuchAlgorithmException | IOException e) {
+        } catch (NoSuchAlgorithmException | IOException e) {
             log.error("Failed to generate SHA1 for file.");
         }
 
@@ -46,7 +47,8 @@ public class IOExtensions {
 
     /**
      * Serialize the object into the file.
-     * @param obj the object to serialize
+     *
+     * @param obj        the object to serialize
      * @param outputFile the file where the data will be written in
      */
     public static boolean Serialize(Object obj, File outputFile) {
@@ -78,6 +80,7 @@ public class IOExtensions {
 
     /**
      * Deserializes an object from the file.
+     *
      * @param inputFile the file to deserialize
      * @return the object which was deserialized
      */

@@ -17,7 +17,7 @@ public class PaintString {
 
     public PaintString(String str) {
 
-        this(str, new Point(0,0));
+        this(str, new Point(0, 0));
     }
 
     public PaintString(String str, Point pos) {

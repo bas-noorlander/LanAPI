@@ -13,6 +13,7 @@ public class Bag {
 
     /**
      * Returns the amount of items in the bag
+     *
      * @return
      */
     public int getCount() {
@@ -21,6 +22,7 @@ public class Bag {
 
     /**
      * Returns if the bag is empty or not
+     *
      * @return
      */
     public boolean isEmpty() {
@@ -29,6 +31,7 @@ public class Bag {
 
     /**
      * Adds a item to the bag
+     *
      * @param name
      * @param value
      * @return true is successfully added, false if the key was already present.
@@ -48,6 +51,7 @@ public class Bag {
 
     /**
      * Gets an item from the bag
+     *
      * @param name
      * @return The object, or null if it didnt exist.
      */
@@ -55,10 +59,12 @@ public class Bag {
         if (!_values.containsKey(name))
             return null;
 
-        return (T)_values.get(name);
+        return (T) _values.get(name);
     }
+
     /**
      * Gets an item from the bag, if it doesn't exist this will return the defaultValue.
+     *
      * @param name
      * @param defaultValue
      * @return The object in the bag, or the defaultValue if it didnt exist in the bag.
@@ -66,12 +72,13 @@ public class Bag {
     public <T> T get(String name, T defaultValue) {
 
         Object obj;
-        return (obj = get(name)) != null ? (T)obj : defaultValue;
+        return (obj = get(name)) != null ? (T) obj : defaultValue;
 
     }
 
     /**
      * Removes an item from the bag
+     *
      * @param name
      * @return true if removed, false if not found.
      */
