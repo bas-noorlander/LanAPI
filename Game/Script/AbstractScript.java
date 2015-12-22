@@ -26,7 +26,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
     protected LogProxy log;
 
-    private boolean quitting = false;
+    public static boolean quitting = false;
     private boolean waitForGUI = true;
     protected boolean showPaint = false;
 
