@@ -51,22 +51,23 @@ public class Bag {
      * @param name
      * @return The object, or null if it didnt exist.
      */
-    public Object get(String name) {
+    public <T> T get(String name) {
         if (!_values.containsKey(name))
             return null;
 
-        return _values.get(name);
+        return (T)_values.get(name);
     }
-
     /**
      * Gets an item from the bag, if it doesn't exist this will return the defaultValue.
      * @param name
      * @param defaultValue
      * @return The object in the bag, or the defaultValue if it didnt exist in the bag.
      */
-    public Object get(String name, Object defaultValue) {
+    public <T> T get(String name, T defaultValue) {
+
         Object obj;
-        return (obj = get(name)) != null ? obj : defaultValue;
+        return (obj = get(name)) != null ? (T)obj : defaultValue;
+
     }
 
     /**
