@@ -3,7 +3,9 @@ package scripts.LanAPI.Game.Helpers;
 import org.tribot.api.General;
 import org.tribot.api.Timing;
 import org.tribot.api2007.Banking;
+import org.tribot.api2007.Interfaces;
 import org.tribot.api2007.WebWalking;
+import org.tribot.api2007.types.RSInterface;
 import org.tribot.api2007.types.RSItem;
 import scripts.LanAPI.Game.Concurrency.Condition;
 import scripts.LanAPI.Game.Inventory.Inventory;
@@ -12,6 +14,27 @@ import scripts.LanAPI.Game.Inventory.Inventory;
  * @author Laniax
  */
 public class BankingHelper { // Sadly, tribot's Banking class is declared final and cannot be extended.
+
+    public static boolean isBankItemsLoaded() {
+        return getCurrentBankSpace() == Banking.getAll().length;
+    }
+
+    private static int getCurrentBankSpace() {
+        RSInterface amount = Interfaces.get(12, 3);
+        if(amount != null) {
+            String text = amount.getText();
+            if(text != null) {
+                try {
+                    int parse = Integer.parseInt(text);
+                    if(parse > 0)
+                        return parse;
+                } catch(NumberFormatException e) {
+                    return -1;
+                }
+            }
+        }
+        return -1;
+    }
 
     /**
      * Fetches the item(s) from the bank.

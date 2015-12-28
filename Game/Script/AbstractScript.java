@@ -80,10 +80,10 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             });
 
             EventQueue.invokeLater(() -> gui.setVisible(true));
-        }
 
-        while (waitForGUI)
-            sleep(250);
+            while (waitForGUI)
+                sleep(250);
+        }
 
         StrategyList list = new StrategyList(getStrategies());
 
