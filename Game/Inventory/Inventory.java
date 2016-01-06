@@ -51,6 +51,11 @@ public class Inventory extends org.tribot.api2007.Inventory {
         return Inventory.getCount(itemIDs) > 0;
     }
 
+    public static int getCount(RSItem item) {
+
+        return item != null ? Inventory.getCount(item.getID()) : 0;
+    }
+
     /**
      * Returns the number of items in the inventory which are accepted by the filter.
      *

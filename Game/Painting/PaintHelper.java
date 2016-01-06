@@ -6,6 +6,7 @@ import org.tribot.api2007.types.RSTile;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.font.TextLayout;
+import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URL;
@@ -93,6 +94,20 @@ public class PaintHelper {
      * @return an Image object containing the image.
      */
     public static Image getImage(String url) {
+        try {
+            return ImageIO.read(new URL(url));
+        } catch (IOException e) {
+            return null;
+        }
+    }
+
+ /**
+     * Downloads an image from the internet.
+     *
+     * @param url
+     * @return an Image object containing the image.
+     */
+    public static BufferedImage getBufferedImage(String url) {
         try {
             return ImageIO.read(new URL(url));
         } catch (IOException e) {
@@ -191,5 +206,19 @@ public class PaintHelper {
     public static void moveMouseTrail(Point point) {
         points[index++] = point;
         index %= trailSize;
+    }
+
+    public static String formatNumber(int number) {
+
+        if (number > 1000000) {
+            return number / 1000000 + "m";
+        }
+
+        if (number > 1000) {
+            return number / 1000 + "k";
+        }
+
+        return String.valueOf(number);
+
     }
 }

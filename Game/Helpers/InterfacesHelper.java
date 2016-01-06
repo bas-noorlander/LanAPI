@@ -15,6 +15,9 @@ public class InterfacesHelper { // Sadly, tribot's Interfaces class is declared 
     private final static int MASTER_MAKE_X = 548;
     private final static int CHILD_MAKE_X = 120;
 
+    private final static int MASTER_ENTER_AMOUNT = 162;
+    private final static int CHILD_ENTER_AMOUNT = 33;
+
     private final static int MASTER_SPINNING_WHEEL = 459;
 
     private final static int MASTER_COMBINATION_DOOR = 298;
@@ -27,6 +30,21 @@ public class InterfacesHelper { // Sadly, tribot's Interfaces class is declared 
     public static boolean isMakeXOpen() {
 
         RSInterfaceChild i = Interfaces.get(MASTER_MAKE_X, CHILD_MAKE_X);
+        if (i != null) {
+            return !i.isHidden();
+        }
+
+        return false;
+    }
+
+    /**
+     * Checks if the 'Make X' chat window is open where a player may input an amount.
+     *
+     * @return true if open, false if not.
+     */
+    public static boolean isEnterAmountOpen() {
+
+        RSInterfaceChild i = Interfaces.get(MASTER_ENTER_AMOUNT, CHILD_ENTER_AMOUNT);
         if (i != null) {
             return !i.isHidden();
         }

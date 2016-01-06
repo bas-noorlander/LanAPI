@@ -3,15 +3,11 @@ package scripts.LanAPI.Game.Helpers;
 import org.tribot.api.Clicking;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api.types.generic.Filter;
-import org.tribot.api2007.Camera;
-import org.tribot.api2007.Objects;
-import org.tribot.api2007.Player;
-import org.tribot.api2007.Projection;
+import org.tribot.api2007.*;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSModel;
 import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.types.RSTile;
-import scripts.LanAPI.Game.Movement.Movement;
 
 import java.awt.*;
 
@@ -145,6 +141,20 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
         return false;
     }
 
+
+    /**
+     * Interacts with the nearest object based on its actions.
+     *
+     * @param action, the action we should use.
+     */
+    public static boolean interact(final RSTile location, final String action, final String uptext) {
+        RSObject obj = ObjectsHelper.getAt(location);
+        if (obj != null)
+            return interact(obj, action, uptext);
+
+        return false;
+    }
+
     /**
      * Interacts with the nearest object based on its actions.
      *
@@ -223,13 +233,20 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
      */
     public static boolean interact(final RSObject object, final String action) {
 
+        return interact(object, action, "");
+    }
+
+    public static boolean interact(final RSObject object, final String action, final String uptext) {
+
         if (object == null)
             return false;
 
         RSModel model = object.getModel();
 
-        if (Player.getPosition().distanceTo(object) > 5) {
-            Movement.walkTo(object);
+        RSObject[] obj = ObjectsHelper.findNear("Craft-rune", true);
+
+        if (!object.isOnScreen()) {
+            Walking.blindWalkTo(object);
         }
 
         if (model != null) {
@@ -239,6 +256,12 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
             }
         }
 
-        return Clicking.click(action, object);
+        if (Clicking.hover(object)) {
+            if ((!uptext.isEmpty() && Game.isUptext(uptext)) || uptext.isEmpty())
+                return Clicking.click(action, object);
+
+        }
+
+        return false;
     }
 }
