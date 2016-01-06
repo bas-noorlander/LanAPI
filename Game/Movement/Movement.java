@@ -186,7 +186,7 @@ public class Movement {
      * <p>
      * Checks if run can be toggled.
      *
-     * @param posToWalk
+     * @param path
      * @return if succesfully reached destination or not.
      */
     public static boolean walkPath(final RSTile[] path) {
@@ -210,9 +210,9 @@ public class Movement {
             Timing.waitCondition(new Condition() {
                 public boolean active() {
                     General.sleep(50);
-                    return Player.getPosition().distanceTo(tile) < 5;
+                    return Player.getPosition().distanceTo(tile) < 2 || !Player.isMoving();
                 }
-            }, General.random(10000, 12000));
+            }, General.random(20000, 30000));
         }
 
         return true;

@@ -18,7 +18,7 @@ public abstract class AbstractPaintInfo {
 
     public abstract Image getButtonPaintToggle();
 
-    public abstract List<PaintString> getText(long runTime);
+    public abstract List<PaintString> getText(long runTime, Graphics2D g);
 
     public Point getBackgroundPosition() {
         return _backgroundPosition;
@@ -31,4 +31,10 @@ public abstract class AbstractPaintInfo {
     public Rectangle getSettingsToggleRectangle() {
         return _settingsToggle;
     }
+
+    /**
+     * Hook into the draw function before the text is rendered.
+     * @param g
+     */
+    public void customDraw(Graphics2D g) {}
 }
