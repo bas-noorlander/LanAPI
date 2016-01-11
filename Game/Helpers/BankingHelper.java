@@ -59,6 +59,49 @@ public class BankingHelper { // Sadly, tribot's Banking class is declared final 
     /**
      * Withdraws item(s) from the bank (not noted) and wait until we have it in our inventory
      *
+     * @param itemname
+     * @param count
+     * @return true if item in inventory, false if unsuccessful.
+     */
+    public static boolean withdrawItem(String itemname, int count) {
+
+        return withdrawItem(itemname, count, false);
+    }
+
+    /**
+     * Withdraws item(s) from the bank and wait until we have it in our inventory
+     *
+     * @param itemname
+     * @param count
+     * @param noted
+     * @return true if item in inventory, false if unsuccessful.
+     */
+    public static boolean withdrawItem(String itemname, int count, boolean noted) {
+
+        Widgets widget = noted ? Widgets.NOTE : Widgets.ITEM;
+
+        if (select(widget)) {
+
+            final int preAmount = Inventory.getCount(itemname);
+
+            if (Banking.withdraw(count, itemname)) {
+
+                return Timing.waitCondition(new Condition() {
+                    @Override
+                    public boolean active() {
+                        General.sleep(50, 100);
+                        return Inventory.getCount(itemname) == (preAmount + count);
+                    }
+                }, General.random(2500, 3500));
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Withdraws item(s) from the bank (not noted) and wait until we have it in our inventory
+     *
      * @param item
      * @param count
      * @return true if item in inventory, false if unsuccessful.

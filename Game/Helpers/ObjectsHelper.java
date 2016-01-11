@@ -1,7 +1,9 @@
 package scripts.LanAPI.Game.Helpers;
 
 import org.tribot.api.Clicking;
+import org.tribot.api.General;
 import org.tribot.api.interfaces.Positionable;
+import org.tribot.api.types.generic.Condition;
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.*;
 import org.tribot.api2007.ext.Filters;
@@ -243,10 +245,17 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
 
         RSModel model = object.getModel();
 
-        RSObject[] obj = ObjectsHelper.findNear("Craft-rune", true);
+        if (!object.isOnScreen() && Player.getPosition().distanceTo(object) > 6) {
 
-        if (!object.isOnScreen()) {
-            Walking.blindWalkTo(object);
+            RSTile[] path = Walking.generateStraightScreenPath(object.getPosition());
+
+            Walking.walkScreenPath(path, new Condition() {
+                @Override
+                public boolean active() {
+                    General.sleep(50);
+                    return object.isOnScreen();
+                }
+            }, General.random(3000, 4000));
         }
 
         if (model != null) {

@@ -47,16 +47,16 @@ public class Movement {
      * @return if succesfully reached destination or not.
      */
     public static void setUseCustomDoors(boolean state, RSObject[] doors) {
-
-        if (state) {
-            nav.overrideDoorCache(true, doors);
-
-            General.println("Loaded " + doors.length + " custom doors.");
-        } else {
-            nav.overrideDoorCache(false, null);
-
-            General.println("Unloaded custom doors.");
-        }
+//
+//        if (state) {
+//            nav.overrideDoorCache(true, doors);
+//
+//            General.println("Loaded " + doors.length + " custom doors.");
+//        } else {
+//            nav.overrideDoorCache(false, null);
+//
+//            General.println("Unloaded custom doors.");
+//        }
     }
 
     /**
@@ -104,17 +104,7 @@ public class Movement {
             return false;
 
         // DPathNavigator will fail if it cannot find a path, including when the target is an unwalkable tile, so try to find the nearest walkable tile.
-        if (!PathFinding.isTileWalkable(posToWalk)) {
 
-            RSArea area = new RSArea(posToWalk, 5);
-            RSTile[] walkables = getAllWalkableTiles(area);
-
-            if (walkables.length == 0)
-                return false;
-
-            Sorting.sortByDistance(walkables, posToWalk, true);
-            posToWalk = walkables[0];
-        }
 
         return nav.traverse(posToWalk);
     }
@@ -136,48 +126,69 @@ public class Movement {
 
     /**
      * Walks to the position using either DPathNavigator for close by precision or WebWalking for greater lengths.
-     * if the target is unwalkable, will try to find nearest walkable tile.
+     *
      * Checks if run can be toggled.
      *
      * @param posToWalk
      * @return if successfully reached destination or not.
      */
-    public static boolean walkTo(final Positionable posToWalk) {
-        return walkTo(posToWalk, true);
-    }
-
-    /**
-     * Walks to the position using either DPathNavigator for close by precision or WebWalking for greater lengths.
-     * <p>
-     * Checks if run can be toggled.
-     *
-     * @param posToWalk
-     * @param searchWalkable if the target is unwalkable, will try to find nearest walkable tile.
-     * @return if successfully reached destination or not.
-     */
-    public static boolean walkTo(final Positionable posToWalk, boolean searchWalkable) {
+    public static boolean walkTo(Positionable posToWalk) {
 
         if (posToWalk instanceof RSTile)
             PaintHelper.destinationTile = (RSTile) posToWalk;
 
         Antiban.doActivateRun();
 
-        int failsafe = 0;
-        while (!Player.getPosition().equals(posToWalk) && failsafe < 20) {
+        if (isInLoadedRegion(posToWalk)) {
 
-            boolean isWalkable = PathFinding.isTileWalkable(posToWalk);
+            nav.overrideDoorCache(false, null);
 
-            if ((isWalkable || searchWalkable) && isInLoadedRegion(posToWalk)) {
-                if (walkToPrecise(posToWalk))
-                    return true;
+            if (!PathFinding.isTileWalkable(posToWalk)) {
+
+                RSArea area = new RSArea(posToWalk, 5);
+                RSTile[] walkables = getAllWalkableTiles(area);
+
+                if (walkables.length == 0)
+                    return false;
+
+                Sorting.sortByDistance(walkables, posToWalk, true);
+                posToWalk = walkables[0];
             }
 
-            if (webWalkTo(posToWalk))
-                return true;
+            return nav.traverse(posToWalk);
 
-            failsafe++;
+        } else {
+
+            final Positionable finalPosToWalk = posToWalk;
+            if (WebWalking.walkTo(posToWalk, new Condition() {
+                @Override
+                public boolean active() {
+                    General.sleep(1000);
+                    return isInLoadedRegion(finalPosToWalk);
+                }
+            }, General.random(5000,6000))) {
+                return nav.traverse(posToWalk);
+            }
         }
+
         return false;
+
+//        int failsafe = 0;
+//        while (!Player.getPosition().equals(posToWalk) && failsafe < 20) {
+//
+//            boolean isWalkable = PathFinding.isTileWalkable(posToWalk);
+//
+//            if ((isWalkable || searchWalkable) && isInLoadedRegion(posToWalk)) {
+//                if (walkToPrecise(posToWalk))
+//                    return true;
+//            }
+//
+//            if (webWalkTo(posToWalk))
+//                return true;
+//
+//            failsafe++;
+//        }
+//        return false;
     }
 
     /**

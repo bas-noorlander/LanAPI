@@ -30,11 +30,8 @@ public class InterfacesHelper { // Sadly, tribot's Interfaces class is declared 
     public static boolean isMakeXOpen() {
 
         RSInterfaceChild i = Interfaces.get(MASTER_MAKE_X, CHILD_MAKE_X);
-        if (i != null) {
-            return !i.isHidden();
-        }
 
-        return false;
+        return i != null && !i.isHidden();
     }
 
     /**
@@ -45,11 +42,8 @@ public class InterfacesHelper { // Sadly, tribot's Interfaces class is declared 
     public static boolean isEnterAmountOpen() {
 
         RSInterfaceChild i = Interfaces.get(MASTER_ENTER_AMOUNT, CHILD_ENTER_AMOUNT);
-        if (i != null) {
-            return !i.isHidden();
-        }
 
-        return false;
+        return i != null && !i.isHidden();
     }
 
     /**

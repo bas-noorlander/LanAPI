@@ -29,13 +29,13 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
     protected static boolean hasArguments = false;
 
     public static boolean quitting = false;
-    private boolean waitForGUI = true;
+    protected boolean waitForGUI = true;
     protected boolean showPaint = false;
 
     public abstract IStrategy[] getStrategies();
 
-    private JFrame gui = null;
-    private AbstractPaintInfo paintInfo = null;
+    protected JFrame gui = null;
+    protected AbstractPaintInfo paintInfo = null;
 
     public abstract JFrame getGUI();
 
@@ -47,7 +47,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
     public abstract AbstractPaintInfo getPaintInfo();
 
     @Override
-    public final void run() {
+    public void run() {
 
         log = new LogProxy(this);
 
