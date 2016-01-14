@@ -2,12 +2,13 @@ package scripts.LanAPI.Game.Combat;
 
 import org.tribot.api.Clicking;
 import org.tribot.api.General;
+import org.tribot.api.Timing;
+import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Camera;
 import org.tribot.api2007.GameTab;
 import org.tribot.api2007.GameTab.TABS;
 import org.tribot.api2007.Inventory;
 import org.tribot.api2007.ext.Filters;
-import org.tribot.api2007.types.RSCharacter;
 import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.types.RSNPC;
 import scripts.LanAPI.Game.Antiban.Antiban;
@@ -41,7 +42,41 @@ public abstract class Combat extends org.tribot.api2007.Combat {
     }
 
     /**
-     * Attacks the npc based on his name, can hover and attack the next npc.
+     * Attacks an NPC
+     * @param npc
+     * @return true if in combat with npc, false otherwise.
+     */
+    public static boolean attackNPC(final RSNPC npc) {
+
+        if (npc == null)
+            return false;
+
+        if (npc.isInCombat() && !isUnderAttack())
+            return false;
+
+        if (!npc.isOnScreen())
+            Camera.turnToTile(npc);
+
+        PaintHelper.statusText = "Attacking";
+
+        if (!npc.isInCombat() && !isUnderAttack() && npc.isValid() && Movement.canReach(npc) && npc.getInteractingCharacter() == null) {
+
+            if (Clicking.click("Attack", npc)) {
+                return Timing.waitCondition(new Condition() {
+                    @Override
+                    public boolean active() {
+                        General.sleep(50,150);
+                        return npc.isInCombat() || npc.isInteractingWithMe() || isUnderAttack();
+                    }
+                }, General.random(2000,3000));
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Attacks the npc, can hover and attack the next npc.
      *
      * @param npcs                     to attack (in order)
      * @param hoverAndAttackNextTarget - True if we should hover our cursor over the next npc while fighting, however if it's true then the AntibanMgr may still override it.
@@ -57,73 +92,35 @@ public abstract class Combat extends org.tribot.api2007.Combat {
 
             final RSNPC attackNPC = npcs[i];
 
-            if (attackNPC.isInCombat() && !isUnderAttack())
-                continue;
+            if (attackNPC(attackNPC)) {
+                PaintHelper.statusText = "In Combat";
 
-            if (!attackNPC.isOnScreen())
-                Camera.turnToTile(attackNPC);
+                if (!hoverAndAttackNextTarget || !Antiban.mayHoverNextObject())
+                    return true;
 
-            PaintHelper.statusText = "Attacking";
+                if (npcs.length > i + 1) {
 
-            // as long as we both are alive and not in combat, we try to attack him.
-            for (int it = 0; it < 20; it++) {
-                if (!attackNPC.isInCombat() && !isUnderAttack() && attackNPC.isValid() && Movement.canReach(attackNPC) && attackNPC.getInteractingCharacter() == null) {
-                    if (Clicking.click("Attack", attackNPC))
-                        General.sleep(500, 1500);
-                } else
-                    break;
-            }
+                    PaintHelper.statusText = "Hovering Next";
 
-            PaintHelper.statusText = "In Combat";
+                    final RSNPC hoverNPC = npcs[i + 1];
 
-            // someone stole our npc =(
-            if (attackNPC.isInCombat() && !isUnderAttack()) {
-                continue;
-            }
+                    if (Timing.waitCondition(new Condition() {
+                        @Override
+                        public boolean active() {
+                            General.sleep(150, 300);
 
-            if (!hoverAndAttackNextTarget || !Antiban.mayHoverNextObject())
-                break;
+                            if (hoverNPC.isInCombat() /*someone stole it*/ || !hoverNPC.isValid() /*died*/ || !Movement.canReach(hoverNPC) /*moved beyond reach*/)
+                                return true;
 
-            if (npcs.length > i + 1) {
+                            Clicking.hover(hoverNPC);
 
-                PaintHelper.statusText = "Hovering Next";
+                            return getAttackingEntities().length == 0;
+                        }
+                    }, General.random(20000, 30000))) {
 
-                final RSNPC hoverNPC = npcs[i + 1];
-
-                RSCharacter[] attackingCharacters = getAttackingEntities();
-
-                // Hovering over next npc as long as we are still attacking the current npc and hover npc is valid.
-                while (attackingCharacters.length > 0 && attackingCharacters[0] == attackNPC) {
-
-                    if (!hoverNPC.isInCombat() && hoverNPC.isValid() && Movement.canReach(hoverNPC)) {
-
-                        if (!hoverNPC.isOnScreen())
-                            Camera.turnToTile(hoverNPC);
-
-                        Clicking.hover(hoverNPC);
-
-//						General.sleep(100, 200);
-                    } else {
-                        break;
+                        attackNPC(hoverNPC);
+                        return true;
                     }
-
-                    attackingCharacters = getAttackingEntities();
-                }
-
-                Antiban.doDelayForSwitchObject(true);
-
-                // Here we killed our current npc, lets check if our hover target is still alive and out of combat
-                if (!hoverNPC.isOnScreen())
-                    Camera.turnToTile(hoverNPC);
-
-                PaintHelper.statusText = "Attacking";
-
-                for (int it = 0; it < 20; it++) {
-                    if (!hoverNPC.isInCombat() && hoverNPC.isValid() && !isUnderAttack() && Movement.canReach(hoverNPC) && attackNPC.getInteractingCharacter() == null) {
-                        if (Clicking.click("Attack", hoverNPC))
-                            General.sleep(500, 1500);
-                    } else
-                        break;
                 }
             }
         }
