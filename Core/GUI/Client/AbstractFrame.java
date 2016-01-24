@@ -78,6 +78,7 @@ public abstract class AbstractFrame {
 
         Frame gui;
         if ((gui = get()) != null) {
+            gui.setState(Frame.NORMAL);
             gui.toFront();
         }
     }

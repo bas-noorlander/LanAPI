@@ -36,6 +36,7 @@ public class FrameManager {
 
                 Frame gui;
                 if ((gui = frame.get()) != null) {
+                    gui.setState(Frame.NORMAL);
                     gui.toFront();
                 }
             }
