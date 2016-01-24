@@ -19,11 +19,18 @@ public class LogManager {
 
     private static final StringBuilder _builder = new StringBuilder();
 
+    private static boolean isDebug = false;
+
     public static List<ILogger> _loggers = new ArrayList<>(Arrays.asList(
             //TODO: make this more customizable
             //new BotDebugLogger(),
             new ClientDebugLogger()
     ));
+
+    public static void setDebug(boolean value) {
+        isDebug = value;
+    }
+
 
     public static void addLogger(ILogger logger) {
         _loggers.add(logger);
@@ -72,6 +79,9 @@ public class LogManager {
     }
 
     static void debug(String source, String message, Object... args) {
+
+        if (!isDebug)
+            return;
 
         synchronized (_lock) {
             for (ILogger log : _loggers) {

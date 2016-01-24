@@ -22,6 +22,8 @@ public final class LogProxy {
 
         this.source = script.getScriptName();
         this.isDebug = script.getRepoID() < 0;
+
+        LogManager.setDebug(this.isDebug);
     }
 
     /**
@@ -62,7 +64,6 @@ public final class LogProxy {
      * @param args    - any arguments for string.format
      */
     public void debug(String message, Object... args) {
-        if (this.isDebug)
-            LogManager.debug(this.source, message, args);
+        LogManager.debug(this.source+" - Debug", message, args);
     }
 }
