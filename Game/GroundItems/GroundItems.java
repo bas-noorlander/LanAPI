@@ -7,6 +7,7 @@ import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Camera;
 import org.tribot.api2007.types.RSGroundItem;
 import org.tribot.api2007.types.RSItemDefinition;
+import scripts.LANChaosKiller.Constants.ItemIDs;
 import scripts.LanAPI.Game.Inventory.Inventory;
 import scripts.LanAPI.Game.Movement.Movement;
 import scripts.LanAPI.Game.Painting.PaintHelper;
@@ -58,6 +59,7 @@ public abstract class GroundItems extends org.tribot.api2007.GroundItems {
             for (final RSGroundItem item : items) {
 
                 final RSItemDefinition itemDef = item.getDefinition();
+
                 if (itemDef == null)
                     continue;
 
@@ -76,14 +78,22 @@ public abstract class GroundItems extends org.tribot.api2007.GroundItems {
                 final int preOwned = Inventory.getCount(item.getID());
 
                 // Apparently just 'Take' would causes issues with multiple items on 1 tile.
-                if (itemDef != null && Clicking.click("Take " + itemDef.getName(), item)) {
+                if (Clicking.click("Take " + itemDef.getName(), item)) {
 
-                    return Timing.waitCondition(new Condition() {
+                    if (Timing.waitCondition(new Condition() {
                         public boolean active() {
                             General.sleep(50);
                             return preOwned > 0 ? Inventory.getCount(item.getID()) > preOwned : Inventory.find(item.getID()).length > 0;
                         }
-                    }, General.random(3000, 4000));
+                    }, General.random(3000, 4000))) {
+
+                        ItemIDs i = ItemIDs.valueOf(item.getID());
+
+                        if (i != null)
+                            PaintHelper.profit += (i.getPrice() * item.getStack());
+
+                        return true;
+                    }
                 }
             }
         }

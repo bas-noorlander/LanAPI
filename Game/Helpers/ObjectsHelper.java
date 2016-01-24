@@ -9,7 +9,9 @@ import org.tribot.api2007.*;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSModel;
 import org.tribot.api2007.types.RSObject;
+import org.tribot.api2007.types.RSObjectDefinition;
 import org.tribot.api2007.types.RSTile;
+import scripts.LanAPI.Game.Movement.Movement;
 
 import java.awt.*;
 
@@ -17,6 +19,18 @@ import java.awt.*;
  * @author Laniax
  */
 public class ObjectsHelper { // Sadly, tribot's Objects class is declared final and cannot be extended.
+
+    public static String getName(final RSObject object) {
+        RSObjectDefinition definition = object.getDefinition();
+        if (definition != null) {
+            String definitionName = definition.getName();
+            if (definitionName != null) {
+                return definitionName;
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Find the object based on its location.
@@ -247,15 +261,8 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
 
         if (!object.isOnScreen() && Player.getPosition().distanceTo(object) > 6) {
 
-            RSTile[] path = Walking.generateStraightScreenPath(object.getPosition());
+            Movement.walkTo(object);
 
-            Walking.walkScreenPath(path, new Condition() {
-                @Override
-                public boolean active() {
-                    General.sleep(50);
-                    return object.isOnScreen();
-                }
-            }, General.random(3000, 4000));
         }
 
         if (model != null) {

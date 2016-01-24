@@ -1,48 +1,305 @@
 package scripts.LanAPI.Game.Antiban;
 
 import org.tribot.api.General;
-import org.tribot.api2007.Game;
-import org.tribot.api2007.NPCs;
-import org.tribot.api2007.Options;
-import org.tribot.api2007.Player;
-import org.tribot.api2007.Skills.SKILLS;
+import org.tribot.api.Timing;
+import org.tribot.api.input.Mouse;
+import org.tribot.api.interfaces.Clickable07;
+import org.tribot.api.interfaces.Positionable;
+import org.tribot.api.types.generic.Filter;
+import org.tribot.api.util.abc.preferences.OpenBankPreference;
+import org.tribot.api.util.abc.preferences.TabSwitchPreference;
+import org.tribot.api.util.abc.preferences.WalkingPreference;
+import org.tribot.api2007.*;
+import org.tribot.api2007.ext.Filters;
+import org.tribot.api2007.types.RSCharacter;
 import org.tribot.api2007.types.RSNPC;
-import scripts.LanAPI.Game.Helpers.SkillsHelper;
+import org.tribot.api2007.types.RSObject;
+import org.tribot.api2007.types.RSTile;
+import scripts.LanAPI.Core.Logging.LogProxy;
+import scripts.LanAPI.Game.Combat.Hovering;
+import scripts.LanAPI.Game.Helpers.ObjectsHelper;
 import scripts.LanAPI.Game.Movement.Movement;
 import scripts.LanAPI.Game.Painting.PaintHelper;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 /**
- * Helper class for Tribot's ABC system.
+ * Helper class for Tribot's ABC2 system.
  *
  * @author Laniax
  */
-public class Antiban extends org.tribot.api.util.ABCUtil {
+public class Antiban extends org.tribot.api.util.abc.ABCUtil {
 
-    private static Antiban antiban;
+    static LogProxy log = new LogProxy("Antiban");
 
-    private static boolean idle = false;
-    private static long idleSince = 0;
+    private static Antiban _instance = null;
 
-    private static int eatAtPercentage = -1;
+    private int runPercentage = this.generateRunActivation();
+    private int eatPercentage = this.generateEatAtHP();
+    private int resourcesWon = 0;
+    private int resourcesLost = 0;
+    private long resourceSwitchCheckTime = Timing.currentTimeMillis() + General.random(20000, 30000);
+    public long lastCombatTime = 0;
 
-    // singleton
-    public static Antiban getUtil() {
-        return antiban = antiban == null ? new Antiban() : antiban;
+    private static Positionable nextTarget;
+    private static Positionable nextTargetClosest;
+    private long waitingSince;
+
+    private Antiban() {
+        // Prevent instantiation
     }
 
+    /**
+     * Returns the instance of this Antiban.
+     * Note that an instance should be used per character, if your script switches to a different character,
+     * you should call Antiban.get().close() to generate a new one.
+     *
+     * @return the antiban (ABCUtil) instance
+     */
+    public static Antiban get() {
+        return _instance = _instance != null ? _instance : new Antiban();
+    }
+
+    /**
+     * Gets the health percentage when the player should eat.
+     *
+     * @return
+     */
     public static int getEatPercentage() {
-        if (eatAtPercentage < 0)
-            resetEatPercentage();
-
-        return eatAtPercentage;
+        return get().eatPercentage;
     }
 
-    public static void resetEatPercentage() {
-        eatAtPercentage = Antiban.getUtil().INT_TRACKER.NEXT_EAT_AT.next();
+    /**
+     * Generates a new percentage to eat at. This should be used right after a successful eat.
+     */
+    public static void generateEatPercentage() {
+        get().eatPercentage = get().generateRunActivation();
+    }
+
+    /**
+     * Gets the energy percentage when the player should activate run.
+     *
+     * @return
+     */
+    public static int getRunPercentage() {
+        return get().runPercentage;
+    }
+
+    /**
+     * Generates a new energy percentage to run at. This should be used right after run has been toggled on.
+     */
+    public static void generateRunPercentage() {
+        get().runPercentage = get().generateEatAtHP();
+    }
+
+    /**
+     * Returns if we should move to the next anticipated spawn location.
+     * This should be checked ONCE when a resource is depleted and no immediate new ones are available.
+     *
+     * @return true if we should move to the next anticipated location, false otherwise.
+     */
+    public static boolean shouldMoveAnticipated() {
+        return get().shouldMoveToAnticipated();
+    }
+
+    /**
+     * Returns how many times we have won a resource.
+     *
+     * @return
+     */
+    public static int getResourcesWon() {
+        return get().resourcesWon;
+    }
+
+    /**
+     * Returns how many times we have lost a resource.
+     *
+     * @return
+     */
+    public static int getResourcesLost() {
+        return get().resourcesLost;
+    }
+
+    /**
+     * Returns if we should hover over the next resource, note that this should only be called once when we start interacting with each new resource.
+     *
+     * @return true if we should hover the next resource, false otherwise.
+     */
+    public static boolean shouldHoverNext() {
+        return Mouse.isInBounds() && get().shouldHover();
+    }
+
+    /**
+     * Returns if we should right click the next resource while hovering, note that this should only be called if we are already hovering.
+     *
+     * @return true if we should open the menu of the next resource, false otherwise.
+     */
+    public static boolean shouldOpenMenuNext() {
+        return Mouse.isInBounds() && get().shouldOpenMenu();
+    }
+
+    /**
+     * Generates the preferences of how a player should open the bank (by booth/banker etc).
+     * NOTE: You DO NOT need to use this if you use Banking#openBank().
+     *
+     * @return the preference
+     */
+    public static OpenBankPreference getBankPreference() {
+        return get().generateOpenBankPreference();
+    }
+
+    /**
+     * Generates the preferences of how a player should switch game tabs (with mouse/f keys etc).
+     * NOTE: You DO NOT need to use this if you use GameTab#open().
+     *
+     * @return the preference
+     */
+    public static TabSwitchPreference getTabSwitchPreference() {
+        return get().generateTabSwitchPreference();
+    }
+
+    /**
+     * Generates the preferences of how a player should walk (with minimap/screen etc).
+     * NOTE: You DO NOT need to use this if you solely use WebWalking.
+     *
+     * @param distance
+     * @return
+     */
+    public static WalkingPreference getWalkingPreference(final int distance) {
+        return get().generateWalkingPreference(distance);
+    }
+
+    /**
+     * Sets the current time as when we last killed an NPC.
+     */
+    public static void setLastCombatTime() {
+        get().lastCombatTime = Timing.currentTimeMillis();
+    }
+
+    /**
+     * Sets the current time as when we last did something.
+     */
+    public static void setWaitingSince() {
+        get().waitingSince = Timing.currentTimeMillis();
+    }
+
+    /**
+     * Travels to the next anticipated resource if allowed.
+     *
+     * @param resource - the next resource / location to run to.
+     * @return true if travelled, false otherwise.
+     */
+    public static boolean moveToAnticipated(Positionable resource) {
+
+        if (resource != null && shouldMoveAnticipated()) {
+            get().performReactionTimeWait();
+
+            log.info("Moving to anticipated location.");
+            return Movement.walkTo(resource);
+        }
+
+        return false;
+    }
+
+    /**
+     * Performs a wait for a calculated time. Based on real human playing data.
+     */
+    public void performReactionTimeWait() {
+
+        final boolean recentlyInCombat = (Combat.isUnderAttack() || (Timing.currentTimeMillis() - lastCombatTime < General.random(2000, 6000)));
+        final boolean isHovering = Hovering.isHovering();
+        final boolean shouldOpenMenu = Hovering.getShouldOpenMenu();
+
+        final long hoverOption = isHovering ? Antiban.OPTION_HOVERING : 0;
+        final long menuOption = shouldOpenMenu ? Antiban.OPTION_MENU_OPEN : 0;
+        final long combatOption = recentlyInCombat ? Antiban.OPTION_UNDER_ATTACK : 0;
+
+        final int reactionTime = get().generateReactionTime(get().generateBitFlags(getWaitingTime(), hoverOption, menuOption, combatOption));
+
+        log.info("Sleeping for %d ms.", reactionTime);
+
+        try {
+            PaintHelper.statusText = "Antiban Delay";
+            get().sleep(reactionTime);
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+        }
+    }
+
+
+    /**
+     * Use this method to track how many times you won or lost a resource.
+     * Based on this data, we will switch resources if we are losing to much.
+     *
+     * @param won true if we won a resource, false if not.
+     */
+    public static void setResourceCounter(boolean won) {
+
+//        log.info("Resource %s", won ? "Won" : "Lost");
+
+        if (won)
+            get().resourcesWon++;
+        else
+            get().resourcesLost++;
+    }
+
+    /**
+     * Returns if we should change resources because we are losing a lot of resources due to other players in the area.
+     * Note this method should be called continuously, internally it will only check every 20-30 seconds.
+     *
+     * @param competitionCount the amount of players who we are competing with.
+     * @return true if we should switch, false otherwise.
+     */
+    public static boolean switchResources(int competitionCount) {
+
+        double win_percent = ((double) (getResourcesWon() + getResourcesLost()) / (double) getResourcesWon());
+
+        if (50.0 > win_percent && Timing.currentTimeMillis() >= get().resourceSwitchCheckTime) {
+
+            if (get().shouldSwitchResources(competitionCount)) {
+                log.info("Determined that we should switch resources due to player competition.");
+                return true;
+            }
+
+            get().resourceSwitchCheckTime = Timing.currentTimeMillis() + General.random(20000, 30000);
+        }
+
+        return false;
+    }
+
+
+    /**
+     *
+     * @return
+     */
+    public static int getWaitingTime() {
+
+        int result = (int) (Timing.currentTimeMillis() - get().waitingSince);
+        //imeMillis() - get().waitingSince);
+
+        log.debug("GetWaitTime() %dms.", result);
+
+        return result;
+    }
+
+    /**
+     * Checks if run isn't on and we are allowed to activate it.
+     * This handles the generation of new percentages as well.
+     *
+     * @return true if run was toggled, false if not.
+     */
+    public static boolean activateRun() {
+
+        if (!Game.isRunOn() && Game.getRunEnergy() >= getRunPercentage()) {
+
+            PaintHelper.statusText = "Antiban - Activate Run";
+
+            if (Options.setRunOn(true)) {
+                generateRunPercentage();
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -50,139 +307,179 @@ public class Antiban extends org.tribot.api.util.ABCUtil {
      */
     public static void doIdleActions() {
 
-        SKILLS skillToCheck;
+        if (get().shouldCheckTabs())
+            get().checkTabs();
 
-        SKILLS[] activeSkills = SkillsHelper.getAllSkillsWithIncrease();
-        if (activeSkills.length == 0) {
-            skillToCheck = SKILLS.values()[General.random(0, SKILLS.values().length)];
-        } else
-            skillToCheck = activeSkills[General.random(0, activeSkills.length - 1)];
+        if (get().shouldCheckXP())
+            get().checkXP();
 
-        String preAntiban = PaintHelper.statusText;
-        PaintHelper.statusText = "Antiban";
-        getUtil().performTimedActions(skillToCheck);
-        PaintHelper.statusText = preAntiban;
+        if (get().shouldExamineEntity())
+            get().examineEntity();
 
-        setIdle(true);
-    }
+        if (get().shouldMoveMouse())
+            get().moveMouse();
 
-    public static void setIdle(boolean value) {
+        if (get().shouldPickupMouse())
+            get().pickupMouse();
 
-        boolean oldValue = idle;
-        idle = value;
+        if (get().shouldRightClick())
+            get().rightClick();
 
-        if (value && !oldValue)
-            idleSince = System.currentTimeMillis();
+        if (get().shouldRotateCamera())
+            get().rotateCamera();
+
+        if (get().shouldLeaveGame())
+            get().leaveGame();
     }
 
     /**
-     * Checks if our run energy is above a random threshold and toggles run on if it isn't already.
+     * Gets the next target.
      *
-     * @return if run was activated or not.
+     * @Return {@Link Positionable}, or null if we do not currently have a next
+     * target.
      */
-    public static boolean doActivateRun() {
+    public static <T extends Positionable> T getNextTarget() {
 
-        if (!Game.isRunOn() && Game.getRunEnergy() >= getUtil().INT_TRACKER.NEXT_RUN_AT.next()) {
+        if (nextTarget == null || !isNextTargetValid(null))
+            return null;
 
-            getUtil().INT_TRACKER.NEXT_RUN_AT.reset();
-            PaintHelper.statusText = "Antiban - Activate Run";
+        return (T) nextTarget;
 
-            return Options.setRunOn(true);
+    }
+
+    /**
+     * Nullifies the next target.
+     */
+    public void resetNextTarget() {
+        nextTarget = null;
+        nextTargetClosest = null;
+    }
+
+    /**
+     * Determines if our current next target is still valid.
+     *
+     * @param possible_targets The possible next targets. This is used just in-case a new
+     *                         closest target is available. If that is the case, then we can
+     *                         say he next target is invalid and let the script determine a
+     *                         new next target.
+     * @Return boolean
+     */
+    public static boolean isNextTargetValid(final Positionable[] possible_targets) {
+
+        if (nextTarget == null)
+            return false;
+
+        final RSTile pos = nextTarget.getPosition();
+
+        if (pos == null)
+            return false;
+
+        if (!Projection.isInViewport(Projection.tileToScreen(pos, 0)))
+            return false;
+
+        if (nextTarget instanceof Clickable07 && !((Clickable07) nextTarget).isClickable())
+            return false;
+
+        if (nextTarget instanceof RSNPC && (!((RSNPC) nextTarget).isValid()) || ((RSNPC) nextTarget).isInCombat() || !Movement.canReach(nextTarget) || ((RSNPC) nextTarget).getInteractingCharacter() != null)
+            return false;
+
+        if (nextTarget instanceof RSCharacter) {
+            final String name = ((RSCharacter) nextTarget).getName();
+            if (name == null || name.trim().equalsIgnoreCase("null"))
+                return false;
         }
-        return false;
-    }
 
-    /**
-     * Reorganizes an array of NPCs so that they are in the proper order to attack them.
-     * <p>
-     * Does canReach and isInCombat checks as well.
-     *
-     * @param npcs
-     * @return the npc to attack, or null if input array was null.
-     */
-    public static RSNPC[] orderOfAttack(RSNPC[] npcs) {
-
-        if (npcs.length > 0) {
-
-            npcs = NPCs.sortByDistance(Player.getPosition(), npcs);
-
-            List<RSNPC> orderedNPCs = new ArrayList<RSNPC>();
-
-            for (RSNPC npc : npcs) {
-
-                if (npc.isInCombat() || !npc.isValid() || !Movement.canReach(npc) || npc.getInteractingCharacter() != null)
-                    continue;
-
-                orderedNPCs.add(npc);
-            }
-
-            if (orderedNPCs.size() > 1) {
-
-                if (getUtil().BOOL_TRACKER.USE_CLOSEST.next()) {
-
-                    // if the 2nd closest npc is within 3 tiles of the closest npc, attack the 2nd one first.
-                    if (orderedNPCs.get(0).getPosition().distanceTo(orderedNPCs.get(1)) <= 3)
-                        Collections.swap(orderedNPCs, 0, 1);
+        if (nextTarget instanceof RSObject) {
+            if (!Objects.isAt(nextTarget, new Filter<RSObject>() {
+                @Override
+                public boolean accept(final RSObject o) {
+                    return o.obj.equals(((RSObject) nextTarget).obj);
                 }
+            }))
+                return false;
+        }
 
-                getUtil().BOOL_TRACKER.USE_CLOSEST.reset();
+        if (possible_targets != null && possible_targets.length > 0 && nextTargetClosest != null) {
+
+            final RSTile new_closest_tile = possible_targets[0].getPosition();
+            final RSTile orig_closest_tile = nextTargetClosest.getPosition();
+            final RSTile player_pos = Player.getPosition();
+
+            if (new_closest_tile != null && orig_closest_tile != null && player_pos != null) {
+
+                final double new_closest_dist = new_closest_tile.distanceToDouble(player_pos);
+                final double orig_closest_dist = orig_closest_tile.distanceToDouble(player_pos);
+
+                if (new_closest_dist < orig_closest_dist)
+                    return false;
+
             }
-
-            return orderedNPCs.toArray(new RSNPC[orderedNPCs.size()]);
         }
 
-        return npcs;
+        return true;
+
     }
 
     /**
-     * Checks with the antiban if we are alowed to hover over the next object.
+     * Selects the next target.
      *
-     * @return
+     * @return {@link Positionable}
      */
-    public static boolean mayHoverNextObject() {
+    public static <T extends Positionable> T determineNextTarget(final Positionable[] possible_targets) {
+        try {
+            if (nextTarget != null && isNextTargetValid(possible_targets))
+                return (T) nextTarget;
 
-        boolean result = getUtil().BOOL_TRACKER.HOVER_NEXT.next();
-        getUtil().BOOL_TRACKER.HOVER_NEXT.reset();
-        return result;
-    }
-
-    /**
-     * Does a delay for a random amount of time.
-     * Should be used when idling and a new object has spawned.
-     */
-    public static void doDelayForNewObject(boolean isCombat) {
-
-        PaintHelper.statusText = "Antiban - Delay";
-
-        DELAY_TRACKER tracker = isCombat ? getUtil().DELAY_TRACKER.NEW_OBJECT_COMBAT : getUtil().DELAY_TRACKER.NEW_OBJECT;
-
-        General.sleep(tracker.next());
-        tracker.reset();
-    }
-
-    /**
-     * Does a delay for a random amount of time.
-     * Should be used when an object has been drained and a new object is already available.
-     */
-    public static void doDelayForSwitchObject(boolean isCombat) {
-
-        PaintHelper.statusText = "Antiban - Delay";
-
-        DELAY_TRACKER tracker = isCombat ? getUtil().DELAY_TRACKER.SWITCH_OBJECT_COMBAT : getUtil().DELAY_TRACKER.SWITCH_OBJECT;
-
-        General.sleep(tracker.next());
-        tracker.reset();
-    }
-
-    public static void waitDelay(boolean isCombat) {
-        if (idle && idleSince > (System.currentTimeMillis() + General.random(8000, 12000))) {
-            // If we were idle (waiting for spawn) for more then 8-12 sec
-            // we should see this as a 'new' action and wait an appropriate amount of time.
-            Antiban.doDelayForNewObject(isCombat);
-        } else {
-            // if we were not idling (new npc was already spawned while fighting old, or within the 8-12sec after death)
-            // we should see this as a 'switch' action and wait an appropriate amount of time.
-            Antiban.doDelayForSwitchObject(isCombat);
+            return (T) (nextTarget = get().selectNextTarget(possible_targets));
+        } finally {
+            if (nextTarget != null && possible_targets.length > 0)
+                nextTargetClosest = possible_targets[0];
         }
     }
-};
+
+    /**
+     * Hovers the next available resource, if allowed.
+     *
+     * @param currentlyInteracting The object you are currently interacting with.
+     */
+    public static void hoverNextResource(final Positionable currentlyInteracting) {
+        if (currentlyInteracting == null || !shouldHoverNext())
+            return;
+
+        Positionable[] candidates = null;
+
+        if (currentlyInteracting instanceof RSObject) {
+
+            final RSObject interactingObject = (RSObject) currentlyInteracting;
+            final String objName = ObjectsHelper.getName(interactingObject);
+
+            if (objName == null)
+                return;
+
+            candidates = Objects.find(15, Filters.Objects.nameEquals(objName).combine(Filters.Objects.tileNotEquals(interactingObject.getPosition()), false));
+        }
+
+        if (currentlyInteracting instanceof RSNPC) {
+
+            final RSNPC interactingNPC = (RSNPC) currentlyInteracting;
+
+            final String name = interactingNPC.getName();
+            if (name == null)
+                return;
+
+            candidates = NPCs.find(Filters.NPCs.nameEquals(name).combine(Filters.NPCs.tileNotEquals(interactingNPC.getPosition()), false));
+        }
+
+
+        if (candidates != null && candidates.length > 0) {
+
+            final Positionable next = determineNextTarget(candidates);
+
+            if (next != null && next instanceof Clickable07) {
+                log.debug("Hovering over next resource");
+                Hovering.setEntity((Clickable07) next);
+                Hovering.setShouldOpenMenu(shouldOpenMenuNext());
+            }
+        }
+    }
+}

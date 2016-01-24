@@ -12,7 +12,10 @@ import org.tribot.api2007.NPCs;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSNPC;
+import scripts.LanAPI.Core.Logging.LogProxy;
 import scripts.LanAPI.Game.Movement.Movement;
+
+import java.rmi.ConnectIOException;
 
 /**
  * Helper class that manages NPC logic.
@@ -20,6 +23,8 @@ import scripts.LanAPI.Game.Movement.Movement;
  * @author Laniax
  */
 public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and cannot be extended.
+
+    static LogProxy log = new LogProxy("NPCsHelper");
 
     /**
      * Find the nearest npc based on its name.
@@ -68,7 +73,7 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
     /**
      * Find the nearest npc based on its available actions.
      *
-     * @param actions
+     * @param action
      * @param contains - if true, will search for npcs who have the action, if false will search for npcs who do not.
      * @return The npc or null
      */
@@ -80,7 +85,7 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
     /**
      * Find npcs that are nearby based on its available actions.
      *
-     * @param actions
+     * @param action
      * @param contains - if true, will search for npcs who have the action, if false will search for npcs who do not.
      * @return An array with all the npcs or an empty array if there are none.
      */
@@ -164,6 +169,7 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
 
                 if (Timing.waitCondition(new Condition() {
                     public boolean active() {
+                        General.sleep(50);
                         return NPCChat.getMessage() != null;
                     }
                 }, General.random(400, 600))) {
@@ -197,11 +203,35 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
      */
     public static boolean talkContinue() {
 
-        while (NPCChat.getMessage() != null && NPCChat.getOptions() == null) {
+        String str = NPCChat.getMessage();
+        String[] options = NPCChat.getOptions();
+
+        while (str != null && options == null) {
+
+            log.info("DIALOG TEXT: '%s'.", str);
 
             NPCChat.clickContinue(true);
 
+            str = NPCChat.getMessage();
+            options = NPCChat.getOptions();
+
         }
+
+        Timing.waitCondition(new Condition() {
+            @Override
+            public boolean active() {
+                return NPCChat.getOptions() != null;
+            }
+        }, General.random(250, 500));
+
+        options = NPCChat.getOptions();
+
+        if (options != null) {
+            for (String op : options) {
+                log.info("DIALOG OPTION: '%s'.", op);
+            }
+        }
+
         return true;
     }
 }

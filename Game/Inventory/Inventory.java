@@ -2,11 +2,23 @@ package scripts.LanAPI.Game.Inventory;
 
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.types.RSItem;
+import scripts.LanAPI.Core.Filters.Filters;
 
 /**
  * @author Laniax
  */
 public class Inventory extends org.tribot.api2007.Inventory {
+
+    /**
+     * Returns if we have (ALL of) the item(s) in our inventory..
+     * @param items
+     * @return
+     */
+    public static boolean hasItem(RSItem... items) {
+
+        return find(Filters.Items.itemEquals(items)).length == items.length;
+
+    }
 
     /**
      * Returns if the inventory is empty or not.

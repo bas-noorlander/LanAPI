@@ -29,8 +29,8 @@ public class ArgumentsHelper {
             // Trim whitespace
             scriptSelect = scriptSelect.replaceAll("\\s","");
 
-            // Split everything by comma
-            List<String> argList = Arrays.asList(scriptSelect.split(","));
+            // Split everything by ;
+            List<String> argList = Arrays.asList(scriptSelect.split(";"));
 
             for(String arg : argList) {
 

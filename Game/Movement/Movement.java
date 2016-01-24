@@ -5,6 +5,7 @@ import org.tribot.api.Timing;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api.types.generic.Condition;
 import org.tribot.api.util.Sorting;
+import org.tribot.api.util.abc.preferences.WalkingPreference;
 import org.tribot.api2007.*;
 import org.tribot.api2007.types.RSArea;
 import org.tribot.api2007.types.RSObject;
@@ -34,29 +35,6 @@ public class Movement {
 
         return PathFinding.canReach(toReach, toReach instanceof RSObject);
 
-    }
-
-    /**
-     * Sets the use of custom door objects.
-     * Generally used if DPathNavigator cannot recognize a door.
-     * <p>
-     * Checks if run can be toggled.
-     *
-     * @param posToWalk
-     * @param doors     - Array of door objects
-     * @return if succesfully reached destination or not.
-     */
-    public static void setUseCustomDoors(boolean state, RSObject[] doors) {
-//
-//        if (state) {
-//            nav.overrideDoorCache(true, doors);
-//
-//            General.println("Loaded " + doors.length + " custom doors.");
-//        } else {
-//            nav.overrideDoorCache(false, null);
-//
-//            General.println("Unloaded custom doors.");
-//        }
     }
 
     /**
@@ -137,11 +115,28 @@ public class Movement {
         if (posToWalk instanceof RSTile)
             PaintHelper.destinationTile = (RSTile) posToWalk;
 
-        Antiban.doActivateRun();
+        RSTile tile = posToWalk.getPosition();
+
+        if (tile == null)
+            return false;
+
+        Antiban.activateRun();
 
         if (isInLoadedRegion(posToWalk)) {
 
-            nav.overrideDoorCache(false, null);
+            if (Antiban.getWalkingPreference(Player.getPosition().distanceTo(tile)) == WalkingPreference.SCREEN) {
+
+                RSTile[] path = Walking.generateStraightScreenPath(tile);
+
+                if (Walking.walkScreenPath(path, new Condition() {
+                    @Override
+                    public boolean active() {
+                        General.sleep(50);
+                        return tile.isOnScreen();
+                    }
+                }, General.random(3000, 4000)))
+                    return true;
+            }
 
             if (!PathFinding.isTileWalkable(posToWalk)) {
 
@@ -166,29 +161,12 @@ public class Movement {
                     General.sleep(1000);
                     return isInLoadedRegion(finalPosToWalk);
                 }
-            }, General.random(5000,6000))) {
+            }, General.random(5000, 6000))) {
                 return nav.traverse(posToWalk);
             }
         }
 
         return false;
-
-//        int failsafe = 0;
-//        while (!Player.getPosition().equals(posToWalk) && failsafe < 20) {
-//
-//            boolean isWalkable = PathFinding.isTileWalkable(posToWalk);
-//
-//            if ((isWalkable || searchWalkable) && isInLoadedRegion(posToWalk)) {
-//                if (walkToPrecise(posToWalk))
-//                    return true;
-//            }
-//
-//            if (webWalkTo(posToWalk))
-//                return true;
-//
-//            failsafe++;
-//        }
-//        return false;
     }
 
     /**
@@ -208,7 +186,7 @@ public class Movement {
 
             final RSTile tile = path[i];
 
-            Antiban.doActivateRun();
+            Antiban.activateRun();
 
             PaintHelper.destinationTile = tile;
 

@@ -23,6 +23,8 @@ public class PaintHelper {
     public static RSTile destinationTile = null;
     public static String statusText = "Starting";
 
+    public static int profit = 0;
+
     // Mouse painting related
     private static final int trailSize = 100;
     private static final double alpha = (255.0 / trailSize);
@@ -50,9 +52,9 @@ public class PaintHelper {
         int y = paintString.getPosition().y;
 
         g.setFont(paintString.getFont());
-        g.setColor(Color.DARK_GRAY);
+        g.setColor(paintString.getShadowColor());
 
-        TextLayout textLayout = new TextLayout(paintString.getString(), paintString.getFont(), g.getFontRenderContext());
+        TextLayout textLayout = new TextLayout(paintString.getText(), paintString.getFont(), g.getFontRenderContext());
 
         textLayout.draw(g, x + 1, y);
         textLayout.draw(g, x, y + 1);

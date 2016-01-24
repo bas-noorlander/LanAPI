@@ -33,7 +33,11 @@ public class SkillsHelper {
         startSkillInfo.clear();
 
         for (SKILLS skill : skills) {
-            startSkillInfo.put(skill, Skills.getXP(skill));
+
+            int xp = Skills.getXP(skill);
+            xp = Math.max(0, xp);
+
+            startSkillInfo.put(skill, xp);
         }
     }
 
