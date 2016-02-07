@@ -1,48 +1,54 @@
 package scripts.LanAPI.Game.Script;
 
 import org.tribot.api.General;
-import org.tribot.api.ListenerManager;
 import org.tribot.api.Timing;
 import org.tribot.api2007.Login;
+import org.tribot.api2007.MessageListener;
+import org.tribot.api2007.Skills;
 import org.tribot.api2007.util.ThreadSettings;
 import org.tribot.script.Script;
 import org.tribot.script.interfaces.*;
+import scripts.LanAPI.Core.GUI.GUI;
+import scripts.LanAPI.Game.Antiban.Antiban;
 import scripts.LanAPI.Core.Logging.LogProxy;
+import scripts.LanAPI.Core.System.Notifications;
 import scripts.LanAPI.Game.Concurrency.IStrategy;
 import scripts.LanAPI.Game.Concurrency.StrategyList;
 import scripts.LanAPI.Game.Painting.AbstractPaintInfo;
 import scripts.LanAPI.Game.Painting.PaintHelper;
 import scripts.LanAPI.Game.Painting.PaintString;
+import scripts.LanAPI.Game.Persistance.Variables;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ComponentAdapter;
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-public abstract class AbstractScript extends Script implements Painting, MouseActions, MousePainting, MouseSplinePainting, EventBlockingOverride {
-
-    protected LogProxy log;
-
-    protected static boolean hasArguments = false;
+public abstract class AbstractScript extends Script implements Painting, MouseActions, MousePainting, MouseSplinePainting, EventBlockingOverride, Ending, Breaking, MessageListening07 {
 
     public static boolean quitting = false;
+
+    protected boolean hasArguments = false;
+    protected LogProxy log;
     protected boolean waitForGUI = true;
     protected boolean showPaint = false;
+    protected GUI gui = null;
+    protected BufferedImage icon = null;
+    protected AbstractPaintInfo paintInfo = null;
+
+    //Pattern skillupRegex = Pattern.compile("(?<=\\ba\\s)(\\w+).*\\b([0-9]{1,2})");
+    Pattern skillupRegex = Pattern.compile("(?<=\\ba\\s)\\w+");
+
+    public abstract void onInitialize();
+
+    public abstract GUI getGUI();
 
     public abstract IStrategy[] getStrategies();
 
-    protected JFrame gui = null;
-    protected AbstractPaintInfo paintInfo = null;
-
-    public abstract JFrame getGUI();
-
-    /**
-     * This method is called once when the script starts and we are logged ingame, just before the paint/gui shows.
-     */
-    public abstract void onInitialize();
+    public abstract BufferedImage getNotificationIcon();
 
     public abstract AbstractPaintInfo getPaintInfo();
 
@@ -58,7 +64,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
         ThreadSettings.get().setClickingAPIUseDynamic(true);
 
-        // wait until login bot is done.
+//         wait until login bot is done.
         while (Login.getLoginState() != Login.STATE.INGAME) {
             sleep(250);
             Login.login();
@@ -66,6 +72,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
         onInitialize();
 
+        icon = getNotificationIcon();
         gui = getGUI();
         paintInfo = getPaintInfo();
 
@@ -73,21 +80,22 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
         if (!hasArguments && gui != null) {
 
-            gui.addComponentListener(new ComponentAdapter() {
-                @Override
-                public void componentHidden(ComponentEvent e) {
-                    super.componentHidden(e);
-                    waitForGUI = false;
-                }
-            });
+            gui.show();
 
-            EventQueue.invokeLater(() -> gui.setVisible(true));
-
-            while (waitForGUI)
+            while (gui.isOpen())
                 sleep(250);
         }
 
+        boolean useNotifications = Variables.getInstance().get("enableNotifications", false);
+
+        if (icon != null && useNotifications) {
+            if (Notifications.init(this))
+                MessageListener.addListener(this);
+        }
+
         StrategyList list = new StrategyList(getStrategies());
+
+        Antiban.setWaitingSince();
 
         while (!quitting) {
 
@@ -101,9 +109,6 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
                 strategy.run();
             sleep(50);
         }
-
-        log.info("Thank you for using %s! You ran this script for %s. If you enjoyed this script, please leave a message on the forums :)", this.getScriptName(), Timing.msToString(this.getRunningTime()));
-
     }
 
     @Override
@@ -116,8 +121,6 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
             Graphics2D g = (Graphics2D) g1;
 
-            paintInfo.customDraw(g);
-
             Image bg = paintInfo.getBackground();
 
             if (bg != null)
@@ -126,18 +129,10 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
             for (PaintString paintString : paintInfo.getText(this.getRunningTime(), g) ) {
-
-                Font font = paintString.getFont();
-                if (font != null)
-                    g.setFont(font);
-
-                if (paintString.isShadowed()) {
-                    PaintHelper.drawShadowedText(paintString, g);
-                } else {
-                    g.setColor(paintString.getColor());
-                    g.drawString(paintString.getString(), paintString.getPosition().x, paintString.getPosition().y);
-                }
+                PaintHelper.drawPaintString(paintString, g);
             }
+
+            paintInfo.customDraw(g);
         } else {
 
             Image toggle = paintInfo.getButtonPaintToggle();
@@ -159,7 +154,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
                 return OVERRIDE_RETURN.DISMISS;
             } else if (paintInfo.getSettingsToggleRectangle().contains(e.getPoint())) {
 
-                gui.setVisible(gui.isVisible());
+                gui.show();
 
                 e.consume();
                 return OVERRIDE_RETURN.DISMISS;
@@ -167,6 +162,97 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
         }
 
         return OVERRIDE_RETURN.PROCESS;
+    }
+
+    @Override
+    public void onEnd() {
+
+        log.info("Thank you for using %s! You ran this script for %s. If you enjoyed this script, please leave a message on the forums :)", this.getScriptName(), Timing.msToString(this.getRunningTime()));
+
+        Notifications.destroy();
+
+        if (gui != null)
+            gui.close();
+    }
+
+    @Override
+    public void onBreakStart(long breakTime) {
+
+        if (Notifications.getPreferences().isOnBreakStart())
+            Notifications.send(this.getScriptName(), "Taking a break for " + Timing.msToString(breakTime), TrayIcon.MessageType.INFO);
+
+    }
+
+    @Override
+    public void onBreakEnd() {
+
+        if (Notifications.getPreferences().isOnBreakEnd())
+            Notifications.send(this.getScriptName(), "Break Ended", TrayIcon.MessageType.INFO);
+
+    }
+
+    @Override
+    public void serverMessageReceived(String s) {
+
+        if (Notifications.getPreferences().isOnSkillLevelUp()) {
+
+            if (s.contains("Congratulations, you just advanced")) {
+
+                Matcher match = skillupRegex.matcher(s);
+
+                if (match.find()) {
+                    String skillName = match.group(0);
+                    Skills.SKILLS skill = Skills.SKILLS.valueOf(skillName);
+                    if (skill != null) {
+                        int newLevel = skill.getActualLevel();
+                        Notifications.send(String.format("%s level up!", skillName), String.format("Your %s advanced to level %d!", skillName, newLevel), TrayIcon.MessageType.INFO);
+                        log.info("You gained a level in %s! You are now %d.", skillName, newLevel);
+                    }
+                }
+            }
+        }
+
+        if (Notifications.getPreferences().isOnServerMessage())
+            Notifications.send("[Server Message]", s, TrayIcon.MessageType.WARNING);
+
+    }
+
+    @Override
+    public void clanMessageReceived(String name, String msg) {
+
+        if (Notifications.getPreferences().isOnClanMessage())
+            Notifications.send(String.format("[Clan] %s:", name), msg);
+    }
+
+    @Override
+    public void playerMessageReceived(String name, String msg) {
+
+        if (Notifications.getPreferences().isOnChatMessage())
+            Notifications.send(String.format("[Chat] %s:", name), msg);
+
+    }
+
+    @Override
+    public void personalMessageReceived(String name, String msg) {
+
+        if (Notifications.getPreferences().isOnPrivateMessage())
+            Notifications.send(String.format("[PM] %s:", name), msg, TrayIcon.MessageType.WARNING);
+
+    }
+
+    @Override
+    public void duelRequestReceived(String name, String msg) {
+
+        if (Notifications.getPreferences().isOnDuelRequest())
+            Notifications.send("[Duel Request]", String.format("From '%s'", name), TrayIcon.MessageType.WARNING);
+    }
+
+    @Override
+    public void tradeRequestReceived(String s) {
+
+        if (Notifications.getPreferences().isOnTradeRequest())
+            Notifications.send("[Trade Request]", String.format("From '%s'", s), TrayIcon.MessageType.WARNING);
+
     }
 
     public OVERRIDE_RETURN overrideKeyEvent(KeyEvent e) {

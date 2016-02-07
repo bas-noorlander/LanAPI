@@ -8,11 +8,11 @@ import java.util.List;
  */
 public abstract class AbstractPaintInfo {
 
-    private final Point _backgroundPosition = new Point(0, 249);
+    private Point _backgroundPosition = new Point(0, 249);
 
-    private final Rectangle _paintToggle = new Rectangle(406, 465, 99, 26);
+    private Rectangle _paintToggle = new Rectangle(406, 465, 99, 26);
 
-    private final Rectangle _settingsToggle = new Rectangle(406, 427, 99, 26);
+    private Rectangle _settingsToggle = new Rectangle(406, 427, 99, 26);
 
     public abstract Image getBackground();
 
@@ -24,6 +24,18 @@ public abstract class AbstractPaintInfo {
         return _backgroundPosition;
     }
 
+    public void setBackgroundPosition(Point value) {
+        _backgroundPosition = value;
+    }
+
+    public void setPaintToggleRectangle(Rectangle value) {
+        _paintToggle = value;
+    }
+
+    public void setSettingsToggleRectangle(Rectangle value) {
+        _settingsToggle = value;
+    }
+
     public Rectangle getPaintToggleRectangle() {
         return _paintToggle;
     }
@@ -33,7 +45,7 @@ public abstract class AbstractPaintInfo {
     }
 
     /**
-     * Hook into the draw function before the text is rendered.
+     * Hook into the draw function after all the text is rendered.
      * @param g
      */
     public void customDraw(Graphics2D g) {}

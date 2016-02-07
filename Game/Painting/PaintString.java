@@ -2,18 +2,21 @@ package scripts.LanAPI.Game.Painting;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 
 /**
  * @author Laniax
  */
 public class PaintString {
 
-    private final Font _font;
-    private final boolean _drawShadowed;
-    private final Color _color;
-    private final Color _shadowColor;
-    private final String _str;
-    private final Point _pos;
+    private Font _font = new JLabel().getFont();
+    private boolean _drawShadowed = false;
+    private Color _color = Color.WHITE;
+    private Color _shadowColor = Color.DARK_GRAY;
+    private String _str;
+    private Point _pos;
+    private BufferedImage _icon = null;
+    private Rectangle centered = null;
 
     public PaintString(String str) {
 
@@ -49,23 +52,66 @@ public class PaintString {
         _shadowColor = shadowColor;
     }
 
+    public void setIcon(BufferedImage icon) {
+        _icon = icon;
+    }
+
+    public BufferedImage getIcon() {
+        return _icon;
+    }
+
+    public void setCentered(Rectangle value) {
+        centered = value;
+    }
+
+    public Rectangle getCentered() {
+        return centered;
+    }
+
     public Font getFont() {
         return _font;
     }
+    public void setFont(Font font) {
+        _font = font;
+    }
 
-    public boolean isShadowed() {
+    public boolean getDrawShadow() {
         return _drawShadowed;
+    }
+
+    public void setDrawShadow(boolean value) {
+        _drawShadowed = value;
     }
 
     public Color getColor() {
         return _color;
     }
 
-    public String getString() {
+    public String getText() {
         return _str;
     }
 
     public Point getPosition() {
         return _pos;
+    }
+
+    public Color getShadowColor() {
+        return _shadowColor;
+    }
+
+    public void setShadowColor(Color value) {
+        this._shadowColor = value;
+    }
+
+    public void setText(String value) {
+        this._str = value;
+    }
+
+    public void setPosition(Point value) {
+        this._pos = value;
+    }
+
+    public void setColor(Color color) {
+        this._color = color;
     }
 }

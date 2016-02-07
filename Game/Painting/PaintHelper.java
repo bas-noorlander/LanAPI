@@ -51,7 +51,6 @@ public class PaintHelper {
         int x = paintString.getPosition().x;
         int y = paintString.getPosition().y;
 
-        g.setFont(paintString.getFont());
         g.setColor(paintString.getShadowColor());
 
         TextLayout textLayout = new TextLayout(paintString.getText(), paintString.getFont(), g.getFontRenderContext());
@@ -87,6 +86,27 @@ public class PaintHelper {
 
         g.setColor(Color.WHITE);
         textLayout.draw(g, x, y);
+    }
+
+    public static void drawPaintString(PaintString paintString, Graphics2D g) {
+        Font font = paintString.getFont();
+        if (font != null)
+            g.setFont(font);
+
+        if (paintString.getCentered() != null)
+            PaintHelper.setCenteredText(paintString, g);
+
+        if (paintString.getDrawShadow()) {
+            PaintHelper.drawShadowedText(paintString, g);
+        } else {
+            g.setColor(paintString.getColor());
+            g.drawString(paintString.getText(), paintString.getPosition().x, paintString.getPosition().y);
+        }
+
+        BufferedImage icon = paintString.getIcon();
+        if (icon != null) {
+            g.drawImage(icon, null, paintString.getPosition().x - icon.getWidth(), paintString.getPosition().y - icon.getHeight());
+        }
     }
 
     /**
@@ -210,6 +230,31 @@ public class PaintHelper {
         index %= trailSize;
     }
 
+    public static void setCenteredText(PaintString string, Graphics2D g) {
+
+        Rectangle centerRect = string.getCentered();
+
+        int width = centerRect.width;
+        int height = centerRect.height;
+
+        FontMetrics fm = g.getFontMetrics();
+
+        int x = (width - fm.stringWidth(string.getText())) / 2;
+        int y = (fm.getAscent() + (height - (fm.getAscent() + fm.getDescent())) / 2);
+
+        int xRes = centerRect.x + x;
+        int yRes = centerRect.y + y;
+
+        string.setPosition(new Point(xRes, yRes));
+    }
+
+    public static void drawCenteredText(String str, int xPos, int yPos, Graphics2D g) {
+        FontMetrics fm = g.getFontMetrics();
+        int x = (xPos - fm.stringWidth(str)) / 2;
+        int y = (fm.getAscent() + (yPos - (fm.getAscent() + fm.getDescent())) / 2);
+        g.drawString(str, x, y);
+    }
+
     public static String formatNumber(int number) {
 
         if (number > 1000000) {
@@ -221,6 +266,5 @@ public class PaintHelper {
         }
 
         return String.valueOf(number);
-
     }
 }
