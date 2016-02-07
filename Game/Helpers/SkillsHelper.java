@@ -1,5 +1,6 @@
 package scripts.LanAPI.Game.Helpers;
 
+import org.tribot.api.General;
 import org.tribot.api2007.Skills;
 import org.tribot.api2007.Skills.SKILLS;
 
@@ -12,7 +13,7 @@ import java.util.LinkedHashMap;
  */
 public class SkillsHelper {
 
-    public static LinkedHashMap<SKILLS, Integer> startSkillInfo = new LinkedHashMap<SKILLS, Integer>();
+    public static LinkedHashMap<SKILLS, Integer> startSkillInfo = new LinkedHashMap<>();
 
     /**
      * Save the amount of XP of each skill so we can look back at it later (for paint, antiban etc)
@@ -67,7 +68,7 @@ public class SkillsHelper {
      * Make sure setStartSkills() was called on this skill.
      *
      * @param skill to check
-     * @return true if xp was gained, false otherwise.
+     * @return
      */
     public static int getReceivedXP(SKILLS skill) {
         return Skills.getXP(skill) - getStartXP(skill);
@@ -80,7 +81,7 @@ public class SkillsHelper {
      * @return true if xp was gained, false otherwise.
      */
     public static boolean hasReceivedXP(SKILLS skill) {
-        return getReceivedXP(skill) > 0;
+        return getReceivedXP(skill) > 0 && startSkillInfo.containsKey(skill);
     }
 
     /**
@@ -98,5 +99,30 @@ public class SkillsHelper {
             }
         }
         return list.toArray(new SKILLS[list.size()]);
+    }
+
+    /**
+     * Gets the skill where we received the most XP in since we started the script.
+     *
+     * @return the skill, or null if none.
+     */
+    public static SKILLS getSkillWithMostIncrease() {
+
+        SKILLS result = null;
+        int value = Integer.MIN_VALUE;
+
+        for (SKILLS skill : getAllSkillsWithIncrease()) {
+
+            int increase = getReceivedXP(skill);
+
+            if (increase > value) {
+                value = increase;
+                result = skill;
+            }
+
+        }
+
+        return result;
+
     }
 }

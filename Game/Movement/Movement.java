@@ -102,6 +102,16 @@ public class Movement {
         }, 500);
     }
 
+    public static void setExcludeTiles(final Positionable[] tiles) {
+
+        nav.setExcludeTiles(tiles);
+    }
+
+    public static Positionable[] getExcludeTiles() {
+
+        return nav.getExcludeTiles();
+    }
+
     /**
      * Walks to the position using either DPathNavigator for close by precision or WebWalking for greater lengths.
      *

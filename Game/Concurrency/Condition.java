@@ -3,12 +3,14 @@ package scripts.LanAPI.Game.Concurrency;
 import org.tribot.api.Clicking;
 import org.tribot.api.DynamicClicking;
 import org.tribot.api.General;
+import org.tribot.api.Timing;
 import org.tribot.api2007.Banking;
 import org.tribot.api2007.ChooseOption;
 import org.tribot.api2007.types.RSNPC;
 import scripts.LanAPI.Game.Antiban.Antiban;
 import scripts.LanAPI.Game.Combat.Combat;
 import scripts.LanAPI.Game.Combat.Hovering;
+import scripts.LanAPI.Game.Helpers.ChooseOptionHelper;
 
 /**
  * @author Laniax
@@ -35,6 +37,16 @@ public abstract class Condition extends org.tribot.api.types.generic.Condition {
         }
     };
 
+    public static Condition UntilInCombat(final RSNPC npc) {
+        return new Condition() {
+            @Override
+            public boolean active() {
+                General.sleep(50, 150);
+                return npc.isInCombat() || npc.isInteractingWithMe() || Combat.isUnderAttack();
+            }
+        };
+    }
+
     public static Condition UntilOutOfCombatHovering(final RSNPC hoverNPC) {
 
         return new Condition() {
@@ -46,11 +58,26 @@ public abstract class Condition extends org.tribot.api.types.generic.Condition {
 
                 Combat.checkAndEat();
 
-                if (Clicking.hover(hoverNPC)) {
+                if (Hovering.getShouldOpenMenu()) {
 
-                    if (Hovering.getShouldOpenMenu() && !ChooseOption.isOpen())
-                        DynamicClicking.clickRSNPC(hoverNPC, 3);
+                    boolean isRightEntity = ChooseOptionHelper.isMenuOpenForEntity(hoverNPC);
+
+                    if (!isRightEntity) {
+
+                        if (ChooseOption.isOpen())
+                            ChooseOption.close();
+
+                        if (DynamicClicking.clickRSNPC(hoverNPC, 3)) {
+                            Timing.waitMenuOpen(100);
+                            return false; // let this condition run again
+                        }
+                    } else if (ChooseOption.isOptionValid("Attack")) {
+
+                        ChooseOptionHelper.hover("Attack", hoverNPC);
+                    }
                 }
+                else
+                    Clicking.hover(hoverNPC);
 
                 return Combat.getAttackingEntities().length == 0;
             }

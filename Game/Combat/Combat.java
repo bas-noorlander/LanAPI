@@ -3,7 +3,7 @@ package scripts.LanAPI.Game.Combat;
 import org.tribot.api.Clicking;
 import org.tribot.api.General;
 import org.tribot.api.Timing;
-import org.tribot.api.interfaces.Clickable07;
+import org.tribot.api.interfaces.Clickable;
 import org.tribot.api2007.*;
 import org.tribot.api2007.GameTab.TABS;
 import org.tribot.api2007.ext.Filters;
@@ -49,6 +49,25 @@ public abstract class Combat extends org.tribot.api2007.Combat {
     }
 
     /**
+     * Gets the attack style the player is currently using.
+     * E.g. Chop/Slash/Rapid etc
+     * @return the attack style, or null if not found.
+     */
+    public static String getAttackStyle() {
+
+        String[] styles = getAvailableAttackActions();
+        int index = getSelectedStyleIndex();
+
+        if (styles.length > index) {
+
+            return styles[index];
+
+        }
+
+        return null;
+    }
+
+    /**
      * Checks if we have food and are in need of eating.
      * @param foodName
      * @return true if we ate something, false otherwise
@@ -86,6 +105,24 @@ public abstract class Combat extends org.tribot.api2007.Combat {
         return false;
     }
 
+    private static boolean doAttack(final RSNPC npc) {
+        Clickable menuNode = Hovering.getHoveringItem();
+
+        if (Hovering.isHovering() && Hovering.getShouldOpenMenu() && menuNode != null)  // if we still had the menu open for this NPC as a 'hover' NPC.
+            return Clicking.click(menuNode);
+        else
+            return Clicking.click("Attack", npc);
+    }
+
+    private static void updateCombatTrackers() {
+        // Update ABC2 with average waiting time.
+        final int resourcesWon = Antiban.getResourcesWon();
+        final int estimateWaitingTime = resourcesWon > 0 ? (totalKillTime / resourcesWon) : 2000;
+
+        log.debug("Generating trackers. (Resources won: %d. Est. waiting time: %dms.", resourcesWon, estimateWaitingTime);
+        Antiban.get().generateTrackers(Antiban.get().generateBitFlags(estimateWaitingTime));
+    }
+
     /**
      * Attacks an NPC
      * @param npc
@@ -108,22 +145,24 @@ public abstract class Combat extends org.tribot.api2007.Combat {
 
         if (!npc.isInCombat() && !isUnderAttack() && npc.isValid() && Movement.canReach(npc) && npc.getInteractingCharacter() == null) {
 
-            if (Clicking.click("Attack", npc)) {
-                if (Timing.waitCondition(new Condition() {
-                    @Override
-                    public boolean active() {
-                        General.sleep(50, 150);
+            if (doAttack(npc)) {
 
-                        return npc.isInCombat() || npc.isInteractingWithMe() || isUnderAttack();
+                if (Timing.waitCondition(Condition.UntilInCombat(npc), General.random(2000, 3000))) {
+
+                    updateCombatTrackers();
+
+                    if (isUnderAttack() && !npc.isInteractingWithMe()) { // A different npc is attacking.. lets attack that one instead.
+
+                        RSCharacter[] characters = getAttackingEntities();
+
+                        if (characters.length > 0 && characters[0] != null) {
+
+                            if (characters[0].isInteractingWithMe() && characters[0].isInCombat()) {
+                                attackNPC(npc);
+                                return;
+                            }
+                        }
                     }
-                }, General.random(2000, 3000))) {
-
-                    // Update ABC2 with average waiting time.
-                    final int resourcesWon = Antiban.getResourcesWon();
-                    final int estimateWaitingTime = resourcesWon > 0 ? (totalKillTime / resourcesWon) : 2000;
-
-                    log.debug("Generating trackers. (Resources won: %d. Est. waiting time: %dms.", resourcesWon, estimateWaitingTime);
-                    Antiban.get().generateTrackers(Antiban.get().generateBitFlags(estimateWaitingTime));
 
                     // Determine if we have won the resource or not, and act accordingly.
                     boolean wonResource = npc.isInteractingWithMe();
@@ -142,13 +181,13 @@ public abstract class Combat extends org.tribot.api2007.Combat {
 
                         if (Hovering.isHovering()) { // we should hover
 
-                            final Clickable07 hover = Hovering.getEntity();
+                            final Clickable hover = Hovering.getEntity();
                             if (hover == null || !(hover instanceof RSNPC))
                                 return;
 
                             final RSNPC hoverNPC = (RSNPC) hover;
 
-                            if (Timing.waitCondition(Condition.UntilOutOfCombatHovering(hoverNPC), General.random(20000, 30000))) { //.waitForCombine(Condition.UntilOutOfCombat, General.random(20000, 30000))) {
+                            if (Timing.waitCondition(Condition.UntilOutOfCombatHovering(hoverNPC), General.random(20000, 30000))) {
 
                                 if (Antiban.isNextTargetValid(null)) {
                                     // We killed our target and the hoverNPC is still valid!

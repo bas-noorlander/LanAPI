@@ -1,21 +1,24 @@
 package scripts.LanAPI.Game.Combat;
 
+import org.tribot.api.interfaces.Clickable;
 import org.tribot.api.interfaces.Clickable07;
 import org.tribot.api2007.ChooseOption;
+import org.tribot.api2007.types.RSItem;
 
 /**
  * @author Laniax
  */
 public class Hovering {
 
-    private static Clickable07 hoverTarget;
+    private static Clickable hoverTarget;
     private static boolean menuOpen;
+    private static Clickable hoverItem;
 
     /**
      * Gets the entity that should be mouse-hovered.
      * @return
      */
-    public static Clickable07 getEntity() {
+    public static Clickable getEntity() {
         return hoverTarget;
     }
 
@@ -23,7 +26,7 @@ public class Hovering {
      * Sets the entity that should be mouse-hovered.
      * @param entity
      */
-    public static void setEntity(Clickable07 entity) {
+    public static void setEntity(Clickable entity) {
         hoverTarget = entity;
     }
 
@@ -69,7 +72,23 @@ public class Hovering {
     public static void reset() {
         hoverTarget = null;
         menuOpen = false;
+        hoverItem = null;
     }
 
+    /**
+     * Gets the menu node which we should be hovering right now
+     * @return
+     */
+    public static Clickable getHoveringItem() {
+        return hoverItem;
+    }
 
+    /**
+     * Sets the menu node which we are hovering right now.
+     * *Note* this is purely a 'tracker' it doesn't actually start hovering the node.
+     * @param value
+     */
+    public static void setHoveringItem(Clickable value) {
+        hoverItem = value;
+    }
 }

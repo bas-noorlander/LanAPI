@@ -7,10 +7,10 @@ import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Camera;
 import org.tribot.api2007.types.RSGroundItem;
 import org.tribot.api2007.types.RSItemDefinition;
-import scripts.LANChaosKiller.Constants.ItemIDs;
 import scripts.LanAPI.Game.Inventory.Inventory;
 import scripts.LanAPI.Game.Movement.Movement;
 import scripts.LanAPI.Game.Painting.PaintHelper;
+import scripts.LanAPI.Network.ItemPrice;
 
 /**
  * @author Laniax
@@ -87,10 +87,7 @@ public abstract class GroundItems extends org.tribot.api2007.GroundItems {
                         }
                     }, General.random(3000, 4000))) {
 
-                        ItemIDs i = ItemIDs.valueOf(item.getID());
-
-                        if (i != null)
-                            PaintHelper.profit += (i.getPrice() * item.getStack());
+                        PaintHelper.profit += (ItemPrice.get(item.getID()) * item.getStack());
 
                         return true;
                     }
