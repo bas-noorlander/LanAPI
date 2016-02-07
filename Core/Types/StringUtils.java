@@ -9,6 +9,7 @@ import java.util.List;
  * Globally available utility classes, mostly for string manipulation.
  *
  * @author Jim Menard, <a href="mailto:jimm@io.com">jimm@io.com</a>
+ * @author Laniax
  */
 public class StringUtils {
     /**
@@ -162,6 +163,17 @@ public class StringUtils {
             strings.add(str.substring(lineStart));
 
         return strings;
+    }
+
+    /**
+     * Will convert the first letter of a string to uppercase, and the rest lowercase.
+     * Thus 'thisIsAnExample' becomes 'Thisisanexample'.
+     * @param input
+     * @return
+     */
+    public static String capitalize(String input) {
+
+        return input.substring(0,1).toUpperCase() + input.substring(1).toLowerCase();
     }
 
 }

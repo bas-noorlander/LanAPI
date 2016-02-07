@@ -1,6 +1,8 @@
 package scripts.LanAPI.Core.Filters;
 
 import org.tribot.api.types.generic.Filter;
+import org.tribot.api2007.types.RSArea;
+import org.tribot.api2007.types.RSGroundItem;
 import org.tribot.api2007.types.RSItem;
 
 /**
@@ -31,5 +33,24 @@ public class Filters extends org.tribot.api2007.ext.Filters {
 
         }
 
+    }
+
+    public static class GroundItems extends org.tribot.api2007.ext.Filters.GroundItems {
+
+        /**
+         * Generates a filter to see if an (@link RSGroundItem) is in the given area.
+         * @param area
+         * @return
+         */
+        public static Filter<RSGroundItem> inArea(final RSArea area) {
+
+            return new Filter<RSGroundItem>() {
+                @Override
+                public boolean accept(RSGroundItem rsGroundItem) {
+                    return area.contains(rsGroundItem);
+                }
+            };
+
+        }
     }
 }
