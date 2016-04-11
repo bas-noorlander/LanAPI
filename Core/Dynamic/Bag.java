@@ -1,6 +1,8 @@
 package scripts.LanAPI.Core.Dynamic;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A dynamic data bag which can be added/retrieved/deleted upon at runtime.
@@ -18,6 +20,10 @@ public class Bag {
      */
     public int getCount() {
         return _values.size();
+    }
+
+    public Set<Map.Entry<String, Object>> getAll() {
+        return _values.entrySet();
     }
 
     /**

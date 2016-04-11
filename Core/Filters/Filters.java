@@ -1,9 +1,9 @@
 package scripts.LanAPI.Core.Filters;
 
+import org.tribot.api.General;
 import org.tribot.api.types.generic.Filter;
-import org.tribot.api2007.types.RSArea;
-import org.tribot.api2007.types.RSGroundItem;
-import org.tribot.api2007.types.RSItem;
+import org.tribot.api2007.Player;
+import org.tribot.api2007.types.*;
 
 /**
  * @author Laniax
@@ -30,9 +30,7 @@ public class Filters extends org.tribot.api2007.ext.Filters {
                     return false;
                 }
             };
-
         }
-
     }
 
     public static class GroundItems extends org.tribot.api2007.ext.Filters.GroundItems {
@@ -51,6 +49,92 @@ public class Filters extends org.tribot.api2007.ext.Filters {
                 }
             };
 
+        }
+    }
+
+    public static class NPCs extends org.tribot.api2007.ext.Filters.NPCs {
+
+        /**
+         * Generates a filter that will return all the {@link RSNPC}s except for the given one.
+         * @param npc
+         * @return
+         */
+        public static Filter<RSNPC> isNot(final RSNPC npc) {
+
+            return new Filter<RSNPC>() {
+                @Override
+                public boolean accept(RSNPC rsnpc) {
+                    return !rsnpc.equals(npc);
+                }
+            };
+        }
+
+        /**
+         * Generates a filter that will return all the {@link RSNPC}s that are in combat
+         * @return
+         */
+        public static Filter<RSNPC> inCombat() {
+
+            return new Filter<RSNPC>() {
+                @Override
+                public boolean accept(RSNPC rsnpc) {
+                    return rsnpc.isInCombat();
+                }
+            };
+        }
+
+        /**
+         * Generates a filter that will return all the {@link RSNPC}s that are not in combat
+         * @return
+         */
+        public static Filter<RSNPC> notInCombat() {
+
+            return new Filter<RSNPC>() {
+                @Override
+                public boolean accept(RSNPC rsnpc) {
+                    return !rsnpc.isInCombat();
+                }
+            };
+        }
+
+        /**
+         * Generates a filter that will return all the {@link RSNPC}s that are valid (not dead/dying).
+         * @return
+         */
+        public static Filter<RSNPC> isValid() {
+
+            return new Filter<RSNPC>() {
+                @Override
+                public boolean accept(RSNPC rsnpc) {
+                    return rsnpc.isValid();
+                }
+            };
+        }
+    }
+
+    public static class Projectiles {
+
+        /**
+         * Generates a filter that will return all the {@link RSProjectile} that were fired by the given npc.
+         * Note this is calculated based on the position of the npc when it fired the projectile.
+         * There may be projectiles missing in the result if the NPC moves around a lot.
+         * @param npc
+         * @return
+         */
+        public static Filter<RSProjectile> sourceNPC(final RSNPC npc) {
+
+            return new Filter<RSProjectile>() {
+
+                int plane = Player.getPosition().getPlane();
+
+                @Override
+                public boolean accept(RSProjectile projectile) {
+
+                    RSTile tile = new RSTile(projectile.getLocalX(), projectile.getLocalY(), plane, RSTile.TYPES.LOCAL).toWorldTile();
+
+                    return projectile.isTargetingMe() && npc.getPosition().equals(tile);
+                }
+            };
         }
     }
 }
