@@ -1,6 +1,5 @@
 package scripts.LanAPI.Game.GameTab;
 
-import org.tribot.api2007.GameTab;
 import org.tribot.api2007.types.RSVarBit;
 
 /**

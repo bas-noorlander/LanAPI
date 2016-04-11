@@ -12,6 +12,9 @@ import org.tribot.api2007.NPCs;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSNPC;
+import org.tribot.api2007.types.RSNPCDefinition;
+import org.tribot.api2007.types.RSObject;
+import org.tribot.api2007.types.RSObjectDefinition;
 import scripts.LanAPI.Core.Logging.LogProxy;
 import scripts.LanAPI.Game.Movement.Movement;
 
@@ -25,6 +28,19 @@ import java.rmi.ConnectIOException;
 public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and cannot be extended.
 
     static LogProxy log = new LogProxy("NPCsHelper");
+
+
+    public static String getName(final RSNPC npc) {
+        RSNPCDefinition definition = npc.getDefinition();
+        if (definition != null) {
+            String definitionName = definition.getName();
+            if (definitionName != null) {
+                return definitionName;
+            }
+        }
+
+        return null;
+    }
 
     /**
      * Find the nearest npc based on its name.
@@ -43,7 +59,7 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
      * @param name
      * @return An array with all the npcs or an empty array if there are none.
      */
-    public static RSNPC[] findNear(final String name) {
+    public static RSNPC[] findNear(final String... name) {
         return NPCs.findNearest(Filters.NPCs.nameEquals(name));
     }
 

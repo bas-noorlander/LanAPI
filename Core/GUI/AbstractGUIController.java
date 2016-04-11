@@ -8,7 +8,7 @@ import scripts.LanAPI.Core.Logging.LogProxy;
  */
 public abstract class AbstractGUIController implements Initializable {
 
-    LogProxy log = new LogProxy("AbstractGUIController");
+    protected LogProxy log = new LogProxy("AbstractGUIController");
 
     private GUI gui = null;
 

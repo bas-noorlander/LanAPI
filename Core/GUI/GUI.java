@@ -4,19 +4,15 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.tribot.api.General;
 import org.tribot.api.Timing;
 import scripts.LanAPI.Core.Logging.LogProxy;
 import scripts.LanAPI.Game.Concurrency.Condition;
-import scripts.LanAPI.Game.Painting.PaintHelper;
 
 import javax.swing.*;
-import java.awt.*;
 import java.net.URL;
 
 /**
@@ -27,6 +23,7 @@ public class GUI extends Application {
     LogProxy log = new LogProxy("GUI");
 
     private final URL fxml;
+
     private Stage stage;
 
     private boolean isOpen = false;
