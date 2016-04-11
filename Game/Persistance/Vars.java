@@ -5,15 +5,15 @@ import scripts.LanAPI.Core.Dynamic.Bag;
 /**
  * @author Laniax
  */
-public class Variables {
+public class Vars {
 
     private static final Bag instance = new Bag();
 
-    private Variables() {
+    private Vars() {
 
     }
 
-    public static Bag getInstance() {
+    public static Bag get() {
         return instance;
     }
 }
