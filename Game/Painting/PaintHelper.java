@@ -1,17 +1,21 @@
 package scripts.LanAPI.Game.Painting;
 
+import org.tribot.api.Screen;
 import org.tribot.api2007.Projection;
 import org.tribot.api2007.types.RSTile;
+import scripts.LanAPI.Core.Collections.Pair;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.font.TextLayout;
+import java.awt.font.FontRenderContext;
+import java.awt.font.GlyphVector;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-
+import java.util.Map;
 
 /**
  * Helper class that handles the script's paint and custom cursor logic.
@@ -21,8 +25,7 @@ import java.util.ArrayList;
 public class PaintHelper {
 
     public static RSTile destinationTile = null;
-    public static String statusText = "Starting";
-
+    public static String statusText = "Initializing";
     public static int profit = 0;
 
     // Mouse painting related
@@ -41,72 +44,82 @@ public class PaintHelper {
     private static int pulseCounter = 0;
 
     /**
-     * Draws text multiple times as if it is outlined/shadowed.
+     * Draws text multiple times as if it is shadowed.
      *
-     * @param paintString
      * @param g
      */
-    public static void drawShadowedText(PaintString paintString, Graphics2D g) {
+    public static void drawShadowedText(PaintBuilder paintBuilder, Color shadowColor, Point pos, Font font, Graphics2D g) {
 
-        int x = paintString.getPosition().x;
-        int y = paintString.getPosition().y;
-
-        g.setColor(paintString.getShadowColor());
-
-        TextLayout textLayout = new TextLayout(paintString.getText(), paintString.getFont(), g.getFontRenderContext());
-
-        textLayout.draw(g, x + 1, y);
-        textLayout.draw(g, x, y + 1);
-        textLayout.draw(g, x - 1, y);
-        textLayout.draw(g, x, y - 1);
-
-        g.setColor(paintString.getColor());
-        textLayout.draw(g, x, y);
+        Point shadowPos = new Point((int)pos.getX() +2 , (int)pos.getY() +2);
+        drawPaintBuilder(g, font, shadowPos, paintBuilder, shadowColor);
+        drawPaintBuilder(g, font, pos, paintBuilder);
     }
 
-    /**
-     * Draws text multiple times as if it is outlined/shadowed.
-     *
-     * @param text
-     * @param font
-     * @param x
-     * @param y
-     * @param g
-     */
-    public static void drawShadowedText(String text, Font font, int x, int y, Graphics2D g) {
+    public static void drawPaintBuilder(Graphics2D g, Font font, Point pos, PaintBuilder pb) {
+        drawPaintBuilder(g, font, pos, pb, null);
+    }
 
+    public static void drawPaintBuilder(Graphics2D g, Font font, Point pos, PaintBuilder pb, Color overrideColor) {
+        for (PaintString ps : pb.getAll()) {
+            drawPaintString(g, pos, font, ps, overrideColor);
+        }
+    }
+
+    public static void drawPaintString(Graphics2D g, Point pos, Font font, PaintString ps) {
+        drawPaintString(g, pos, font, ps, null);
+    }
+
+    public static void drawPaintString(Graphics2D g, Point pos, Font font, PaintString ps, Color overrideColor) {
+        int x = pos.x;
         g.setFont(font);
-
-        TextLayout textLayout = new TextLayout(text, font, g.getFontRenderContext());
-        g.setColor(Color.DARK_GRAY);
-        textLayout.draw(g, x + 1, y);
-        textLayout.draw(g, x, y + 1);
-        textLayout.draw(g, x - 1, y);
-        textLayout.draw(g, x, y - 1);
-
-        g.setColor(Color.WHITE);
-        textLayout.draw(g, x, y);
+        for (Pair<String, Color> set : ps.getAll()) {
+            g.setColor(overrideColor == null ? set.getValue() : overrideColor);
+            g.drawString(set.getKey(), x, pos.y);
+            x += PaintHelper.getStringWidth(g, font, set.getKey());
+        }
     }
 
-    public static void drawPaintString(PaintString paintString, Graphics2D g) {
-        Font font = paintString.getFont();
-        if (font != null)
-            g.setFont(font);
+    public static Rectangle2D getStringBounds(Graphics2D g, Font font, PaintBuilder pb) {
 
-        if (paintString.getCentered() != null)
-            PaintHelper.setCenteredText(paintString, g);
+        String res = "";
 
-        if (paintString.getDrawShadow()) {
-            PaintHelper.drawShadowedText(paintString, g);
-        } else {
-            g.setColor(paintString.getColor());
-            g.drawString(paintString.getText(), paintString.getPosition().x, paintString.getPosition().y);
+        for (PaintString str : pb.getAll()) {
+            for (Map.Entry<String, Color> substrings : str.getAll()) {
+                res += substrings.getKey();
+            }
         }
 
-        BufferedImage icon = paintString.getIcon();
-        if (icon != null) {
-            g.drawImage(icon, null, paintString.getPosition().x - icon.getWidth(), paintString.getPosition().y - icon.getHeight());
+        return getStringBounds(g, font, res);
+    }
+
+    public static Rectangle2D getStringBounds(Graphics2D g, Font font, PaintString str) {
+
+        String res = "";
+
+        for (Map.Entry<String, Color> substrings : str.getAll()) {
+            res += substrings.getKey();
         }
+
+        return getStringBounds(g, font, res);
+    }
+
+
+    public static Rectangle2D getStringBounds(Graphics2D g, Font font, String str) {
+        FontRenderContext frc = g.getFontRenderContext();
+        GlyphVector gv = font.createGlyphVector(frc, str);
+        Rectangle2D bounds = g.getFontMetrics(font).getStringBounds(str, g);
+
+        // The vector returns the correct height, however, a the bounds will have a more correct width that is better with spaces.
+        // So lets combine those.
+        return new Rectangle((int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth(), (int) gv.getPixelBounds(frc, 0, 0).getHeight());
+    }
+
+    public static int getStringHeight(Graphics2D g, Font font, String str) {
+        return (int) getStringBounds(g, font, str).getHeight();
+    }
+
+    public static int getStringWidth(Graphics2D g, Font font, String str) {
+        return (int) getStringBounds(g, font, str).getWidth();
     }
 
     /**
@@ -123,7 +136,7 @@ public class PaintHelper {
         }
     }
 
- /**
+    /**
      * Downloads an image from the internet.
      *
      * @param url
@@ -152,28 +165,31 @@ public class PaintHelper {
         }
     }
 
-    /**
-     * Draws the walking destination on the screen.
-     *
-     * @param g1
-     */
-    public static void drawDestinationTile(Graphics g1) {
+    public static void drawTile(Graphics g, Color color, RSTile tile, boolean minimap) {
 
-        if (destinationTile == null || !destinationTile.isOnScreen())
-            return;
+        Shape oldClip = g.getClip();
 
-        Graphics2D g = (Graphics2D) g1;
+        g.setClip(Screen.getViewport());
 
-        Polygon poly = Projection.getTileBoundsPoly(destinationTile, 0);
+        Polygon poly = Projection.getTileBoundsPoly(tile, 0);
 
         if (poly != null) {
-
             g.setColor(mouseBackgroundColor);
             g.fillPolygon(poly);
-
-            g.setColor(mouseOutlineColor);
+            g.setColor(color);
             g.drawPolygon(poly);
         }
+
+        Point p = Projection.tileToMinimap(tile);
+
+        if (minimap && p != null) {
+            g.setClip(null);
+            g.setColor(color);
+            g.fillOval(p.x - 2, p.y - 2, 4, 4);
+        }
+
+        g.setClip(oldClip);
+
     }
 
     /**
@@ -182,8 +198,9 @@ public class PaintHelper {
      * @param g1
      * @param mousePos
      * @param dragPos
+     * @param mouseColor
      */
-    public static void drawMouse(Graphics g1, Point mousePos, Point dragPos) {
+    public static void drawMouse(Graphics g1, Point mousePos, Point dragPos, Color mouseColor) {
         Graphics2D g = (Graphics2D) g1;
 
         g.setColor(mouseBackgroundColor);
@@ -195,7 +212,7 @@ public class PaintHelper {
         }
 
         if (pulseCounter > 0) {
-            int rgba = mouseAccentColor.getRGB() | 50 * pulseCounter-- & 0xff;
+            int rgba = mouseColor.getRGB() | 50 * pulseCounter-- & 0xff;
             g.setColor(new Color(rgba, true));
             g.fillOval((int) mousePos.getX() - 10, (int) mousePos.getY() - 10, 20, 20);
         }
@@ -209,18 +226,18 @@ public class PaintHelper {
     }
 
 
-    public static void drawMouseTrail(Graphics g, ArrayList<Point> unused) {
+    public static void drawMouseTrail(Graphics g, ArrayList<Point> unused, Color mouseColor) {
 
-        double alpha = 0;
+        Color col = mouseColor.brighter();
+
+        double al = 0;
         for (int i = index; i != (index == 0 ? trailSize - 1 : index - 1); i = (i + 1) % trailSize) {
             if (points[i] != null && points[(i + 1) % trailSize] != null) {
 
-                int rgba = mouseAccentColor.getRGB() | (int) alpha & 0xff;
-                g.setColor(new Color(rgba, true));
-
+                g.setColor(new Color(col.getRed(), col.getGreen(), col.getBlue(), (int) al & 0xff));
                 g.drawLine(points[i].x, points[i].y, points[(i + 1) % trailSize].x, points[(i + 1) % trailSize].y);
 
-                alpha += PaintHelper.alpha;
+                al += alpha;
             }
         }
     }
@@ -230,32 +247,11 @@ public class PaintHelper {
         index %= trailSize;
     }
 
-    public static void setCenteredText(PaintString string, Graphics2D g) {
-
-        Rectangle centerRect = string.getCentered();
-
-        int width = centerRect.width;
-        int height = centerRect.height;
-
-        FontMetrics fm = g.getFontMetrics();
-
-        int x = (width - fm.stringWidth(string.getText())) / 2;
-        int y = (fm.getAscent() + (height - (fm.getAscent() + fm.getDescent())) / 2);
-
-        int xRes = centerRect.x + x;
-        int yRes = centerRect.y + y;
-
-        string.setPosition(new Point(xRes, yRes));
-    }
-
-    public static void drawCenteredText(String str, int xPos, int yPos, Graphics2D g) {
-        FontMetrics fm = g.getFontMetrics();
-        int x = (xPos - fm.stringWidth(str)) / 2;
-        int y = (fm.getAscent() + (yPos - (fm.getAscent() + fm.getDescent())) / 2);
-        g.drawString(str, x, y);
-    }
-
     public static String formatNumber(int number) {
+        return formatNumber(number, false);
+    }
+
+    public static String formatNumber(int number, boolean appendGP) {
 
         if (number > 1000000) {
             return number / 1000000 + "m";
@@ -265,6 +261,6 @@ public class PaintHelper {
             return number / 1000 + "k";
         }
 
-        return String.valueOf(number);
+        return appendGP ? number + "gp" : String.valueOf(number);
     }
 }

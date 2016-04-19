@@ -5,6 +5,7 @@ import org.tribot.api.Timing;
 import org.tribot.api2007.Login;
 import org.tribot.api2007.MessageListener;
 import org.tribot.api2007.Skills;
+import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.util.ThreadSettings;
 import org.tribot.script.Script;
 import org.tribot.script.interfaces.*;
@@ -13,11 +14,11 @@ import scripts.LanAPI.Game.Antiban.Antiban;
 import scripts.LanAPI.Core.Logging.LogProxy;
 import scripts.LanAPI.Core.System.Notifications;
 import scripts.LanAPI.Game.Concurrency.IStrategy;
+import scripts.LanAPI.Game.Concurrency.Observers.Inventory.InventoryListener;
 import scripts.LanAPI.Game.Concurrency.StrategyList;
 import scripts.LanAPI.Game.Painting.AbstractPaintInfo;
 import scripts.LanAPI.Game.Painting.PaintHelper;
-import scripts.LanAPI.Game.Painting.PaintString;
-import scripts.LanAPI.Game.Persistance.Variables;
+import scripts.LanAPI.Game.Persistance.Vars;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -27,9 +28,10 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class AbstractScript extends Script implements Painting, MouseActions, MousePainting, MouseSplinePainting, EventBlockingOverride, Ending, Breaking, MessageListening07 {
+public abstract class AbstractScript extends Script implements Painting, MouseActions, MousePainting, MouseSplinePainting,
+        EventBlockingOverride, Ending, Breaking, MessageListening07, InventoryListener {
 
-    public static boolean quitting = false;
+    public boolean quitting = false;
 
     protected boolean hasArguments = false;
     protected LogProxy log;
@@ -38,24 +40,55 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
     protected GUI gui = null;
     protected BufferedImage icon = null;
     protected AbstractPaintInfo paintInfo = null;
+    protected Color mouseColor = null;
+
+    public AbstractScript() {
+        Vars.get().add("script", this);
+
+        this.paintInfo = getPaintInfo();
+        this.log = new LogProxy(this);
+
+        if (paintInfo != null)
+            this.mouseColor = paintInfo.getPrimaryColor();
+    }
 
     //Pattern skillupRegex = Pattern.compile("(?<=\\ba\\s)(\\w+).*\\b([0-9]{1,2})");
     Pattern skillupRegex = Pattern.compile("(?<=\\ba\\s)\\w+");
 
+    /**
+     * This method is called once when the script starts and we are logged ingame, just before the paint/gui shows.
+     */
     public abstract void onInitialize();
 
+    /**
+     * Return a JavaFX gui, it will automatically be shown and the script will wait until it closes.
+     * Return null if you don't want a GUI.
+     * @return
+     */
     public abstract GUI getGUI();
 
+    /**
+     * Return a list of all the strategies this script should perform.
+     * @return
+     */
     public abstract IStrategy[] getStrategies();
 
+    /**
+     * Return the notification icon for in the system tray bar.
+     * Return null if you don't want an icon.
+     * @return
+     */
     public abstract BufferedImage getNotificationIcon();
 
+    /**
+     * Return this script's paint logic.
+     * Return null if you don't want a paint.
+     * @return
+     */
     public abstract AbstractPaintInfo getPaintInfo();
 
     @Override
     public void run() {
-
-        log = new LogProxy(this);
 
         log.debug("Hey, thanks for trying LanAPI! These debug messages won't show if you upload this script to the repository.");
         log.debug("You can use log.debug() to write messages like this. Or log.info() to write a normal message!");
@@ -64,7 +97,6 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
         ThreadSettings.get().setClickingAPIUseDynamic(true);
 
-//         wait until login bot is done.
         while (Login.getLoginState() != Login.STATE.INGAME) {
             sleep(250);
             Login.login();
@@ -74,8 +106,6 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
         icon = getNotificationIcon();
         gui = getGUI();
-        paintInfo = getPaintInfo();
-
         showPaint = true;
 
         if (!hasArguments && gui != null) {
@@ -86,7 +116,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
                 sleep(250);
         }
 
-        boolean useNotifications = Variables.getInstance().get("enableNotifications", false);
+        boolean useNotifications = Vars.get().get("enableNotifications", false);
 
         if (icon != null && useNotifications) {
             if (Notifications.init(this))
@@ -105,10 +135,16 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             }
 
             IStrategy strategy = list.getValid();
-            if (strategy != null)
+            if (strategy != null) {
                 strategy.run();
+            }
+
             sleep(50);
         }
+    }
+
+    public boolean isLocal() {
+        return this.getRepoID() == -1;
     }
 
     @Override
@@ -117,51 +153,12 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
         if (paintInfo == null)
             return;
 
+        Graphics2D g = (Graphics2D) g1;
+
         if (showPaint) {
-
-            Graphics2D g = (Graphics2D) g1;
-
-            Image bg = paintInfo.getBackground();
-
-            if (bg != null)
-                g.drawImage(paintInfo.getBackground(), paintInfo.getBackgroundPosition().x, paintInfo.getBackgroundPosition().y, null);
-
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-            for (PaintString paintString : paintInfo.getText(this.getRunningTime(), g) ) {
-                PaintHelper.drawPaintString(paintString, g);
-            }
-
-            paintInfo.customDraw(g);
-        } else {
-
-            Image toggle = paintInfo.getButtonPaintToggle();
-
-            if (toggle != null)
-                g1.drawImage(toggle, paintInfo.getPaintToggleRectangle().x, paintInfo.getPaintToggleRectangle().y, null);
+            paintInfo.draw(g);
         }
-    }
-
-    @Override
-    public OVERRIDE_RETURN overrideMouseEvent(MouseEvent e) {
-        if (gui != null && e.getID() == MouseEvent.MOUSE_CLICKED) {
-
-            if (paintInfo.getPaintToggleRectangle().contains(e.getPoint())) {
-
-                this.showPaint = !this.showPaint;
-
-                e.consume();
-                return OVERRIDE_RETURN.DISMISS;
-            } else if (paintInfo.getSettingsToggleRectangle().contains(e.getPoint())) {
-
-                gui.show();
-
-                e.consume();
-                return OVERRIDE_RETURN.DISMISS;
-            }
-        }
-
-        return OVERRIDE_RETURN.PROCESS;
     }
 
     @Override
@@ -180,7 +177,6 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
         if (Notifications.getPreferences().isOnBreakStart())
             Notifications.send(this.getScriptName(), "Taking a break for " + Timing.msToString(breakTime), TrayIcon.MessageType.INFO);
-
     }
 
     @Override
@@ -188,7 +184,6 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
         if (Notifications.getPreferences().isOnBreakEnd())
             Notifications.send(this.getScriptName(), "Break Ended", TrayIcon.MessageType.INFO);
-
     }
 
     @Override
@@ -255,13 +250,9 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
     }
 
-    public OVERRIDE_RETURN overrideKeyEvent(KeyEvent e) {
-        return OVERRIDE_RETURN.SEND;
-    }
-
     @Override
     public void paintMouse(Graphics g, Point mousePos, Point dragPos) {
-        PaintHelper.drawMouse(g, mousePos, dragPos);
+        PaintHelper.drawMouse(g, mousePos, dragPos, mouseColor);
     }
 
     @Override
@@ -271,15 +262,23 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
     @Override
     public void paintMouseSpline(Graphics g, ArrayList<Point> points) {
-        PaintHelper.drawMouseTrail(g, points);
+        PaintHelper.drawMouseTrail(g, points, mouseColor);
     }
 
-    // Unused overrides, feel free to override these in your script if you need them.
-    public void mouseReleased(Point point, int button, boolean isBot) {}
-
+    @Override
     public void mouseMoved(Point point, boolean isBot) {
         PaintHelper.moveMouseTrail(point);
     }
 
+    // Unused overrides, feel free to override these in your script if you need them.
+    public OVERRIDE_RETURN overrideMouseEvent(MouseEvent e) {
+        return OVERRIDE_RETURN.PROCESS;
+    }
+    public void mouseReleased(Point point, int button, boolean isBot) {}
     public void mouseDragged(Point point, int button, boolean isBot) {}
+    public OVERRIDE_RETURN overrideKeyEvent(KeyEvent e) {
+        return OVERRIDE_RETURN.SEND;
+    }
+    public void inventoryItemRemoved(RSItem item, int count) {}
+    public void inventoryItemAdded(RSItem item, int count) {}
 }
