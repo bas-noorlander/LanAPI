@@ -1,9 +1,9 @@
-package scripts.LanAPI.Game.Painting;
+package scripts.lanapi.game.painting;
 
 import org.tribot.api.Screen;
 import org.tribot.api2007.Projection;
 import org.tribot.api2007.types.RSTile;
-import scripts.LanAPI.Core.Collections.Pair;
+import scripts.lanapi.core.collections.Pair;
 
 import javax.imageio.ImageIO;
 import java.awt.*;

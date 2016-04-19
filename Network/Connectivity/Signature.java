@@ -1,7 +1,6 @@
-package scripts.LanAPI.Network.Connectivity;
+package scripts.lanapi.network.connectivity;
 
 import org.tribot.api.General;
-import org.tribot.script.Script;
 
 import java.io.*;
 import java.net.HttpURLConnection;

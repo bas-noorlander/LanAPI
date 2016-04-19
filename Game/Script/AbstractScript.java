@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Script;
+package scripts.lanapi.game.script;
 
 import org.tribot.api.General;
 import org.tribot.api.Timing;
@@ -9,16 +9,16 @@ import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.util.ThreadSettings;
 import org.tribot.script.Script;
 import org.tribot.script.interfaces.*;
-import scripts.LanAPI.Core.GUI.GUI;
-import scripts.LanAPI.Game.Antiban.Antiban;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Core.System.Notifications;
-import scripts.LanAPI.Game.Concurrency.IStrategy;
-import scripts.LanAPI.Game.Concurrency.Observers.Inventory.InventoryListener;
-import scripts.LanAPI.Game.Concurrency.StrategyList;
-import scripts.LanAPI.Game.Painting.AbstractPaintInfo;
-import scripts.LanAPI.Game.Painting.PaintHelper;
-import scripts.LanAPI.Game.Persistance.Vars;
+import scripts.lanapi.core.gui.GUI;
+import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.core.system.Notifications;
+import scripts.lanapi.game.concurrency.IStrategy;
+import scripts.lanapi.game.concurrency.observers.inventory.InventoryListener;
+import scripts.lanapi.game.concurrency.StrategyList;
+import scripts.lanapi.game.painting.AbstractPaintInfo;
+import scripts.lanapi.game.painting.PaintHelper;
+import scripts.lanapi.game.persistance.Vars;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;

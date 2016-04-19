@@ -1,4 +1,4 @@
-package scripts.LanAPI.Core.Logging;
+package scripts.lanapi.core.logging;
 
 import org.tribot.script.Script;
 

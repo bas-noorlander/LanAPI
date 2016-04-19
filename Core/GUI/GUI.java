@@ -1,4 +1,4 @@
-package scripts.LanAPI.Core.GUI;
+package scripts.lanapi.core.gui;
 
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -9,8 +9,8 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import org.tribot.api.General;
 import org.tribot.api.Timing;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Game.Concurrency.Condition;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.concurrency.Condition;
 
 import javax.swing.*;
 import java.net.URL;

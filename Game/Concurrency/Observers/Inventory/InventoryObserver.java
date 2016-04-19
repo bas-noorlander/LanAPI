@@ -1,10 +1,10 @@
-package scripts.LanAPI.Game.Concurrency.Observers.Inventory;
+package scripts.lanapi.game.concurrency.observers.inventory;
 
 import org.tribot.api.General;
 import org.tribot.api2007.Login;
 import org.tribot.api2007.types.RSItem;
-import scripts.LanAPI.Game.Concurrency.Condition;
-import scripts.LanAPI.Game.Inventory.Inventory;
+import scripts.lanapi.game.concurrency.Condition;
+import scripts.lanapi.game.inventory.Inventory;
 
 import java.util.HashMap;
 import java.util.Map;

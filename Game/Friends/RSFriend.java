@@ -1,11 +1,11 @@
-package scripts.LanAPI.Game.Friends;
+package scripts.lanapi.game.friends;
 
 import org.tribot.api.General;
 import org.tribot.api.Timing;
 import org.tribot.api2007.GameTab;
 import org.tribot.api2007.WorldHopper;
 import org.tribot.api2007.types.RSInterfaceComponent;
-import scripts.LanAPI.Game.Concurrency.Condition;
+import scripts.lanapi.game.concurrency.Condition;
 
 /**
  * @author Alphadog, adjusments by Laniax

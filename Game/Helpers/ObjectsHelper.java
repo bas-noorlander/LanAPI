@@ -1,9 +1,7 @@
-package scripts.LanAPI.Game.Helpers;
+package scripts.lanapi.game.helpers;
 
 import org.tribot.api.Clicking;
-import org.tribot.api.General;
 import org.tribot.api.interfaces.Positionable;
-import org.tribot.api.types.generic.Condition;
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.*;
 import org.tribot.api2007.ext.Filters;
@@ -11,7 +9,7 @@ import org.tribot.api2007.types.RSModel;
 import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.types.RSObjectDefinition;
 import org.tribot.api2007.types.RSTile;
-import scripts.LanAPI.Game.Movement.Movement;
+import scripts.lanapi.game.movement.Movement;
 
 import java.awt.*;
 

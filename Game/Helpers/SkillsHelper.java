@@ -1,6 +1,5 @@
-package scripts.LanAPI.Game.Helpers;
+package scripts.lanapi.game.helpers;
 
-import org.tribot.api.General;
 import org.tribot.api2007.Skills;
 import org.tribot.api2007.Skills.SKILLS;
 
@@ -58,9 +57,10 @@ public class SkillsHelper {
      * @return the amount of xp
      */
     public static int getStartXP(SKILLS skill) {
-        if (startSkillInfo.containsKey(skill))
-            return startSkillInfo.get(skill);
-        return 0;
+
+        int result = startSkillInfo.containsKey(skill) ? startSkillInfo.get(skill): 0;
+        result = Math.max(0, result);
+        return result;
     }
 
     /**
@@ -71,7 +71,16 @@ public class SkillsHelper {
      * @return
      */
     public static int getReceivedXP(SKILLS skill) {
-        return Skills.getXP(skill) - getStartXP(skill);
+
+        int xp = Skills.getXP(skill);
+
+        int result = 0;
+
+        if (xp > 0) {
+            result = xp - getStartXP(skill);
+        }
+
+        return result;
     }
 
     /**
@@ -91,7 +100,7 @@ public class SkillsHelper {
      */
     public static SKILLS[] getAllSkillsWithIncrease() {
 
-        ArrayList<SKILLS> list = new ArrayList<SKILLS>();
+        ArrayList<SKILLS> list = new ArrayList<>();
 
         for (SKILLS s : SKILLS.values()) {
             if (hasReceivedXP(s)) {

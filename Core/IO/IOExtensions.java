@@ -1,6 +1,6 @@
-package scripts.LanAPI.Core.IO;
+package scripts.lanapi.core.io;
 
-import scripts.LanAPI.Core.Logging.LogProxy;
+import scripts.lanapi.core.logging.LogProxy;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.*;

@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.House;
+package scripts.lanapi.game.house;
 
 import java.util.HashMap;
 import java.util.Map;

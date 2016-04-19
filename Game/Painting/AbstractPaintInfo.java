@@ -1,16 +1,13 @@
-package scripts.LanAPI.Game.Painting;
+package scripts.lanapi.game.painting;
 
 import org.tribot.api.Screen;
 import org.tribot.api.Timing;
-import scripts.LanAPI.Core.Collections.Pair;
-import scripts.LanAPI.Game.Persistance.Vars;
-import scripts.LanAPI.Game.Script.AbstractScript;
+import scripts.lanapi.game.persistance.Vars;
+import scripts.lanapi.game.script.AbstractScript;
 
 import java.awt.*;
-import java.awt.geom.PathIterator;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
-import java.util.*;
 import java.util.List;
 
 /**

@@ -1,6 +1,6 @@
-package scripts.LanAPI.Core.IO.Compression;
+package scripts.lanapi.core.io.compression;
 
-import scripts.LanAPI.Core.Logging.LogProxy;
+import scripts.lanapi.core.logging.LogProxy;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;

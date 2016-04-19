@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Concurrency;
+package scripts.lanapi.game.concurrency;
 
 import org.tribot.api.Clicking;
 import org.tribot.api.DynamicClicking;
@@ -7,10 +7,10 @@ import org.tribot.api.Timing;
 import org.tribot.api2007.Banking;
 import org.tribot.api2007.ChooseOption;
 import org.tribot.api2007.types.RSNPC;
-import scripts.LanAPI.Game.Antiban.Antiban;
-import scripts.LanAPI.Game.Combat.Combat;
-import scripts.LanAPI.Game.Combat.Hovering;
-import scripts.LanAPI.Game.Helpers.ChooseOptionHelper;
+import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.game.combat.Combat;
+import scripts.lanapi.game.combat.Hovering;
+import scripts.lanapi.game.helpers.ChooseOptionHelper;
 
 /**
  * @author Laniax

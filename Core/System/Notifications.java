@@ -1,9 +1,9 @@
-package scripts.LanAPI.Core.System;
+package scripts.lanapi.core.system;
 
-import scripts.LanAPI.Core.GUI.Client.FrameManager;
-import scripts.LanAPI.Core.GUI.GUI;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Game.Script.AbstractScript;
+import scripts.lanapi.core.gui.client.FrameManager;
+import scripts.lanapi.core.gui.GUI;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.script.AbstractScript;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;

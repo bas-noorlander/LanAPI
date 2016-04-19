@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Helpers;
+package scripts.lanapi.game.helpers;
 
 import org.tribot.api.Clicking;
 import org.tribot.api.General;
@@ -13,12 +13,8 @@ import org.tribot.api2007.Player;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSNPC;
 import org.tribot.api2007.types.RSNPCDefinition;
-import org.tribot.api2007.types.RSObject;
-import org.tribot.api2007.types.RSObjectDefinition;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Game.Movement.Movement;
-
-import java.rmi.ConnectIOException;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.movement.Movement;
 
 /**
  * Helper class that manages NPC logic.

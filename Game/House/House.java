@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.House;
+package scripts.lanapi.game.house;
 
 import org.tribot.api2007.Game;
 import org.tribot.api2007.Player;

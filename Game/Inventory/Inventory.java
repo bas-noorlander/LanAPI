@@ -1,8 +1,8 @@
-package scripts.LanAPI.Game.Inventory;
+package scripts.lanapi.game.inventory;
 
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.types.RSItem;
-import scripts.LanAPI.Core.Filters.Filters;
+import scripts.lanapi.core.filters.Filters;
 
 /**
  * @author Laniax

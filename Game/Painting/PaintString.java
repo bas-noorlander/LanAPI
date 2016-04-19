@@ -1,7 +1,7 @@
-package scripts.LanAPI.Game.Painting;
+package scripts.lanapi.game.painting;
 
 
-import scripts.LanAPI.Core.Collections.Pair;
+import scripts.lanapi.core.collections.Pair;
 
 import java.awt.*;
 import java.util.List;

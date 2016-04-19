@@ -1,4 +1,4 @@
-package scripts.LanAPI.Core.Collections;
+package scripts.lanapi.core.collections;
 
 import java.util.Map;
 

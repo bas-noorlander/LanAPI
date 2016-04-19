@@ -1,7 +1,6 @@
-package scripts.LanAPI.Game.Movement;
+package scripts.lanapi.game.movement;
 
 import org.tribot.api.General;
-import org.tribot.api.Timing;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api.types.generic.Condition;
 import org.tribot.api.util.Sorting;
@@ -11,8 +10,8 @@ import org.tribot.api2007.types.RSArea;
 import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.types.RSTile;
 import org.tribot.api2007.util.DPathNavigator;
-import scripts.LanAPI.Game.Antiban.Antiban;
-import scripts.LanAPI.Game.Painting.PaintHelper;
+import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.game.painting.PaintHelper;
 
 import java.util.ArrayList;
 
@@ -100,6 +99,14 @@ public class Movement {
                 return Player.getPosition().distanceTo(posToWalk) < 4;
             }
         }, 500);
+    }
+
+    public static void setUseCustomDoors(RSObject[] doors) {
+        nav.overrideDoorCache(true, doors);
+    }
+
+    public static void setUseDefaultDoors() {
+        nav.overrideDoorCache(false, null);
     }
 
     public static void setExcludeTiles(final Positionable[] tiles) {
@@ -190,30 +197,44 @@ public class Movement {
      */
     public static boolean walkPath(final RSTile[] path) {
 
-        General.println("Walking using hand-made paths.");
-
-        for (int i = 0; i < path.length; i++) {
-
-            final RSTile tile = path[i];
-
-            Antiban.activateRun();
-
-            PaintHelper.destinationTile = tile;
-
-            if (canReach(tile)) {
-                Walking.blindWalkTo(tile);
-            } else {
-                nav.traverse(tile);
+        Condition stoppingCondition = new Condition() {
+            @Override
+            public boolean active() {
+                General.sleep(500);
+                return !Player.isMoving();
             }
+        };
 
-            Timing.waitCondition(new Condition() {
-                public boolean active() {
-                    General.sleep(50);
-                    return Player.getPosition().distanceTo(tile) < 2 || !Player.isMoving();
-                }
-            }, General.random(20000, 30000));
-        }
+        Antiban.activateRun();
 
-        return true;
+        if (Antiban.getWalkingPreference(Player.getPosition().distanceTo(path[path.length - 1])) == WalkingPreference.SCREEN) {
+            return Walking.walkScreenPath(path, stoppingCondition, General.random(4000,5000));
+        } else
+            return Walking.walkPath(path, stoppingCondition, General.random(4000,5000));
+
+//
+//        for (int i = 0; i < path.length; i++) {
+//
+//            final RSTile tile = path[i];
+//
+//            Antiban.activateRun();
+//
+//            PaintHelper.destinationTile = tile;
+//
+//            if (canReach(tile)) {
+//                Walking.blindWalkTo(tile);
+//            } else {
+//                nav.traverse(tile);
+//            }
+//
+//            Timing.waitCondition(new Condition() {
+//                public boolean active() {
+//                    General.sleep(50);
+//                    return Player.getPosition().distanceTo(tile) < 2 || !Player.isMoving();
+//                }
+//            }, General.random(20000, 30000));
+//        }
+
+//        return true;
     }
 }

@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Helpers;
+package scripts.lanapi.game.helpers;
 
 import org.tribot.api.General;
 import org.tribot.api.Timing;
@@ -7,8 +7,8 @@ import org.tribot.api2007.Interfaces;
 import org.tribot.api2007.types.RSInterface;
 import org.tribot.api2007.types.RSInterfaceChild;
 import org.tribot.api2007.types.RSItem;
-import scripts.LanAPI.Game.Concurrency.Condition;
-import scripts.LanAPI.Game.Inventory.Inventory;
+import scripts.lanapi.game.concurrency.Condition;
+import scripts.lanapi.game.inventory.Inventory;
 
 /**
  * @author Laniax
@@ -22,7 +22,7 @@ public class BankingHelper { // Sadly, tribot's Banking class is declared final 
     private static Condition bankCondition = new Condition() {
         @Override
         public boolean active() {
-            General.sleep(50, 100);
+            General.sleep(50);
             return isBankItemsLoaded();
         }
     };

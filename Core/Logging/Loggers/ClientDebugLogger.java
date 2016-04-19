@@ -1,7 +1,7 @@
-package scripts.LanAPI.Core.Logging.Loggers;
+package scripts.lanapi.core.logging.loggers;
 
 import org.tribot.api.General;
-import scripts.LanAPI.Core.Logging.ILogger;
+import scripts.lanapi.core.logging.ILogger;
 
 /**
  * @author Laniax

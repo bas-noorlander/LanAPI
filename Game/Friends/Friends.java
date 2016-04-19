@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Friends;
+package scripts.lanapi.game.friends;
 
 import org.tribot.api.Clicking;
 import org.tribot.api.General;
@@ -8,7 +8,7 @@ import org.tribot.api2007.GameTab;
 import org.tribot.api2007.Interfaces;
 import org.tribot.api2007.types.RSInterfaceChild;
 import org.tribot.api2007.types.RSInterfaceComponent;
-import scripts.LanAPI.Game.Concurrency.Condition;
+import scripts.lanapi.game.concurrency.Condition;
 
 import java.util.ArrayList;
 import java.util.List;

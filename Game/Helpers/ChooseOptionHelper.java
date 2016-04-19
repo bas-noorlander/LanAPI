@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Helpers;
+package scripts.lanapi.game.helpers;
 
 import org.tribot.api.Clicking;
 import org.tribot.api.input.Mouse;
@@ -6,8 +6,8 @@ import org.tribot.api.interfaces.Clickable;
 import org.tribot.api2007.ChooseOption;
 import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.types.RSMenuNode;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Game.Combat.Hovering;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.combat.Hovering;
 
 import java.awt.*;
 

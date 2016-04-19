@@ -1,7 +1,7 @@
-package scripts.LanAPI.Core.GUI;
+package scripts.lanapi.core.gui;
 
 import javafx.fxml.Initializable;
-import scripts.LanAPI.Core.Logging.LogProxy;
+import scripts.lanapi.core.logging.LogProxy;
 
 /**
  * @author Laniax

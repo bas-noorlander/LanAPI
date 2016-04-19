@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Concurrency.Observers.Inventory;
+package scripts.lanapi.game.concurrency.observers.inventory;
 
 import org.tribot.api2007.types.RSItem;
 

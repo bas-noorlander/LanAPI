@@ -1,9 +1,7 @@
-package scripts.LanAPI.Game.Combat;
+package scripts.lanapi.game.combat;
 
 import org.tribot.api.interfaces.Clickable;
-import org.tribot.api.interfaces.Clickable07;
 import org.tribot.api2007.ChooseOption;
-import org.tribot.api2007.types.RSItem;
 
 /**
  * @author Laniax

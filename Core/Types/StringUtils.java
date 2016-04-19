@@ -1,4 +1,4 @@
-package scripts.LanAPI.Core.Types;
+package scripts.lanapi.core.types;
 
 import java.awt.FontMetrics;
 import java.util.ArrayList;

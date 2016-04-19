@@ -1,4 +1,4 @@
-package scripts.LanAPI.Core.Mathematics;
+package scripts.lanapi.core.mathematics;
 
 /**
  * Provides math logic which is generaly father then Math.

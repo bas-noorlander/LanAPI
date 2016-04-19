@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Painting;
+package scripts.lanapi.game.painting;
 
 
 import java.util.ArrayList;

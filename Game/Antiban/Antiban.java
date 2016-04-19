@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Antiban;
+package scripts.lanapi.game.antiban;
 
 import org.tribot.api.General;
 import org.tribot.api.Timing;
@@ -15,11 +15,11 @@ import org.tribot.api2007.types.RSCharacter;
 import org.tribot.api2007.types.RSNPC;
 import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.types.RSTile;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Game.Combat.Hovering;
-import scripts.LanAPI.Game.Helpers.ObjectsHelper;
-import scripts.LanAPI.Game.Movement.Movement;
-import scripts.LanAPI.Game.Painting.PaintHelper;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.combat.Hovering;
+import scripts.lanapi.game.helpers.ObjectsHelper;
+import scripts.lanapi.game.movement.Movement;
+import scripts.lanapi.game.painting.PaintHelper;
 
 /**
  * Helper class for Tribot's ABC2 system.

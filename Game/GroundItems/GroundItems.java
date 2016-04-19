@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.GroundItems;
+package scripts.lanapi.game.grounditems;
 
 import org.tribot.api.Clicking;
 import org.tribot.api.General;
@@ -7,10 +7,10 @@ import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Camera;
 import org.tribot.api2007.types.RSGroundItem;
 import org.tribot.api2007.types.RSItemDefinition;
-import scripts.LanAPI.Game.Inventory.Inventory;
-import scripts.LanAPI.Game.Movement.Movement;
-import scripts.LanAPI.Game.Painting.PaintHelper;
-import scripts.LanAPI.Network.ItemPrice;
+import scripts.lanapi.game.inventory.Inventory;
+import scripts.lanapi.game.movement.Movement;
+import scripts.lanapi.game.painting.PaintHelper;
+import scripts.lanapi.network.ItemPrice;
 
 /**
  * @author Laniax

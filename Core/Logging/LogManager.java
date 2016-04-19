@@ -1,6 +1,6 @@
-package scripts.LanAPI.Core.Logging;
+package scripts.lanapi.core.logging;
 
-import scripts.LanAPI.Core.Logging.Loggers.ClientDebugLogger;
+import scripts.lanapi.core.logging.loggers.ClientDebugLogger;
 
 import java.util.ArrayList;
 import java.util.Arrays;

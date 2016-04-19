@@ -1,6 +1,6 @@
-package scripts.LanAPI.Core.GUI.Client;
+package scripts.lanapi.core.gui.client;
 
-import scripts.LanAPI.Core.GUI.Client.Frames.TribotFrame;
+import scripts.lanapi.core.gui.client.frames.TribotFrame;
 
 import java.awt.*;
 import java.util.ArrayList;

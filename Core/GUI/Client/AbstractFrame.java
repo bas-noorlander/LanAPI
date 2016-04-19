@@ -1,4 +1,4 @@
-package scripts.LanAPI.Core.GUI.Client;
+package scripts.lanapi.core.gui.client;
 
 import java.awt.*;
 import java.util.ArrayList;

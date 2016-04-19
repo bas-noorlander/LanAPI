@@ -1,6 +1,6 @@
-package scripts.LanAPI.Game.Persistance;
+package scripts.lanapi.game.persistance;
 
-import scripts.LanAPI.Core.Dynamic.Bag;
+import scripts.lanapi.core.dynamic.Bag;
 
 /**
  * @author Laniax

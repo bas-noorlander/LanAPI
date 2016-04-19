@@ -1,7 +1,7 @@
-package scripts.LanAPI.Network;
+package scripts.lanapi.network;
 
-import scripts.LanAPI.Core.Dynamic.Bag;
-import scripts.LanAPI.Core.IO.JSON.Json;
+import scripts.lanapi.core.dynamic.Bag;
+import scripts.lanapi.core.io.json.Json;
 
 import java.io.IOException;
 import java.io.InputStreamReader;

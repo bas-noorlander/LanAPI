@@ -1,7 +1,7 @@
-package scripts.LanAPI.Core.GUI.Client.Frames;
+package scripts.lanapi.core.gui.client.frames;
 
 
-import scripts.LanAPI.Core.GUI.Client.AbstractFrame;
+import scripts.lanapi.core.gui.client.AbstractFrame;
 
 import javax.swing.*;
 import java.awt.*;

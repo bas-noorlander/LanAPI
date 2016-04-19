@@ -1,4 +1,4 @@
-package scripts.LanAPI.Core.System;
+package scripts.lanapi.core.system;
 
 /**
  * @author Laniax

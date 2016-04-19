@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Helpers;
+package scripts.lanapi.game.helpers;
 
 import org.tribot.api.General;
 import org.tribot.api.Timing;

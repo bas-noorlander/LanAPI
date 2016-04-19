@@ -1,6 +1,6 @@
-package scripts.LanAPI.Network;
+package scripts.lanapi.network;
 
-import scripts.LanAPI.Core.Logging.LogProxy;
+import scripts.lanapi.core.logging.LogProxy;
 
 import java.io.File;
 import java.io.IOException;

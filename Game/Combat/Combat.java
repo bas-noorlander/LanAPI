@@ -1,4 +1,4 @@
-package scripts.LanAPI.Game.Combat;
+package scripts.lanapi.game.combat;
 
 import org.tribot.api.Clicking;
 import org.tribot.api.General;
@@ -8,11 +8,11 @@ import org.tribot.api2007.*;
 import org.tribot.api2007.GameTab.TABS;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.*;
-import scripts.LanAPI.Core.Logging.LogProxy;
-import scripts.LanAPI.Game.Antiban.Antiban;
-import scripts.LanAPI.Game.Concurrency.Condition;
-import scripts.LanAPI.Game.Movement.Movement;
-import scripts.LanAPI.Game.Painting.PaintHelper;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.game.concurrency.Condition;
+import scripts.lanapi.game.movement.Movement;
+import scripts.lanapi.game.painting.PaintHelper;
 
 /**
  * @author Laniax

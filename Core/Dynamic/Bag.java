@@ -1,4 +1,4 @@
-package scripts.LanAPI.Core.Dynamic;
+package scripts.lanapi.core.dynamic;
 
 import java.util.HashMap;
 import java.util.Map;

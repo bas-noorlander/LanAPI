@@ -1,6 +1,5 @@
-package scripts.LanAPI.Core.Filters;
+package scripts.lanapi.core.filters;
 
-import org.tribot.api.General;
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.types.*;
