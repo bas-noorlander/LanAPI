@@ -258,9 +258,7 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
         RSModel model = object.getModel();
 
         if (!object.isOnScreen() && Player.getPosition().distanceTo(object) > 6) {
-
             Movement.walkTo(object);
-
         }
 
         if (model != null) {
@@ -273,7 +271,6 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
         if (Clicking.hover(object)) {
             if ((!uptext.isEmpty() && Game.isUptext(uptext)) || uptext.isEmpty())
                 return Clicking.click(action, object);
-
         }
 
         return false;

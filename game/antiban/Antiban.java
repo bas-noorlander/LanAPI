@@ -6,6 +6,7 @@ import org.tribot.api.input.Mouse;
 import org.tribot.api.interfaces.Clickable07;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api.types.generic.Filter;
+import org.tribot.api.util.abc.ABCProperties;
 import org.tribot.api.util.abc.preferences.OpenBankPreference;
 import org.tribot.api.util.abc.preferences.TabSwitchPreference;
 import org.tribot.api.util.abc.preferences.WalkingPreference;
@@ -208,16 +209,21 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
         final boolean isHovering = Hovering.isHovering();
         final boolean shouldOpenMenu = Hovering.getShouldOpenMenu();
 
-        final long hoverOption = isHovering ? Antiban.OPTION_HOVERING : 0;
-        final long menuOption = shouldOpenMenu ? Antiban.OPTION_MENU_OPEN : 0;
-        final long combatOption = recentlyInCombat ? Antiban.OPTION_UNDER_ATTACK : 0;
+        final ABCProperties props = get().getProperties();
 
-        final int reactionTime = get().generateReactionTime(get().generateBitFlags(getWaitingTime(), hoverOption, menuOption, combatOption));
+        props.setWaitingTime(getWaitingTime());
+        props.setHovering(isHovering);
+        props.setMenuOpen(Hovering.isMenuOpen());
+        props.setUnderAttack(recentlyInCombat);
+        props.setWaitingFixed(false);
+
+        final int reactionTime = get().generateReactionTime();
 
         log.info("Sleeping for %d ms.", reactionTime);
 
+        PaintHelper.statusText = "Antiban Delay";
+
         try {
-            PaintHelper.statusText = "Antiban Delay";
             get().sleep(reactionTime);
         } catch (InterruptedException e) {
             log.error(e.getMessage());
@@ -273,7 +279,6 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
     public static int getWaitingTime() {
 
         int result = (int) (Timing.currentTimeMillis() - get().waitingSince);
-        //imeMillis() - get().waitingSince);
 
         log.debug("GetWaitTime() %dms.", result);
 
@@ -469,7 +474,6 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
 
             candidates = NPCs.find(Filters.NPCs.nameEquals(name).combine(Filters.NPCs.tileNotEquals(interactingNPC.getPosition()), false));
         }
-
 
         if (candidates != null && candidates.length > 0) {
 

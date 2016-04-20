@@ -80,9 +80,6 @@ public class Movement {
         if (!isInLoadedRegion(posToWalk))
             return false;
 
-        // DPathNavigator will fail if it cannot find a path, including when the target is an unwalkable tile, so try to find the nearest walkable tile.
-
-
         return nav.traverse(posToWalk);
     }
 
@@ -172,13 +169,12 @@ public class Movement {
         } else {
 
             final Positionable finalPosToWalk = posToWalk;
-            if (WebWalking.walkTo(posToWalk, new Condition() {
+            if (!WebWalking.walkTo(posToWalk, new Condition() {
                 @Override
                 public boolean active() {
-                    General.sleep(1000);
                     return isInLoadedRegion(finalPosToWalk);
                 }
-            }, General.random(5000, 6000))) {
+            }, 1000)) {
                 return nav.traverse(posToWalk);
             }
         }

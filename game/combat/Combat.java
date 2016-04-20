@@ -4,6 +4,7 @@ import org.tribot.api.Clicking;
 import org.tribot.api.General;
 import org.tribot.api.Timing;
 import org.tribot.api.interfaces.Clickable;
+import org.tribot.api.util.abc.ABCProperties;
 import org.tribot.api2007.*;
 import org.tribot.api2007.GameTab.TABS;
 import org.tribot.api2007.ext.Filters;
@@ -23,6 +24,7 @@ public abstract class Combat extends org.tribot.api2007.Combat {
 
     private static int totalKillTime = 0;
     private static String foodName = "Lobster";
+
 
     /**
      * Gets the name of the food we will try to use.
@@ -120,7 +122,14 @@ public abstract class Combat extends org.tribot.api2007.Combat {
         final int estimateWaitingTime = resourcesWon > 0 ? (totalKillTime / resourcesWon) : 2000;
 
         log.debug("Generating trackers. (Resources won: %d. Est. waiting time: %dms.", resourcesWon, estimateWaitingTime);
-        Antiban.get().generateTrackers(Antiban.get().generateBitFlags(estimateWaitingTime));
+
+        final ABCProperties props = Antiban.get().getProperties();
+
+        props.setWaitingTime(estimateWaitingTime);
+        props.setUnderAttack(true);
+        props.setWaitingFixed(false);
+
+        Antiban.get().generateTrackers();
     }
 
     /**
@@ -139,8 +148,6 @@ public abstract class Combat extends org.tribot.api2007.Combat {
         if (!npc.isOnScreen())
             Camera.turnToTile(npc);
 
-        Antiban.get().performReactionTimeWait();
-
         PaintHelper.statusText = "Attacking";
 
         if (!npc.isInCombat() && !isUnderAttack() && npc.isValid() && Movement.canReach(npc) && npc.getInteractingCharacter() == null) {
@@ -148,8 +155,6 @@ public abstract class Combat extends org.tribot.api2007.Combat {
             if (doAttack(npc)) {
 
                 if (Timing.waitCondition(Condition.UntilInCombat(npc), General.random(2000, 3000))) {
-
-                    updateCombatTrackers();
 
                     if (isUnderAttack() && !npc.isInteractingWithMe()) { // A different npc is attacking.. lets attack that one instead.
 
@@ -171,6 +176,8 @@ public abstract class Combat extends org.tribot.api2007.Combat {
                     log.info("Resource %s", wonResource ? "Won" : "Lost");
 
                     if (wonResource) {
+
+                        updateCombatTrackers();
 
                         long combatStartTime = Timing.currentTimeMillis();
 
@@ -200,6 +207,8 @@ public abstract class Combat extends org.tribot.api2007.Combat {
                                     Antiban.setLastCombatTime();
                                     Antiban.setWaitingSince();
 
+                                    Antiban.get().performReactionTimeWait();
+
                                     attackNPC(hoverNPC);
                                 }
                             }
@@ -207,14 +216,17 @@ public abstract class Combat extends org.tribot.api2007.Combat {
                             // We don't need to hover, simply wait until we are out of combat, and supply information to antiban.
 
                             if (Timing.waitCondition(Condition.UntilOutOfCombat, General.random(20000, 30000))) {
+
                                 long killTime = Timing.currentTimeMillis() - combatStartTime;
                                 log.info("Killed a %s in %dms.", npc.getName(), killTime);
                                 totalKillTime += killTime;
+
+                                Antiban.setWaitingSince();
+                                Antiban.setLastCombatTime();
+
+                                Antiban.get().performReactionTimeWait();
                             }
                         }
-
-                        Antiban.setWaitingSince();
-                        Antiban.setLastCombatTime();
                         Hovering.reset();
                     }
                 }
