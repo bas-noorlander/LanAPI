@@ -1,4 +1,4 @@
-package scripts.lanapi.core.filters;
+package scripts.lanapi.game.filters;
 
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.Player;

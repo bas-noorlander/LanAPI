@@ -2,7 +2,7 @@ package scripts.lanapi.game.inventory;
 
 import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.types.RSItem;
-import scripts.lanapi.core.filters.Filters;
+import scripts.lanapi.game.filters.Filters;
 
 /**
  * @author Laniax

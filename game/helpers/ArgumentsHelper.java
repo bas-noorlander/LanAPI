@@ -15,7 +15,8 @@ public class ArgumentsHelper {
     static LogProxy log = new LogProxy("ArgumentsHelper");
 
     /**
-     * Converts the raw hashmap received in onEnd to a hashmap with useful key/values
+     * Converts the raw hashmap received in #passArguments to a hashmap with useful key/values
+     * Arguments are parsed in the following format: "setting1: value1; setting2: value2;"
      * @param input
      * @return
      */

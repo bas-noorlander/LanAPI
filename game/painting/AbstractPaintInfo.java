@@ -18,7 +18,7 @@ public abstract class AbstractPaintInfo {
     // Fonts
     private final Font titleFont, defaultFont, statusFont;
 
-    // Points
+    // Values
     private final int generalPadding = 10;
     private final int lineDistance = 20;
 
@@ -33,7 +33,7 @@ public abstract class AbstractPaintInfo {
     protected final Color secondary;
 
     // Script reference
-    AbstractScript script;
+    private final AbstractScript script;
 
     /**
      * Return the primary color of your script. This will determine cursor color etc.

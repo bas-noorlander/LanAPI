@@ -1,4 +1,4 @@
-package scripts.lanapi.game.concurrency;
+package scripts.lanapi.core.patterns;
 
 /**
  * @author Laniax

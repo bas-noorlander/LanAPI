@@ -1,4 +1,4 @@
-package scripts.lanapi.game.concurrency;
+package scripts.lanapi.core.patterns;
 
 import java.util.ArrayList;
 import java.util.Arrays;

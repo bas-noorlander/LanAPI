@@ -4,7 +4,7 @@ import org.tribot.api.Clicking;
 import org.tribot.api.General;
 import org.tribot.api.Timing;
 import org.tribot.api2007.types.RSItem;
-import scripts.lanapi.core.filters.Filters;
+import scripts.lanapi.game.filters.Filters;
 import scripts.lanapi.game.antiban.Antiban;
 import scripts.lanapi.game.concurrency.Condition;
 import scripts.lanapi.game.inventory.Inventory;

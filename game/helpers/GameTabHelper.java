@@ -1,4 +1,4 @@
-package scripts.lanapi.game.gametab;
+package scripts.lanapi.game.helpers;
 
 import org.tribot.api2007.types.RSVarBit;
 
