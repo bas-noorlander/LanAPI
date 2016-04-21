@@ -16,7 +16,7 @@ import java.util.List;
 public abstract class AbstractPaintInfo {
 
     // Fonts
-    private final Font titleFont, defaultFont, statusFont;
+    protected Font titleFont, defaultFont, statusFont;
 
     // Values
     private final int generalPadding = 10;
@@ -121,7 +121,7 @@ public abstract class AbstractPaintInfo {
 
         int viewportRight = viewport.x + viewport.width;
 
-        int titleOffsetFromBottom = (textLines * lineDistance) + (generalPadding * 3);
+        int titleOffsetFromBottom = (textLines * lineDistance) + (generalPadding * 5);
         int titleOffsetFromRight = (int) (titleBounds.getWidth() + generalPadding);
 
         int titleX = viewportRight - titleOffsetFromRight;
@@ -134,7 +134,7 @@ public abstract class AbstractPaintInfo {
         PaintHelper.drawShadowedText(title, this.shadowColor, new Point(titleX, titleY), this.titleFont, g);
 
         // Background
-        RoundRectangle2D roundRect = new RoundRectangle2D.Double(titleX, titleY + generalPadding, titleBounds.getWidth(), (textLines * lineDistance) + generalPadding, this.backgroundRadius, this.backgroundRadius);
+        RoundRectangle2D roundRect = new RoundRectangle2D.Double(titleX, titleY + generalPadding, titleBounds.getWidth(), (textLines * lineDistance) + (generalPadding * 3), this.backgroundRadius, this.backgroundRadius);
         g.setColor(this.blackTransparent);
         g.fillRoundRect((int) roundRect.getX(), (int) roundRect.getY(), (int) roundRect.getWidth(), (int) roundRect.getHeight(), (int) roundRect.getArcWidth(), (int) roundRect.getArcHeight());
 
