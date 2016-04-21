@@ -2,12 +2,13 @@
 This repository contains my personal API that i use when creating Tribot scripts. Many people have since found it and i get questions about it daily. So here i will try to explain some of the features.
 
 ##### Core
-The core namespace contains various java logic and objects, it is barely related to tribot/runescape.
+The core namespace contains various java logic and objects, it can be used completely independant of Tribot.
 * Pair & Triplets
 * Bag object, a completely generic dynamic storage object
 * JavaFX gui controllers
 * Zip & unzip functions
 * complete JSON library
+* Strategy framework (similar to Node framework)
 * Multifunctional and easy to use Logging with support for multiple outputs
 * Fast generic math functions
 * System traybar notification & icon logic
@@ -17,7 +18,6 @@ The core namespace contains various java logic and objects, it is barely related
 The game namespace contains most tribot related extensions/helpers
 * Easy Antiban (ABC2) wrapper
 * Inventory observers
-* Strategy framework (similar to Node framework)
 * Ingame Friends functions
 * POH functions
 * Easy premade Paint with a PaintBuilder
@@ -50,7 +50,7 @@ The game namespace contains most tribot related extensions/helpers
     
 ##### Network
 * Internet class to easily open the default browser of the user and navigate to a website.
-* Retrieve item prices from rsbuddy's api
+* Retrieve item prices from rsbuddy's api (prices are cached once retrieved)
 * Easy InputStream creator
 * Download files to a local folder and read remote texts files and return as a string.
 * Dynamic signature class that is compatible with my Scripters' Stats and Signature Centre (TBA)
