@@ -253,14 +253,29 @@ public class PaintHelper {
 
     public static String formatNumber(int number, boolean appendGP) {
 
-        if (number > 1000000) {
-            return number / 1000000 + "m";
+        String result;
+
+        boolean isNegative = number < 0;
+
+        number = Math.abs(number);
+
+        if (number > 1000000000) {
+            result = number / 1000000000 + "b";
+            appendGP = false;
+        } else if (number > 1000000) {
+            result = number / 1000000 + "m";
+            appendGP = false;
+        } else if (number > 1000) {
+            result = number / 1000 + "k";
+            appendGP = false;
+        } else {
+            result = String.valueOf(number);
         }
 
-        if (number > 1000) {
-            return number / 1000 + "k";
+        if (isNegative) {
+            result = "-" + result;
         }
 
-        return appendGP ? number + "gp" : String.valueOf(number);
+        return appendGP ? result + "gp" : result;
     }
 }
