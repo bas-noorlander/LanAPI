@@ -1,6 +1,7 @@
 package scripts.lanapi.core.logging;
 
-import org.tribot.script.Script;
+import scripts.lanapi.game.persistance.Vars;
+import scripts.lanapi.game.script.AbstractScript;
 
 /**
  * A proxy to use in classes for shorter log calls
@@ -18,12 +19,20 @@ public final class LogProxy {
         this.isDebug = false;
     }
 
-    public LogProxy(Script script) {
+    public LogProxy() {
 
-        this.source = script.getScriptName();
-        this.isDebug = script.getRepoID() < 0;
+        AbstractScript script = Vars.get().get("script");
 
-        LogManager.setDebug(this.isDebug);
+        if (script != null) {
+
+            this.source = script.getScriptName();
+            this.isDebug = script.isLocal();
+
+            LogManager.setDebug(this.isDebug);
+        } else {
+            this.source = "Unknown";
+            this.isDebug = false;
+        }
     }
 
     /**

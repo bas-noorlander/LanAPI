@@ -19,6 +19,9 @@ import scripts.lanapi.core.patterns.StrategyList;
 import scripts.lanapi.game.painting.AbstractPaintInfo;
 import scripts.lanapi.game.painting.PaintHelper;
 import scripts.lanapi.game.persistance.Vars;
+import scripts.lanapi.network.connectivity.DynamicSignatures;
+import scripts.lanapi.network.connectivity.Signature;
+import scripts.lanapi.network.connectivity.SignatureThread;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -29,7 +32,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public abstract class AbstractScript extends Script implements Painting, MouseActions, MousePainting, MouseSplinePainting,
-        EventBlockingOverride, Ending, Breaking, MessageListening07, InventoryListener {
+        EventBlockingOverride, Ending, Breaking, MessageListening07, InventoryListener, DynamicSignatures {
 
     public boolean quitting = false;
 
@@ -42,14 +45,24 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
     protected AbstractPaintInfo paintInfo = null;
     protected Color mouseColor = null;
 
+    private SignatureThread signatures;
+
     public AbstractScript() {
         Vars.get().add("script", this);
 
         this.paintInfo = getPaintInfo();
-        this.log = new LogProxy(this);
+        this.log = new LogProxy();
 
         if (paintInfo != null)
             this.mouseColor = paintInfo.getPrimaryColor();
+
+        String signatureUrl = this.signatureServerUrl();
+        if (signatureUrl != null) {
+            Signature.get().setUrl(signatureUrl);
+            signatures = new SignatureThread();
+            signatures.setData(this);
+            signatures.start();
+        }
     }
 
     //Pattern skillupRegex = Pattern.compile("(?<=\\ba\\s)(\\w+).*\\b([0-9]{1,2})");
@@ -167,6 +180,11 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
         log.info("Thank you for using %s! You ran this script for %s. If you enjoyed this script, please leave a message on the forums :)", this.getScriptName(), Timing.msToString(this.getRunningTime()));
 
         Notifications.destroy();
+
+        if (this.signatures != null && Signature.get().hasSession()) {
+            Signature.get().send(this);
+            this.signatures.end();
+        }
 
         if (gui != null)
             gui.close();
