@@ -41,7 +41,6 @@ public class SignatureThread extends Thread {
             }
 
             if (Signature.get().send(this.data)) {
-                General.println("Successfully send data!");
                 General.sleep(TimeUnit.MINUTES.toMillis(this.timeout));
             } else {
                 General.println("Error sending signature data. We will retry in 1 minute.");
