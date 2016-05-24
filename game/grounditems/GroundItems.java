@@ -7,15 +7,20 @@ import org.tribot.api.types.generic.Condition;
 import org.tribot.api2007.Camera;
 import org.tribot.api2007.types.RSGroundItem;
 import org.tribot.api2007.types.RSItemDefinition;
+import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.helpers.ItemsHelper;
 import scripts.lanapi.game.inventory.Inventory;
 import scripts.lanapi.game.movement.Movement;
 import scripts.lanapi.game.painting.PaintHelper;
 import scripts.lanapi.network.ItemPrice;
+import scripts.lanapi.network.exceptions.ItemPriceNotFoundException;
 
 /**
  * @author Laniax
  */
 public abstract class GroundItems extends org.tribot.api2007.GroundItems {
+
+    private static final LogProxy log = new LogProxy("GroundItems");
 
     /**
      * Loots items of the ground based on their name.
@@ -87,7 +92,13 @@ public abstract class GroundItems extends org.tribot.api2007.GroundItems {
                         }
                     }, General.random(3000, 4000))) {
 
-                        PaintHelper.profit += (ItemPrice.get(item.getID()) * item.getStack());
+                        // Item profit shouldn't be added here, since an inventory observer might do the same.
+                        // Uncomment these lines if you wish to count ground items towards your profit, and you arent using a observer.
+//                        try {
+//                            PaintHelper.profit += (ItemPrice.get(item.getID()) * item.getStack());
+//                        } catch (ItemPriceNotFoundException e) {
+//                            log.error("Couldn't find value for item id: %s.", item.getId());
+//                        }
 
                         return true;
                     }

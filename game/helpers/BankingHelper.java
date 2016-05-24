@@ -176,13 +176,21 @@ public class BankingHelper { // Sadly, tribot's Banking class is declared final 
      * @return true if they are fully loaded, false is timeout was reached.
      */
     public static boolean waitUntilBankItemsLoaded() {
-        return Timing.waitCondition(bankCondition, General.random(3000, 4000));
+        return Timing.waitCondition(bankCondition, General.random(4000, 5000));
     }
 
+    /**
+     * Checks if all the items in the bank are properly loaded into memory.
+     * @return
+     */
     public static boolean isBankItemsLoaded() {
         return getCurrentBankSpace() == Banking.getAll().length;
     }
 
+    /**
+     * Gets the used bank space by reading the ingame interface.
+     * @return
+     */
     private static int getCurrentBankSpace() {
         RSInterface amount = Interfaces.get(BANKING_INTERFACE, AMOUNT_INTERFACE);
         if (amount != null) {

@@ -51,7 +51,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
         Vars.get().add("script", this);
 
         this.paintInfo = getPaintInfo();
-        this.log = new LogProxy();
+        this.log = new LogProxy(this);
 
         if (paintInfo != null)
             this.mouseColor = paintInfo.getPrimaryColor();
@@ -141,11 +141,6 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
         Antiban.setWaitingSince();
 
         while (!quitting) {
-
-            while (Login.getLoginState() != Login.STATE.INGAME) {
-                sleep(250);
-                Login.login();
-            }
 
             IStrategy strategy = list.getValid();
             if (strategy != null) {

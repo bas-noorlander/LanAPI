@@ -27,7 +27,7 @@ public abstract class AbstractPaintInfo {
     private final Rectangle viewport = Screen.getViewport();
 
     // Colors
-    private final Color blackTransparent = new Color(0, 0, 0, 139);
+    protected final Color blackTransparent = new Color(0, 0, 0, 139);
     private final Color shadowColor = new Color(24, 24, 24);
     protected final Color primary;
     protected final Color secondary;

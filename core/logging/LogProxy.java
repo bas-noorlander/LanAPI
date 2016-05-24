@@ -13,12 +13,6 @@ public final class LogProxy {
     private final String source;
     private final boolean isDebug;
 
-    public LogProxy(String source) {
-
-        this.source = source;
-        this.isDebug = false;
-    }
-
     public LogProxy() {
 
         AbstractScript script = Vars.get().get("script");
@@ -33,6 +27,26 @@ public final class LogProxy {
             this.source = "Unknown";
             this.isDebug = false;
         }
+    }
+
+    public LogProxy(AbstractScript script) {
+
+        if (script != null) {
+
+            this.source = script.getScriptName();
+            this.isDebug = script.isLocal();
+
+            LogManager.setDebug(this.isDebug);
+        } else {
+            this.source = "Unknown";
+            this.isDebug = false;
+        }
+    }
+
+    public LogProxy(String source) {
+
+        this.source = source;
+        this.isDebug = false;
     }
 
     /**
