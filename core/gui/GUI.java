@@ -23,14 +23,27 @@ public class GUI extends Application {
     LogProxy log = new LogProxy("GUI");
 
     private final URL fxml;
+    private final URL stylesheet;
 
     private Stage stage;
+    private Scene scene;
 
     private boolean isOpen = false;
 
     public GUI(URL fxml) {
 
+        this(fxml, null);
+
+    }
+
+    public Scene getScene() {
+        return this.scene;
+    }
+
+    public GUI(URL fxml, URL stylesheet) {
+
         this.fxml = fxml;
+        this.stylesheet = stylesheet;
 
         // We have to start the JFX thread from the EDT otherwise tribot will end it.
         SwingUtilities.invokeLater(() -> {
@@ -79,8 +92,6 @@ public class GUI extends Application {
 
         Platform.setImplicitExit(false);
 
-        stage.setAlwaysOnTop(true);
-
         FXMLLoader loader = new FXMLLoader(fxml);
 
         // By default FXMLLoader uses a different classloader, this caused issues with upcasting
@@ -92,7 +103,10 @@ public class GUI extends Application {
 
         controller.setGUI(this);
 
-        Scene scene = new Scene(box);
+        scene = new Scene(box);
+
+        if (this.stylesheet != null)
+            scene.getStylesheets().add(this.stylesheet.toExternalForm());
 
         stage.setScene(scene);
 
