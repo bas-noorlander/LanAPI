@@ -54,3 +54,5 @@ The game namespace contains most tribot related extensions/helpers
 * Easy InputStream creator
 * Download files to a local folder and read remote texts files and return as a string.
 * Dynamic signature class that is compatible with my Scripters' Stats and Signature Centre (TBA)
+
+If you have any questions, feel free to get in touch with me. You can often find me on the Tribot Discord chat, Skype or you can send me a message here or on the Tribot forums.
