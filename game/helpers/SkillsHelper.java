@@ -5,6 +5,7 @@ import org.tribot.api2007.Skills.SKILLS;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -78,6 +79,31 @@ public class SkillsHelper {
 
         if (xp > 0) {
             result = xp - getStartXP(skill);
+        }
+
+        return result;
+    }
+
+    /**
+     * Get's the amount of XP we gained in a skill.
+     * Make sure setStartSkills() was called on this skill.
+     *
+     * @param skill to check
+     * @return
+     */
+    public static int getReceivedXP(SKILLS skill, long runtime) {
+
+        int result = getReceivedXP(skill);
+
+        int hours = (int)TimeUnit.MILLISECONDS.toHours(runtime);
+
+        if (hours > 0) {
+            if (((result / 1000) / hours) > 100) {
+                // If xp is more then 100k per hour, something is up..
+                return 0;
+            }
+        } else if ((result / 1000) > 100) {
+            return 0;
         }
 
         return result;

@@ -118,4 +118,14 @@ public final class FastMath {
         return value < min ? min : value;
     }
 
+    /**
+     * Rounds a value to a step size.
+     * @param input
+     * @param step
+     * @return
+     */
+    public static float round(float input, float step)
+    {
+        return ((Math.round(input / step)) * step);
+    }
 }

@@ -13,7 +13,9 @@ import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.IOException;
+import java.math.RoundingMode;
 import java.net.URL;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -259,14 +261,17 @@ public class PaintHelper {
 
         number = Math.abs(number);
 
+        DecimalFormat decimalFormat = new DecimalFormat("#.#");
+        decimalFormat.setRoundingMode(RoundingMode.CEILING);
+
         if (number > 1000000000) {
-            result = number / 1000000000 + "b";
+            result = decimalFormat.format((double)number / 1000000000) + "b";
             appendGP = false;
         } else if (number > 1000000) {
-            result = number / 1000000 + "m";
+            result = decimalFormat.format((double)number / 1000000) + "m";
             appendGP = false;
         } else if (number > 1000) {
-            result = number / 1000 + "k";
+            result = decimalFormat.format((double)number / 1000) + "k";
             appendGP = false;
         } else {
             result = String.valueOf(number);

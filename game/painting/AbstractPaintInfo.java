@@ -117,7 +117,7 @@ public abstract class AbstractPaintInfo {
         long runtime = this.script.getRunningTime();
         PaintBuilder texts = getText(runtime);
 
-        int textLines = texts.getAll().size();
+        int textLines = texts.getAll().size() -1;
 
         int viewportRight = viewport.x + viewport.width;
 

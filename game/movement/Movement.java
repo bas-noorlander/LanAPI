@@ -24,6 +24,16 @@ public class Movement {
 
     private static DPathNavigator nav = new DPathNavigator();
 
+    private static final int NOT_MOVING_TIMEOUT = 2000;
+
+    static {
+        nav.setStoppingConditionCheckDelay(50);
+    }
+
+    public static DPathNavigator getNavigator() {
+        return nav;
+    }
+
     /**
      * Checks if we can reach the specified Positionable (RSTile/RSObject/RSPlayer/RSGroundItem etc)
      *
@@ -91,11 +101,18 @@ public class Movement {
      */
     public static boolean webWalkTo(final Positionable posToWalk) {
 
-        return WebWalking.walkTo(posToWalk, new Condition() {
-            public boolean active() {
-                return Player.getPosition().distanceTo(posToWalk) < 4;
-            }
-        }, 500);
+        Antiban.activateRun();
+
+        if (Antiban.getWalkingPreference(Player.getPosition().distanceTo(posToWalk)) == WalkingPreference.SCREEN) {
+
+            RSTile[] path = Walking.generateStraightScreenPath(posToWalk);
+
+            if (Walking.walkScreenPath(path, getWalkingCondition(posToWalk), General.random(10000, 12500)))
+                return true;
+        }
+
+
+        return WebWalking.walkTo(posToWalk, getWalkingCondition(posToWalk), 100);
     }
 
     public static void setUseCustomDoors(RSObject[] doors) {
@@ -136,6 +153,8 @@ public class Movement {
 
         Antiban.activateRun();
 
+        nav.setStoppingCondition(getWalkingCondition(posToWalk));
+
         if (isInLoadedRegion(posToWalk)) {
 
             if (Antiban.getWalkingPreference(Player.getPosition().distanceTo(tile)) == WalkingPreference.SCREEN) {
@@ -152,6 +171,8 @@ public class Movement {
                     return true;
             }
 
+            // Check if the tile we want to walk to is actually walkable.
+            // DPathNavigator will fail if it isnt, so select the nearest best tile in a 5 tile radius around the destination.
             if (!PathFinding.isTileWalkable(posToWalk)) {
 
                 RSArea area = new RSArea(posToWalk, 5);
@@ -183,6 +204,35 @@ public class Movement {
     }
 
     /**
+     * Gets a stopping condition that keeps track for when you reach the target, or if you stood still for to long.
+     * @param destination
+     * @return
+     */
+    public static Condition getWalkingCondition(final Positionable destination) {
+
+        return new Condition() {
+
+            long notMovingSince = 0;
+
+            @Override
+            public boolean active() {
+                if (!Player.isMoving()) {
+                    if (notMovingSince == 0) {
+                        notMovingSince = System.currentTimeMillis();
+                    } else if (System.currentTimeMillis() - notMovingSince > NOT_MOVING_TIMEOUT) {
+                        return true;
+                    }
+                } else {
+                    notMovingSince = 0;
+                }
+
+                return Player.getPosition() == destination;
+            }
+        };
+    }
+
+
+    /**
      * Walks to the position by straight user-made paths. Will try to handle doors.
      * This is mostly used in areas which WebWalking has not mapped.
      * <p>
@@ -193,13 +243,7 @@ public class Movement {
      */
     public static boolean walkPath(final RSTile[] path) {
 
-        Condition stoppingCondition = new Condition() {
-            @Override
-            public boolean active() {
-                General.sleep(500);
-                return !Player.isMoving();
-            }
-        };
+        Condition stoppingCondition = getWalkingCondition(path[path.length - 1]);
 
         Antiban.activateRun();
 
@@ -207,30 +251,5 @@ public class Movement {
             return Walking.walkScreenPath(path, stoppingCondition, General.random(4000,5000));
         } else
             return Walking.walkPath(path, stoppingCondition, General.random(4000,5000));
-
-//
-//        for (int i = 0; i < path.length; i++) {
-//
-//            final RSTile tile = path[i];
-//
-//            Antiban.activateRun();
-//
-//            PaintHelper.destinationTile = tile;
-//
-//            if (canReach(tile)) {
-//                Walking.blindWalkTo(tile);
-//            } else {
-//                nav.traverse(tile);
-//            }
-//
-//            Timing.waitCondition(new Condition() {
-//                public boolean active() {
-//                    General.sleep(50);
-//                    return Player.getPosition().distanceTo(tile) < 2 || !Player.isMoving();
-//                }
-//            }, General.random(20000, 30000));
-//        }
-
-//        return true;
     }
 }

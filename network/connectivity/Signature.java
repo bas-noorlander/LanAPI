@@ -1,6 +1,7 @@
 package scripts.lanapi.network.connectivity;
 
 import org.tribot.api.General;
+import scripts.lanapi.core.logging.LogProxy;
 
 import java.io.*;
 import java.net.*;
@@ -73,6 +74,7 @@ public class Signature {
 
             BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
             this.token = in.readLine();
+
             in.close();
 
             return this.sessionStarted = true;

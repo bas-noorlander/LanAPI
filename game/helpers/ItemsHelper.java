@@ -11,7 +11,7 @@ import scripts.lanapi.core.logging.LogProxy;
  */
 public class ItemsHelper {
 
-    static LogProxy log = new LogProxy("ItemsHelper");
+   // static LogProxy log = new LogProxy("ItemsHelper");
 
     public static String getName(final RSItem item) {
         RSItemDefinition definition = item.getDefinition();

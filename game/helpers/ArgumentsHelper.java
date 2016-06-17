@@ -24,14 +24,19 @@ public class ArgumentsHelper {
 
         String scriptSelect = input.get("custom_input");
 
+        return getFromString(scriptSelect);
+    }
+
+    public static HashMap<String, String> getFromString(String str) {
+
         HashMap<String, String> args = new HashMap<>();
 
-        if (scriptSelect != null) {
+        if (str != null) {
             // Trim whitespace
-            scriptSelect = scriptSelect.replaceAll("\\s","");
+            str = str.replaceAll("\\s","");
 
             // Split everything by ;
-            List<String> argList = Arrays.asList(scriptSelect.split(";"));
+            List<String> argList = Arrays.asList(str.split(";"));
 
             for(String arg : argList) {
 

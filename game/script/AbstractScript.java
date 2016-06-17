@@ -63,6 +63,9 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             signatures.setData(this);
             signatures.start();
         }
+
+
+        setLoginBotState(false);
     }
 
     //Pattern skillupRegex = Pattern.compile("(?<=\\ba\\s)(\\w+).*\\b([0-9]{1,2})");
@@ -210,7 +213,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
                 if (match.find()) {
                     String skillName = match.group(0);
-                    Skills.SKILLS skill = Skills.SKILLS.valueOf(skillName);
+                    Skills.SKILLS skill = Skills.SKILLS.valueOf(skillName.toUpperCase());
                     if (skill != null) {
                         int newLevel = skill.getActualLevel();
                         Notifications.send(String.format("%s level up!", skillName), String.format("Your %s advanced to level %d!", skillName, newLevel), TrayIcon.MessageType.INFO);

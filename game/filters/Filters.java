@@ -1,6 +1,7 @@
 package scripts.lanapi.game.filters;
 
 import org.tribot.api.types.generic.Filter;
+import org.tribot.api2007.PathFinding;
 import org.tribot.api2007.Player;
 import org.tribot.api2007.types.*;
 
@@ -106,6 +107,21 @@ public class Filters extends org.tribot.api2007.ext.Filters {
                 @Override
                 public boolean accept(RSNPC rsnpc) {
                     return rsnpc.isValid();
+                }
+            };
+        }
+
+        /**
+         * Generates a filter that will return all the {@link RSNPC}s that reachable.
+         * NOTE: canReach is an expensive call and shouldn't be used lightly!
+         * @return
+         */
+        public static Filter<RSNPC> canReach() {
+
+            return new Filter<RSNPC>() {
+                @Override
+                public boolean accept(RSNPC rsnpc) {
+                    return PathFinding.canReach(Player.getPosition(), rsnpc, false);
                 }
             };
         }

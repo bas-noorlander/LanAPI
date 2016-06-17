@@ -6,15 +6,16 @@ import org.tribot.api.Timing;
 import org.tribot.api.interfaces.Positionable;
 import org.tribot.api.types.generic.Condition;
 import org.tribot.api.types.generic.Filter;
-import org.tribot.api2007.Camera;
-import org.tribot.api2007.NPCChat;
-import org.tribot.api2007.NPCs;
-import org.tribot.api2007.Player;
+import org.tribot.api2007.*;
 import org.tribot.api2007.ext.Filters;
+import org.tribot.api2007.types.RSModel;
 import org.tribot.api2007.types.RSNPC;
 import org.tribot.api2007.types.RSNPCDefinition;
+import org.tribot.api2007.types.RSObject;
 import scripts.lanapi.core.logging.LogProxy;
 import scripts.lanapi.game.movement.Movement;
+
+import java.awt.*;
 
 /**
  * Helper class that manages NPC logic.
@@ -245,5 +246,31 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
         }
 
         return true;
+    }
+
+    public static boolean interact(final RSNPC npc, final String action, final String uptext) {
+
+        if (npc == null)
+            return false;
+
+        RSModel model = npc.getModel();
+
+        if (!npc.isOnScreen() && Player.getPosition().distanceTo(npc) > 6) {
+            Movement.walkTo(npc);
+        }
+
+        if (model != null) {
+            Point modelCenter = model.getCentrePoint();
+            if (modelCenter != null && !Projection.isInViewport(modelCenter)) {
+                Camera.turnToTile(npc);
+            }
+        }
+
+        if (Clicking.hover(npc)) {
+            if (uptext == null || uptext.isEmpty() || (!uptext.isEmpty() && Game.isUptext(uptext)))
+                return Clicking.click(action, npc);
+        }
+
+        return false;
     }
 }
