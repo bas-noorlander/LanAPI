@@ -2,10 +2,12 @@ package scripts.lanapi.game.script;
 
 import org.tribot.api.General;
 import org.tribot.api.Timing;
+import org.tribot.api2007.Banking;
 import org.tribot.api2007.Login;
 import org.tribot.api2007.MessageListener;
 import org.tribot.api2007.Skills;
 import org.tribot.api2007.types.RSItem;
+import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.util.ThreadSettings;
 import org.tribot.script.Script;
 import org.tribot.script.interfaces.*;
@@ -14,8 +16,10 @@ import scripts.lanapi.game.antiban.Antiban;
 import scripts.lanapi.core.logging.LogProxy;
 import scripts.lanapi.core.system.Notifications;
 import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.concurrency.Condition;
 import scripts.lanapi.game.concurrency.observers.inventory.InventoryListener;
 import scripts.lanapi.core.patterns.StrategyList;
+import scripts.lanapi.game.concurrency.observers.inventory.InventoryObserver;
 import scripts.lanapi.game.painting.AbstractPaintInfo;
 import scripts.lanapi.game.painting.PaintHelper;
 import scripts.lanapi.game.persistance.Vars;
@@ -34,47 +38,51 @@ import java.util.regex.Pattern;
 public abstract class AbstractScript extends Script implements Painting, MouseActions, MousePainting, MouseSplinePainting,
         EventBlockingOverride, Ending, Breaking, MessageListening07, InventoryListener, DynamicSignatures {
 
-    public boolean quitting = false;
+    private boolean quitting = false;
+    private boolean inventory_observer_running = false;
 
-    protected boolean hasArguments = false;
+    protected boolean has_arguments = false;
     protected LogProxy log;
-    protected boolean waitForGUI = true;
-    protected boolean showPaint = false;
+    protected boolean wait_for_gui = true;
+    protected boolean show_paint = false;
     protected GUI gui = null;
     protected BufferedImage icon = null;
-    protected AbstractPaintInfo paintInfo = null;
-    protected Color mouseColor = null;
+    protected AbstractPaintInfo paint_info = null;
+    protected Color mouse_color = null;
+    protected InventoryObserver observer = null;
+
+    private final Pattern skillup_regex = Pattern.compile("(?<=\\ba\\s)\\w+"); // Pattern.compile("(?<=\\ba\\s)(\\w+).*\\b([0-9]{1,2})");
 
     private SignatureThread signatures;
 
+    /**
+     * Creates a AbstractScript which is a wrapper around Tribot's Script class.
+     * It handles a lot of repetitive code and ties LanAPI into it.
+     */
     public AbstractScript() {
         Vars.get().add("script", this);
 
-        this.paintInfo = getPaintInfo();
+        this.paint_info = getPaintInfo();
         this.log = new LogProxy(this);
 
-        if (paintInfo != null)
-            this.mouseColor = paintInfo.getPrimaryColor();
+        if (paint_info != null)
+            this.mouse_color = paint_info.getPrimaryColor();
 
-        String signatureUrl = this.signatureServerUrl();
-        if (signatureUrl != null) {
-            Signature.get().setUrl(signatureUrl);
+        String signature_url = this.signatureServerUrl();
+        if (signature_url != null) {
+            Signature.get().setUrl(signature_url);
             signatures = new SignatureThread();
             signatures.setData(this);
             signatures.start();
         }
-
-
-        setLoginBotState(false);
     }
 
-    //Pattern skillupRegex = Pattern.compile("(?<=\\ba\\s)(\\w+).*\\b([0-9]{1,2})");
-    Pattern skillupRegex = Pattern.compile("(?<=\\ba\\s)\\w+");
+
 
     /**
      * This method is called once when the script starts and we are logged ingame, just before the paint/gui shows.
      */
-    public abstract void onInitialize();
+    public void onScriptStart() {}
 
     /**
      * Return a JavaFX gui, it will automatically be shown and the script will wait until it closes.
@@ -103,6 +111,40 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
      */
     public abstract AbstractPaintInfo getPaintInfo();
 
+
+    /**
+     * Checks if an inventory observer is running.
+     * @return
+     */
+    public boolean isInventoryObserverRunning() {
+        return this.inventory_observer_running;
+    }
+
+    /**
+     * Sets if we want to use a inventory observer or not. This will enable the #inventoryItemAdded and #inventoryItemRemoved functions to get called.
+     * @param state
+     */
+    public void setInventoryObserverState(boolean state) {
+
+        if (state) {
+
+            if (this.observer == null) {
+                this.observer =  new InventoryObserver(new Condition(() -> !Banking.isBankScreenOpen()));
+                this.observer.addListener(this);
+            }
+
+            this.observer.start();
+            this.inventory_observer_running = true;
+
+        } else if (this.observer != null) {
+            this.observer.end();
+            this.inventory_observer_running = false;
+        }
+    }
+
+    /**
+     * This is the entry point of a tribot script. You shouldn't have to change anything here.
+     */
     @Override
     public void run() {
 
@@ -118,13 +160,13 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             Login.login();
         }
 
-        onInitialize();
+        onScriptStart();
 
         icon = getNotificationIcon();
         gui = getGUI();
-        showPaint = true;
+        show_paint = true;
 
-        if (!hasArguments && gui != null) {
+        if (!has_arguments && gui != null) {
 
             gui.show();
 
@@ -132,9 +174,9 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
                 sleep(250);
         }
 
-        boolean useNotifications = Vars.get().get("enableNotifications", false);
+        boolean use_notifications = Vars.get().get("enableNotifications", false);
 
-        if (icon != null && useNotifications) {
+        if (icon != null && use_notifications) {
             if (Notifications.init(this))
                 MessageListener.addListener(this);
         }
@@ -143,7 +185,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
         Antiban.setWaitingSince();
 
-        while (!quitting) {
+        while (!this.isQuitting()) {
 
             IStrategy strategy = list.getValid();
             if (strategy != null) {
@@ -154,24 +196,51 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
         }
     }
 
+    /**
+     * Returns if the script is quitting. IE, finishing the last loop and disposing of any objects.
+     * @return
+     */
+    public boolean isQuitting() {
+        return this.quitting;
+    }
+
+    /**
+     * Sets if the script is quitting. IE, finishing the last loop and disposing of any objects.
+     */
+    public void setQuitting(boolean value) {
+        this.quitting = value;
+    }
+
+    /**
+     * Returns if this script is being run locally or on the repository.
+     * @return
+     */
     public boolean isLocal() {
         return this.getRepoID() == -1;
     }
 
+    /**
+     * This is the entry point for a script's paint. You shouldn't have to do anything here, please provide a PaintInfo object in #getPaintInfo instead.
+     * @param g1
+     */
     @Override
     public void onPaint(Graphics g1) {
 
-        if (paintInfo == null)
+        if (paint_info == null)
             return;
 
         Graphics2D g = (Graphics2D) g1;
 
-        if (showPaint) {
+        if (show_paint) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            paintInfo.draw(g);
+            paint_info.draw(g);
         }
     }
 
+    /**
+     * This method is called once when the script stops completely. (ie. user clicked the stop button or the script queue ran out.)
+     * Please call super() when overriding this method.
+     */
     @Override
     public void onEnd() {
 
@@ -188,6 +257,10 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             gui.close();
     }
 
+    /**
+     * This method is called once when a break starts that was scheduled by the user in the Break Manager.
+     * Please call super() when overriding this method.
+     */
     @Override
     public void onBreakStart(long breakTime) {
 
@@ -195,6 +268,10 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             Notifications.send(this.getScriptName(), "Taking a break for " + Timing.msToString(breakTime), TrayIcon.MessageType.INFO);
     }
 
+    /**
+     * This method is called once when a break ends that was scheduled by the user in the Break Manager.
+     * Please call super() when overriding this method.
+     */
     @Override
     public void onBreakEnd() {
 
@@ -202,6 +279,11 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             Notifications.send(this.getScriptName(), "Break Ended", TrayIcon.MessageType.INFO);
     }
 
+    /**
+     * This method is called when the server sends a message to the player.
+     * Please call super() when overriding this method.
+     * @param s the string the server sent
+     */
     @Override
     public void serverMessageReceived(String s) {
 
@@ -209,15 +291,15 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
             if (s.contains("Congratulations, you just advanced")) {
 
-                Matcher match = skillupRegex.matcher(s);
+                Matcher match = skillup_regex.matcher(s);
 
                 if (match.find()) {
-                    String skillName = match.group(0);
-                    Skills.SKILLS skill = Skills.SKILLS.valueOf(skillName.toUpperCase());
+                    String skill_name = match.group(0);
+                    Skills.SKILLS skill = Skills.SKILLS.valueOf(skill_name.toUpperCase());
                     if (skill != null) {
-                        int newLevel = skill.getActualLevel();
-                        Notifications.send(String.format("%s level up!", skillName), String.format("Your %s advanced to level %d!", skillName, newLevel), TrayIcon.MessageType.INFO);
-                        log.info("You gained a level in %s! You are now %d.", skillName, newLevel);
+                        int new_level = skill.getActualLevel();
+                        Notifications.send(String.format("%s level up!", skill_name), String.format("Your %s advanced to level %d!", skill_name, new_level), TrayIcon.MessageType.INFO);
+                        log.info("You gained a level in %s! You are now %d.", skill_name, new_level);
                     }
                 }
             }
@@ -228,6 +310,12 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
     }
 
+    /**
+     * This method is called when the player receives a message in the clan chat.
+     * Please call super() when overriding this method.
+     * @param name the name of the sender
+     * @param msg the message sent
+     */
     @Override
     public void clanMessageReceived(String name, String msg) {
 
@@ -235,6 +323,12 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             Notifications.send(String.format("[Clan] %s:", name), msg);
     }
 
+    /**
+     * This method is called when a nearby player sends a message in the regular chat.
+     * Please call super() when overriding this method.
+     * @param name the name of the sender
+     * @param msg the message sent
+     */
     @Override
     public void playerMessageReceived(String name, String msg) {
 
@@ -243,6 +337,12 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
     }
 
+    /**
+     * This method is called when the player receives a private message.
+     * Please call super() when overriding this method.
+     * @param name the name of the sender
+     * @param msg the message sent
+     */
     @Override
     public void personalMessageReceived(String name, String msg) {
 
@@ -251,6 +351,12 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
     }
 
+    /**
+     * This method is called when the player receives a duel request.
+     * Please call super() when overriding this method.
+     * @param name the name of the sender
+     * @param msg the message sent
+     */
     @Override
     public void duelRequestReceived(String name, String msg) {
 
@@ -258,6 +364,11 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             Notifications.send("[Duel Request]", String.format("From '%s'", name), TrayIcon.MessageType.WARNING);
     }
 
+    /**
+     * This method is called when the player receives a trade request.
+     * Please call super() when overriding this method.
+     * @param s the name of the sender
+     */
     @Override
     public void tradeRequestReceived(String s) {
 
@@ -266,35 +377,57 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
     }
 
+    /**
+     * This is called by tribot to paint our mouse. You shouldn't have to do anything here.
+     * @param g
+     * @param mouse_pos
+     * @param drag_pos
+     */
     @Override
-    public void paintMouse(Graphics g, Point mousePos, Point dragPos) {
-        PaintHelper.drawMouse(g, mousePos, dragPos, mouseColor);
+    public void paintMouse(Graphics g, Point mouse_pos, Point drag_pos) {
+        PaintHelper.drawMouse(g, mouse_pos, drag_pos, mouse_color);
     }
 
+    /**
+     * This is called by tribot when the user or script clicks the mouse. You shouldn't have to do anything here.
+     * @param p
+     * @param button
+     * @param is_bot
+     */
     @Override
-    public void mouseClicked(Point p, int button, boolean isBot) {
-        PaintHelper.mouseDown = true;
+    public void mouseClicked(Point p, int button, boolean is_bot) {
+        PaintHelper.mouse_down = true;
     }
 
+    /**
+     * This is called by tribot to paint the mouse trail. You shouldn't have to do anything here.
+     * @param g
+     * @param points
+     */
     @Override
     public void paintMouseSpline(Graphics g, ArrayList<Point> points) {
-        PaintHelper.drawMouseTrail(g, points, mouseColor);
+        PaintHelper.drawMouseTrail(g, points, mouse_color);
     }
 
+    /**
+     * This is called by tribot when the user or script moves the mouse. You shouldn't have to do anything here.
+     * @param point
+     * @param isBot
+     */
     @Override
-    public void mouseMoved(Point point, boolean isBot) {
+    public void mouseMoved(Point point, boolean is_bot) {
         PaintHelper.moveMouseTrail(point);
     }
 
-    // Unused overrides, feel free to override these in your script if you need them.
+    // Stubs
     public OVERRIDE_RETURN overrideMouseEvent(MouseEvent e) {
         return OVERRIDE_RETURN.PROCESS;
     }
-    public void mouseReleased(Point point, int button, boolean isBot) {}
-    public void mouseDragged(Point point, int button, boolean isBot) {}
-    public OVERRIDE_RETURN overrideKeyEvent(KeyEvent e) {
-        return OVERRIDE_RETURN.SEND;
-    }
+    public void mouseReleased(Point point, int button, boolean is_bot) {}
+    public void mouseDragged(Point point, int button, boolean is_bot) {}
+    public OVERRIDE_RETURN overrideKeyEvent(KeyEvent e) {return OVERRIDE_RETURN.SEND;}
     public void inventoryItemRemoved(RSItem item, int count) {}
     public void inventoryItemAdded(RSItem item, int count) {}
+
+
 }

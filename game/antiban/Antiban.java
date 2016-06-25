@@ -200,14 +200,17 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
         return false;
     }
 
-    /**
-     * Performs a wait for a calculated time. Based on real human playing data.
-     */
-    public void performReactionTimeWait() {
+    public void updateTrackers() {
+
+        updateTrackers(false);
+
+    }
+
+    public void updateTrackers(final boolean fixed) {
 
         final boolean recentlyInCombat = (Combat.isUnderAttack() || (Timing.currentTimeMillis() - lastCombatTime < General.random(2000, 6000)));
         final boolean isHovering = Hovering.isHovering();
-        final boolean shouldOpenMenu = Hovering.getShouldOpenMenu();
+//        final boolean shouldOpenMenu = Hovering.getShouldOpenMenu();
 
         final ABCProperties props = get().getProperties();
 
@@ -215,13 +218,23 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
         props.setHovering(isHovering);
         props.setMenuOpen(Hovering.isMenuOpen());
         props.setUnderAttack(recentlyInCombat);
-        props.setWaitingFixed(false);
+        props.setWaitingFixed(fixed);
+
+        get().generateTrackers();
+    }
+
+    /**
+     * Performs a wait for a calculated time. Based on real human playing data.
+     */
+    public void performReactionTimeWait() {
+
+        updateTrackers();
 
         final int reactionTime = get().generateReactionTime();
 
         log.info("Sleeping for %d ms.", reactionTime);
 
-        PaintHelper.statusText = "Antiban Delay";
+        PaintHelper.status_text = "Antiban Delay";
 
         try {
             get().sleep(reactionTime);
@@ -247,7 +260,7 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
             get().resourcesLost++;
     }
 
-    /**
+     /**
      * Returns if we should change resources because we are losing a lot of resources due to other players in the area.
      * Note this method should be called continuously, internally it will only check every 20-30 seconds.
      *
@@ -295,7 +308,7 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
 
         if (!Game.isRunOn() && Game.getRunEnergy() >= getRunPercentage()) {
 
-            PaintHelper.statusText = "Antiban - Activate Run";
+            PaintHelper.status_text = "Antiban - Activate Run";
 
             if (Options.setRunOn(true)) {
                 generateRunPercentage();

@@ -26,44 +26,44 @@ import java.util.Map;
  */
 public class PaintHelper {
 
-    public static RSTile destinationTile = null;
-    public static String statusText = "Initializing";
+    public static RSTile destination_tile = null;
+    public static String status_text = "Initializing";
     public static int profit = 0;
 
     // Mouse painting related
-    private static final int trailSize = 100;
-    private static final double alpha = (255.0 / trailSize);
-    private static final Point[] points = new Point[trailSize];
+    private static final int trail_size = 100;
+    private static final double alpha = (255.0 / trail_size);
+    private static final Point[] points = new Point[trail_size];
     private static int index = 0;
 
-    private static final Color mouseBackgroundColor = new Color(0, 0, 0, 80);
-    private static final Color mouseOutlineColor = new Color(0, 0, 0, 150);
-    private static final Color mouseAccentColor = Color.CYAN;
+    private static final Color mouse_background_color = new Color(0, 0, 0, 80);
+    private static final Color mouse_outline_color = new Color(0, 0, 0, 150);
+    private static final Color mouse_accent_color = Color.CYAN;
     private static final BasicStroke stroke = new BasicStroke(2);
 
-    public static boolean mouseDown = false;
-    private static boolean oldMouseState = false;
-    private static int pulseCounter = 0;
+    public static boolean mouse_down = false;
+    private static boolean old_mouse_state = false;
+    private static int pulse_counter = 0;
 
     /**
      * Draws text multiple times as if it is shadowed.
      *
      * @param g
      */
-    public static void drawShadowedText(PaintBuilder paintBuilder, Color shadowColor, Point pos, Font font, Graphics2D g) {
+    public static void drawShadowedText(PaintBuilder paint_builder, Color shadow_color, Point pos, Font font, Graphics2D g) {
 
-        Point shadowPos = new Point((int)pos.getX() +2 , (int)pos.getY() +2);
-        drawPaintBuilder(g, font, shadowPos, paintBuilder, shadowColor);
-        drawPaintBuilder(g, font, pos, paintBuilder);
+        Point shadow_pos = new Point((int)pos.getX() +2 , (int)pos.getY() +2);
+        drawPaintBuilder(g, font, shadow_pos, paint_builder, shadow_color);
+        drawPaintBuilder(g, font, pos, paint_builder);
     }
 
     public static void drawPaintBuilder(Graphics2D g, Font font, Point pos, PaintBuilder pb) {
         drawPaintBuilder(g, font, pos, pb, null);
     }
 
-    public static void drawPaintBuilder(Graphics2D g, Font font, Point pos, PaintBuilder pb, Color overrideColor) {
+    public static void drawPaintBuilder(Graphics2D g, Font font, Point pos, PaintBuilder pb, Color override_color) {
         for (PaintString ps : pb.getAll()) {
-            drawPaintString(g, pos, font, ps, overrideColor);
+            drawPaintString(g, pos, font, ps, override_color);
         }
     }
 
@@ -71,11 +71,11 @@ public class PaintHelper {
         drawPaintString(g, pos, font, ps, null);
     }
 
-    public static void drawPaintString(Graphics2D g, Point pos, Font font, PaintString ps, Color overrideColor) {
+    public static void drawPaintString(Graphics2D g, Point pos, Font font, PaintString ps, Color override_color) {
         int x = pos.x;
         g.setFont(font);
         for (Pair<String, Color> set : ps.getAll()) {
-            g.setColor(overrideColor == null ? set.getValue() : overrideColor);
+            g.setColor(override_color == null ? set.getValue() : override_color);
             g.drawString(set.getKey(), x, pos.y);
             x += PaintHelper.getStringWidth(g, font, set.getKey());
         }
@@ -111,7 +111,7 @@ public class PaintHelper {
         GlyphVector gv = font.createGlyphVector(frc, str);
         Rectangle2D bounds = g.getFontMetrics(font).getStringBounds(str, g);
 
-        // The vector returns the correct height, however, a the bounds will have a more correct width that is better with spaces.
+        // The vector returns the correct height, however, the metric bounds will have a more correct width that is better with spaces.
         // So lets combine those.
         return new Rectangle((int) bounds.getX(), (int) bounds.getY(), (int) bounds.getWidth(), (int) gv.getPixelBounds(frc, 0, 0).getHeight());
     }
@@ -160,8 +160,8 @@ public class PaintHelper {
      */
     public static Font getFont(String url, float size) {
         try {
-            BufferedInputStream inputStream = new BufferedInputStream(new URL(url).openStream());
-            return Font.createFont(Font.TRUETYPE_FONT, inputStream).deriveFont(size);
+            BufferedInputStream input_stream = new BufferedInputStream(new URL(url).openStream());
+            return Font.createFont(Font.TRUETYPE_FONT, input_stream).deriveFont(size);
         } catch (Exception e) {
             return null;
         }
@@ -169,14 +169,14 @@ public class PaintHelper {
 
     public static void drawTile(Graphics g, Color color, RSTile tile, boolean minimap) {
 
-        Shape oldClip = g.getClip();
+        Shape old_clip = g.getClip();
 
         g.setClip(Screen.getViewport());
 
         Polygon poly = Projection.getTileBoundsPoly(tile, 0);
 
         if (poly != null) {
-            g.setColor(mouseBackgroundColor);
+            g.setColor(mouse_background_color);
             g.fillPolygon(poly);
             g.setColor(color);
             g.drawPolygon(poly);
@@ -190,7 +190,7 @@ public class PaintHelper {
             g.fillOval(p.x - 2, p.y - 2, 4, 4);
         }
 
-        g.setClip(oldClip);
+        g.setClip(old_clip);
 
     }
 
@@ -198,46 +198,46 @@ public class PaintHelper {
      * Draws a custom cursor with click animation.
      *
      * @param g1
-     * @param mousePos
-     * @param dragPos
-     * @param mouseColor
+     * @param mouse_pos
+     * @param drag_pos
+     * @param mouse_color
      */
-    public static void drawMouse(Graphics g1, Point mousePos, Point dragPos, Color mouseColor) {
+    public static void drawMouse(Graphics g1, Point mouse_pos, Point drag_pos, Color mouse_color) {
         Graphics2D g = (Graphics2D) g1;
 
-        g.setColor(mouseBackgroundColor);
-        g.fillOval((int) mousePos.getX() - 10, (int) mousePos.getY() - 10, 20, 20);
+        g.setColor(mouse_background_color);
+        g.fillOval((int) mouse_pos.getX() - 10, (int) mouse_pos.getY() - 10, 20, 20);
 
-        if (!oldMouseState && mouseDown) {
-            pulseCounter = 5;
-            mouseDown = false;
+        if (!old_mouse_state && mouse_down) {
+            pulse_counter = 5;
+            mouse_down = false;
         }
 
-        if (pulseCounter > 0) {
-            int rgba = mouseColor.getRGB() | 50 * pulseCounter-- & 0xff;
+        if (pulse_counter > 0) {
+            int rgba = mouse_color.getRGB() | 50 * pulse_counter-- & 0xff;
             g.setColor(new Color(rgba, true));
-            g.fillOval((int) mousePos.getX() - 10, (int) mousePos.getY() - 10, 20, 20);
+            g.fillOval((int) mouse_pos.getX() - 10, (int) mouse_pos.getY() - 10, 20, 20);
         }
 
         g.setStroke(stroke);
-        g.setColor(mouseOutlineColor);
-        g.drawOval((int) mousePos.getX() - 10, (int) mousePos.getY() - 10, 20, 20);
-        g.fillOval((int) mousePos.getX() - 1, (int) mousePos.getY() - 1, 2, 2);
+        g.setColor(mouse_outline_color);
+        g.drawOval((int) mouse_pos.getX() - 10, (int) mouse_pos.getY() - 10, 20, 20);
+        g.fillOval((int) mouse_pos.getX() - 1, (int) mouse_pos.getY() - 1, 2, 2);
 
-        oldMouseState = mouseDown;
+        old_mouse_state = mouse_down;
     }
 
 
-    public static void drawMouseTrail(Graphics g, ArrayList<Point> unused, Color mouseColor) {
+    public static void drawMouseTrail(Graphics g, ArrayList<Point> unused, Color mouse_color) {
 
-        Color col = mouseColor.brighter();
+        Color col = mouse_color.brighter();
 
         double al = 0;
-        for (int i = index; i != (index == 0 ? trailSize - 1 : index - 1); i = (i + 1) % trailSize) {
-            if (points[i] != null && points[(i + 1) % trailSize] != null) {
+        for (int i = index; i != (index == 0 ? trail_size - 1 : index - 1); i = (i + 1) % trail_size) {
+            if (points[i] != null && points[(i + 1) % trail_size] != null) {
 
                 g.setColor(new Color(col.getRed(), col.getGreen(), col.getBlue(), (int) al & 0xff));
-                g.drawLine(points[i].x, points[i].y, points[(i + 1) % trailSize].x, points[(i + 1) % trailSize].y);
+                g.drawLine(points[i].x, points[i].y, points[(i + 1) % trail_size].x, points[(i + 1) % trail_size].y);
 
                 al += alpha;
             }
@@ -246,41 +246,41 @@ public class PaintHelper {
 
     public static void moveMouseTrail(Point point) {
         points[index++] = point;
-        index %= trailSize;
+        index %= trail_size;
     }
 
     public static String formatNumber(int number) {
         return formatNumber(number, false);
     }
 
-    public static String formatNumber(int number, boolean appendGP) {
+    public static String formatNumber(int number, boolean append_gp) {
 
         String result;
 
-        boolean isNegative = number < 0;
+        boolean is_negative = number < 0;
 
         number = Math.abs(number);
 
-        DecimalFormat decimalFormat = new DecimalFormat("#.#");
-        decimalFormat.setRoundingMode(RoundingMode.CEILING);
+        DecimalFormat decimal_format = new DecimalFormat("#.#");
+        decimal_format.setRoundingMode(RoundingMode.CEILING);
 
         if (number > 1000000000) {
-            result = decimalFormat.format((double)number / 1000000000) + "b";
-            appendGP = false;
+            result = decimal_format.format((double)number / 1000000000) + "b";
+            append_gp = false;
         } else if (number > 1000000) {
-            result = decimalFormat.format((double)number / 1000000) + "m";
-            appendGP = false;
+            result = decimal_format.format((double)number / 1000000) + "m";
+            append_gp = false;
         } else if (number > 1000) {
-            result = decimalFormat.format((double)number / 1000) + "k";
-            appendGP = false;
+            result = decimal_format.format((double)number / 1000) + "k";
+            append_gp = false;
         } else {
             result = String.valueOf(number);
         }
 
-        if (isNegative) {
+        if (is_negative) {
             result = "-" + result;
         }
 
-        return appendGP ? result + "gp" : result;
+        return append_gp ? result + "gp" : result;
     }
 }

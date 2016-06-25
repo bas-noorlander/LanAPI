@@ -117,7 +117,7 @@ public abstract class AbstractPaintInfo {
         long runtime = this.script.getRunningTime();
         PaintBuilder texts = getText(runtime);
 
-        int textLines = texts.getAll().size() -1;
+        int textLines = (int) Math.max(Math.ceil((texts.getAll().size() / 2) + 1), 1);
 
         int viewportRight = viewport.x + viewport.width;
 
@@ -182,7 +182,7 @@ public abstract class AbstractPaintInfo {
         // And lastly, the status text
         g.setColor(this.secondary);
         g.setFont(this.statusFont);
-        g.drawString(PaintHelper.statusText, textXStart, y + this.lineDistance);
+        g.drawString(PaintHelper.status_text, textXStart, y + this.lineDistance);
 
         this.customDrawAfter(g);
 

@@ -8,10 +8,11 @@ import org.tribot.api2007.Camera;
 import org.tribot.api2007.types.RSGroundItem;
 import org.tribot.api2007.types.RSItemDefinition;
 import scripts.lanapi.core.logging.LogProxy;
-import scripts.lanapi.game.helpers.ItemsHelper;
 import scripts.lanapi.game.inventory.Inventory;
 import scripts.lanapi.game.movement.Movement;
 import scripts.lanapi.game.painting.PaintHelper;
+import scripts.lanapi.game.persistance.Vars;
+import scripts.lanapi.game.script.AbstractScript;
 import scripts.lanapi.network.ItemPrice;
 import scripts.lanapi.network.exceptions.ItemPriceNotFoundException;
 
@@ -48,6 +49,18 @@ public abstract class GroundItems extends org.tribot.api2007.GroundItems {
         return false;
     }
 
+    public static String getName(RSGroundItem item) {
+        RSItemDefinition definition = item.getDefinition();
+        if (definition != null) {
+            String definitionName = definition.getName();
+            if (definitionName != null) {
+                return definitionName;
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Loots an array of items from the ground.
      *
@@ -59,7 +72,7 @@ public abstract class GroundItems extends org.tribot.api2007.GroundItems {
 
         if (items.length > 0) {
 
-            PaintHelper.statusText = "Looting";
+            PaintHelper.status_text = "Looting";
 
             for (final RSGroundItem item : items) {
 
@@ -70,7 +83,7 @@ public abstract class GroundItems extends org.tribot.api2007.GroundItems {
 
                 // If the item stacks and we have one already, we should pick it up even if the inventory is full.
                 if (Inventory.isFull() && !(itemDef.isStackable() && Inventory.hasItem(item.getID())))
-                    return false;
+                    continue;
 
                 if (!Movement.canReach(item))
                     continue;
@@ -92,14 +105,20 @@ public abstract class GroundItems extends org.tribot.api2007.GroundItems {
                         }
                     }, General.random(3000, 4000))) {
 
-                        // Item profit shouldn't be added here, since an inventory observer might do the same.
-                        // Uncomment these lines if you wish to count ground items towards your profit, and you arent using a observer.
-//                        try {
-//                            PaintHelper.profit += (ItemPrice.get(item.getID()) * item.getStack());
-//                        } catch (ItemPriceNotFoundException e) {
-//                            log.error("Couldn't find value for item id: %s.", item.getId());
-//                        }
+                        AbstractScript script = Vars.get().get("script");
 
+                        if (script != null) {
+
+                            // If you have a inventory observer running, make sure to handle profit in there.
+                            // Otherwise it gets added here.
+                            if (!script.isInventoryObserverRunning()) {
+                                try {
+                                    PaintHelper.profit += (ItemPrice.get(item.getID()) * item.getStack());
+                                } catch (ItemPriceNotFoundException e) {
+                                    log.error("Couldn't find value for item id: %s.", item.getID());
+                                }
+                            }
+                        }
                         return true;
                     }
                 }

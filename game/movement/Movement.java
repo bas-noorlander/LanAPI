@@ -2,7 +2,6 @@ package scripts.lanapi.game.movement;
 
 import org.tribot.api.General;
 import org.tribot.api.interfaces.Positionable;
-import org.tribot.api.types.generic.Condition;
 import org.tribot.api.util.Sorting;
 import org.tribot.api.util.abc.preferences.WalkingPreference;
 import org.tribot.api2007.*;
@@ -10,7 +9,10 @@ import org.tribot.api2007.types.RSArea;
 import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.types.RSTile;
 import org.tribot.api2007.util.DPathNavigator;
+import scripts.lanapi.core.dynamic.Bag;
 import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.game.concurrency.BooleanLambda;
+import scripts.lanapi.game.concurrency.Condition;
 import scripts.lanapi.game.painting.PaintHelper;
 
 import java.util.ArrayList;
@@ -135,7 +137,7 @@ public class Movement {
 
     /**
      * Walks to the position using either DPathNavigator for close by precision or WebWalking for greater lengths.
-     *
+     * <p>
      * Checks if run can be toggled.
      *
      * @param posToWalk
@@ -144,7 +146,7 @@ public class Movement {
     public static boolean walkTo(Positionable posToWalk) {
 
         if (posToWalk instanceof RSTile)
-            PaintHelper.destinationTile = (RSTile) posToWalk;
+            PaintHelper.destination_tile = (RSTile) posToWalk;
 
         RSTile tile = posToWalk.getPosition();
 
@@ -203,12 +205,7 @@ public class Movement {
         return false;
     }
 
-    /**
-     * Gets a stopping condition that keeps track for when you reach the target, or if you stood still for to long.
-     * @param destination
-     * @return
-     */
-    public static Condition getWalkingCondition(final Positionable destination) {
+    public static Condition getWalkingCondition(BooleanLambda lambda) {
 
         return new Condition() {
 
@@ -216,6 +213,9 @@ public class Movement {
 
             @Override
             public boolean active() {
+
+                General.sleep(50, 100);
+
                 if (!Player.isMoving()) {
                     if (notMovingSince == 0) {
                         notMovingSince = System.currentTimeMillis();
@@ -226,9 +226,42 @@ public class Movement {
                     notMovingSince = 0;
                 }
 
-                return Player.getPosition() == destination;
+                return lambda.active();
+
             }
         };
+    }
+
+    /**
+     * Gets a stopping condition that keeps track for when you reach the target, or if you stood still for to long.
+     *
+     * @param destination
+     * @return
+     */
+    public static Condition getWalkingCondition(final Positionable destination) {
+
+        Condition condition = new Condition();
+
+        Bag bag = condition.getBag();
+
+        condition.setLambda(() -> {
+
+            long not_moving_since = bag.get("not_moving_since", 0L);
+
+            if (!Player.isMoving()) {
+                if (not_moving_since == 0L) {
+                    bag.addOrUpdate("not_moving_since", System.currentTimeMillis());
+                } else if (System.currentTimeMillis() - not_moving_since > NOT_MOVING_TIMEOUT) {
+                    return true;
+                }
+            } else {
+                bag.addOrUpdate("not_moving_since", 0L);
+            }
+
+            return Player.getPosition() == destination;
+        });
+
+        return condition;
     }
 
 
@@ -248,8 +281,10 @@ public class Movement {
         Antiban.activateRun();
 
         if (Antiban.getWalkingPreference(Player.getPosition().distanceTo(path[path.length - 1])) == WalkingPreference.SCREEN) {
-            return Walking.walkScreenPath(path, stoppingCondition, General.random(4000,5000));
+            return Walking.walkScreenPath(path, stoppingCondition, General.random(4000, 5000));
         } else
-            return Walking.walkPath(path, stoppingCondition, General.random(4000,5000));
+            return Walking.walkPath(path, stoppingCondition, General.random(4000, 5000));
     }
+
+
 }

@@ -148,7 +148,7 @@ public abstract class Combat extends org.tribot.api2007.Combat {
         if (!npc.isOnScreen())
             Camera.turnToTile(npc);
 
-        PaintHelper.statusText = "Attacking";
+        PaintHelper.status_text = "Attacking";
 
         if (!npc.isInCombat() && !isUnderAttack() && npc.isValid() && Movement.canReach(npc) && npc.getInteractingCharacter() == null) {
 
@@ -181,7 +181,7 @@ public abstract class Combat extends org.tribot.api2007.Combat {
 
                         long combatStartTime = Timing.currentTimeMillis();
 
-                        PaintHelper.statusText = "In Combat";
+                        PaintHelper.status_text = "In Combat";
 
                         // Determine if we need to hover over the next NPC, if so, let Antiban determine which.
                         Antiban.hoverNextResource(npc);
