@@ -22,8 +22,7 @@ The game namespace contains most tribot related extensions/helpers
 * POH functions
 * Easy premade Paint with a PaintBuilder
 * Singleton Vars class (Bag object)
-* AbstractScript - A Script wrapper that removes a lot of repetitive code, forces you into the Strategy(Node) Pattern and adds general quality of life stuff.
-
+* LANScript - A Script wrapper that removes a lot of repetitive code, forces you into the Strategy(Node) Pattern, handles the GUI, Desktop notifications, Skill XP tracking, Profit tracking, Paint and adds general quality of life stuff.
 * Helper classes for various tribot classes:
     * BankingHelper
     * ChooseOptionHelper

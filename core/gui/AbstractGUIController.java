@@ -21,4 +21,6 @@ public abstract class AbstractGUIController implements Initializable {
     public GUI getGUI() {
         return this.gui;
     }
+
+
 }

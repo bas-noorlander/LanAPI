@@ -21,6 +21,7 @@ public class Internet extends org.tribot.util.Internet{
         } catch (URISyntaxException e) {
             log.error("Error opening website '%s'. Message: %s.", url, e.getMessage());
         }
+
     }
 
     public static void openWebsite(final URI url) {

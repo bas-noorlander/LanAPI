@@ -15,7 +15,13 @@ public class PaintBuilder {
         return new PaintString(this);
     }
 
-    protected void append(PaintString ps) {
+    public PaintBuilder add(final PaintString ps) {
+        ps.setPaintBuilder(this);
+        this.append(ps);
+        return this;
+    }
+
+    protected void append(final PaintString ps) {
         strings.add(ps);
     }
 

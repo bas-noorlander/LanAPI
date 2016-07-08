@@ -27,7 +27,7 @@ import java.util.Map;
 public class PaintHelper {
 
     public static RSTile destination_tile = null;
-    public static String status_text = "Initializing";
+    public static String status_text = "Initializing.. this might take a second";
     public static int profit = 0;
 
     // Mouse painting related
@@ -38,7 +38,6 @@ public class PaintHelper {
 
     private static final Color mouse_background_color = new Color(0, 0, 0, 80);
     private static final Color mouse_outline_color = new Color(0, 0, 0, 150);
-    private static final Color mouse_accent_color = Color.CYAN;
     private static final BasicStroke stroke = new BasicStroke(2);
 
     public static boolean mouse_down = false;
@@ -253,7 +252,7 @@ public class PaintHelper {
         return formatNumber(number, false);
     }
 
-    public static String formatNumber(int number, boolean append_gp) {
+    public static String formatNumber(int number, boolean is_money) {
 
         String result;
 
@@ -266,13 +265,13 @@ public class PaintHelper {
 
         if (number > 1000000000) {
             result = decimal_format.format((double)number / 1000000000) + "b";
-            append_gp = false;
+            is_money = false;
         } else if (number > 1000000) {
             result = decimal_format.format((double)number / 1000000) + "m";
-            append_gp = false;
+            is_money = false;
         } else if (number > 1000) {
             result = decimal_format.format((double)number / 1000) + "k";
-            append_gp = false;
+            is_money = false;
         } else {
             result = String.valueOf(number);
         }
@@ -281,6 +280,6 @@ public class PaintHelper {
             result = "-" + result;
         }
 
-        return append_gp ? result + "gp" : result;
+        return is_money ? result + "gp" : result;
     }
 }

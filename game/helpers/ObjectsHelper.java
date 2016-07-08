@@ -275,4 +275,29 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
 
         return false;
     }
+
+    /**
+     * Returns if a RSObject has a specific action available.
+     * @param obj
+     * @param action
+     * @return
+     */
+    public static boolean hasAction(final RSObject obj, final String action) {
+
+        RSObjectDefinition definition = obj.getDefinition();
+
+        if (definition != null) {
+
+            String[] actions = definition.getActions();
+
+            for (String a : actions) {
+
+                if (a.equals(action))
+                    return true;
+            }
+
+        }
+
+        return false;
+    }
 }

@@ -12,7 +12,7 @@ import scripts.lanapi.game.inventory.Inventory;
 import scripts.lanapi.game.movement.Movement;
 import scripts.lanapi.game.painting.PaintHelper;
 import scripts.lanapi.game.persistance.Vars;
-import scripts.lanapi.game.script.AbstractScript;
+import scripts.lanapi.game.script.LANScript;
 import scripts.lanapi.network.ItemPrice;
 import scripts.lanapi.network.exceptions.ItemPriceNotFoundException;
 
@@ -105,7 +105,7 @@ public abstract class GroundItems extends org.tribot.api2007.GroundItems {
                         }
                     }, General.random(3000, 4000))) {
 
-                        AbstractScript script = Vars.get().get("script");
+                        LANScript script = Vars.get().get("script");
 
                         if (script != null) {
 

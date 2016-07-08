@@ -1,7 +1,9 @@
 package scripts.lanapi.game.helpers;
 
+import org.tribot.api.General;
 import org.tribot.api2007.Skills;
 import org.tribot.api2007.Skills.SKILLS;
+import scripts.lanapi.game.concurrency.Condition;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -13,7 +15,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class SkillsHelper {
 
-    public static LinkedHashMap<SKILLS, Integer> startSkillInfo = new LinkedHashMap<>();
+    public static LinkedHashMap<SKILLS, Integer> start_skill_info = new LinkedHashMap<>();
 
     /**
      * Save the amount of XP of each skill so we can look back at it later (for paint, antiban etc)
@@ -31,14 +33,20 @@ public class SkillsHelper {
      */
     public static void setStartSkills(SKILLS[] skills) {
 
-        startSkillInfo.clear();
+        // Xp can only be set when we are logged into the game.
+        // Even then, it might take a few ticks before the data is available, so lets wait if necessary.
 
-        for (SKILLS skill : skills) {
+        start_skill_info.clear();
 
-            int xp = Skills.getXP(skill);
-            xp = Math.max(0, xp);
+        if (new Condition(() -> Skills.getXP(SKILLS.HITPOINTS) > 1000).execute(4000,5000)) {
 
-            startSkillInfo.put(skill, xp);
+            for (SKILLS skill : skills) {
+
+                int xp = Skills.getXP(skill);
+                xp = Math.max(0, xp); // make sure its above 0.
+
+                start_skill_info.put(skill, xp);
+            }
         }
     }
 
@@ -48,7 +56,7 @@ public class SkillsHelper {
      * @return the amount of xp
      */
     public static LinkedHashMap<SKILLS, Integer> getStartSkills() {
-        return startSkillInfo;
+        return start_skill_info;
     }
 
     /**
@@ -59,9 +67,7 @@ public class SkillsHelper {
      */
     public static int getStartXP(SKILLS skill) {
 
-        int result = startSkillInfo.containsKey(skill) ? startSkillInfo.get(skill): 0;
-        result = Math.max(0, result);
-        return result;
+        return start_skill_info.containsKey(skill) ? start_skill_info.get(skill): 0;
     }
 
     /**
@@ -116,7 +122,7 @@ public class SkillsHelper {
      * @return true if xp was gained, false otherwise.
      */
     public static boolean hasReceivedXP(SKILLS skill) {
-        return getReceivedXP(skill) > 0 && startSkillInfo.containsKey(skill);
+        return getReceivedXP(skill) > 0 && start_skill_info.containsKey(skill);
     }
 
     /**

@@ -77,8 +77,19 @@ public class Condition extends org.tribot.api.types.generic.Condition implements
      * @param timeout
      * @return
      */
-    public boolean timeout(long timeout) {
+    public boolean execute(long timeout) {
         return Timing.waitCondition(this, timeout);
+    }
+
+    /**
+     * Waits for this condition with the given timeout, interpreted as General.random(min,max)
+     * See {@link Timing#waitCondition(org.tribot.api.types.generic.Condition, long)} for more details.
+     * @param min
+     * @param max
+     * @return
+     */
+    public boolean execute(int min, int max) {
+        return Timing.waitCondition(this, General.random(min, max));
     }
 
     /**

@@ -11,6 +11,8 @@ import org.tribot.api2007.types.RSTile;
 import org.tribot.api2007.util.DPathNavigator;
 import scripts.lanapi.core.dynamic.Bag;
 import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.game.combat.*;
+import scripts.lanapi.game.combat.Combat;
 import scripts.lanapi.game.concurrency.BooleanLambda;
 import scripts.lanapi.game.concurrency.Condition;
 import scripts.lanapi.game.painting.PaintHelper;
@@ -148,7 +150,7 @@ public class Movement {
         if (posToWalk instanceof RSTile)
             PaintHelper.destination_tile = (RSTile) posToWalk;
 
-        RSTile tile = posToWalk.getPosition();
+        final RSTile tile = posToWalk.getPosition();
 
         if (tile == null)
             return false;
@@ -159,18 +161,11 @@ public class Movement {
 
         if (isInLoadedRegion(posToWalk)) {
 
-            if (Antiban.getWalkingPreference(Player.getPosition().distanceTo(tile)) == WalkingPreference.SCREEN) {
+            if (Antiban.getWalkingPreference(Player.getPosition().distanceTo(posToWalk)) == WalkingPreference.SCREEN) {
 
-                RSTile[] path = Walking.generateStraightScreenPath(tile);
+                RSTile[] path = Walking.generateStraightScreenPath(posToWalk);
 
-                if (Walking.walkScreenPath(path, new Condition() {
-                    @Override
-                    public boolean active() {
-                        General.sleep(50);
-                        return tile.isOnScreen();
-                    }
-                }, General.random(3000, 4000)))
-                    return true;
+                return Walking.walkScreenPath(path, new Condition(Combat::isUnderAttack), 100);
             }
 
             // Check if the tile we want to walk to is actually walkable.
@@ -192,6 +187,7 @@ public class Movement {
         } else {
 
             final Positionable finalPosToWalk = posToWalk;
+
             if (!WebWalking.walkTo(posToWalk, new Condition() {
                 @Override
                 public boolean active() {
@@ -213,8 +209,6 @@ public class Movement {
 
             @Override
             public boolean active() {
-
-                General.sleep(50, 100);
 
                 if (!Player.isMoving()) {
                     if (notMovingSince == 0) {

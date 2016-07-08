@@ -12,28 +12,35 @@ import java.util.ArrayList;
  */
 public class PaintString {
 
-    private final PaintBuilder paintBuilder;
+    private PaintBuilder paint_builder;
     private List<Pair<String, Color>> substrings = new ArrayList<>();
 
-    public PaintString(PaintBuilder paintBuilder) {
-        this.paintBuilder = paintBuilder;
+    public PaintString() {
     }
 
-    private Color lastColor = Color.WHITE;
+    public void setPaintBuilder(final PaintBuilder pb) {
+        this.paint_builder = pb;
+    }
 
-    public PaintString setColor(Color clr) {
-        this.lastColor = clr;
+    public PaintString(final PaintBuilder paint_builder) {
+        this.paint_builder = paint_builder;
+    }
+
+    private Color last_color = Color.WHITE;
+
+    public PaintString setColor(final Color clr) {
+        this.last_color = clr;
         return this;
     }
 
-    public PaintString setText(String text) {
-        substrings.add(new Pair(text, this.lastColor));
+    public PaintString setText(final String text, final Object... args) {
+        this.substrings.add(new Pair(String.format(text, args), this.last_color));
         return this;
     }
 
     public PaintBuilder end() {
-        this.paintBuilder.append(this);
-        return this.paintBuilder;
+        this.paint_builder.append(this);
+        return this.paint_builder;
     }
 
     protected List<Pair<String, Color>> getAll() {

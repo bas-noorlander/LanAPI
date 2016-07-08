@@ -4,13 +4,17 @@ import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.embed.swing.JFXPanel;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import org.tribot.api.General;
 import org.tribot.api.Timing;
 import scripts.lanapi.core.logging.LogProxy;
 import scripts.lanapi.game.concurrency.Condition;
+import scripts.lanapi.game.persistance.Vars;
+import scripts.lanapi.game.script.LANScript;
 
 import javax.swing.*;
 import java.net.URL;
@@ -27,23 +31,27 @@ public class GUI extends Application {
 
     private Stage stage;
     private Scene scene;
+    private boolean decorated = true;
 
     private boolean isOpen = false;
 
     public GUI(URL fxml) {
-
         this(fxml, null);
-
     }
 
-    public Scene getScene() {
-        return this.scene;
+    public GUI(URL fxml, boolean decorated) {
+        this(fxml, null, decorated);
     }
 
     public GUI(URL fxml, URL stylesheet) {
+        this(fxml, stylesheet, true);
+    }
+
+    public GUI(URL fxml, URL stylesheet, boolean decorated) {
 
         this.fxml = fxml;
         this.stylesheet = stylesheet;
+        this.decorated = decorated;
 
         // We have to start the JFX thread from the EDT otherwise tribot will end it.
         SwingUtilities.invokeLater(() -> {
@@ -52,7 +60,13 @@ public class GUI extends Application {
 
             Platform.runLater(() -> {
                 try {
-                    start(new Stage());
+                    final Stage stage = new Stage();
+
+                    if (!this.decorated) {
+                        stage.initStyle(StageStyle.TRANSPARENT);
+                    }
+
+                    start(stage);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -60,6 +74,14 @@ public class GUI extends Application {
         });
 
         waitForInit();
+    }
+
+    public Scene getScene() {
+        return this.scene;
+    }
+
+    public Stage getStage() {
+        return this.stage;
     }
 
     /**
@@ -87,7 +109,11 @@ public class GUI extends Application {
 
         this.stage = stage;
 
-        stage.setTitle("Settings");
+        LANScript script = Vars.get().get("script");
+
+        if (script != null)
+            stage.setTitle(script.getScriptName());
+
         stage.setAlwaysOnTop(true);
 
         Platform.setImplicitExit(false);
@@ -97,13 +123,22 @@ public class GUI extends Application {
         // By default FXMLLoader uses a different classloader, this caused issues with upcasting
         loader.setClassLoader(this.getClass().getClassLoader());
 
-        VBox box = loader.load();
+        Parent box = loader.load();
 
         AbstractGUIController controller = loader.getController();
+
+        if (controller == null) {
+            log.error("Please add a controller to your fxml!");
+            return;
+        }
 
         controller.setGUI(this);
 
         scene = new Scene(box);
+
+        if (!this.decorated) {
+            scene.setFill(Color.TRANSPARENT);
+        }
 
         if (this.stylesheet != null)
             scene.getStylesheets().add(this.stylesheet.toExternalForm());

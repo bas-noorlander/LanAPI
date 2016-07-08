@@ -1,7 +1,7 @@
 package scripts.lanapi.core.logging;
 
 import scripts.lanapi.game.persistance.Vars;
-import scripts.lanapi.game.script.AbstractScript;
+import scripts.lanapi.game.script.LANScript;
 
 /**
  * A proxy to use in classes for shorter log calls
@@ -15,7 +15,7 @@ public final class LogProxy {
 
     public LogProxy() {
 
-        AbstractScript script = Vars.get().get("script");
+        LANScript script = Vars.get().get("script");
 
         if (script != null) {
 
@@ -29,7 +29,7 @@ public final class LogProxy {
         }
     }
 
-    public LogProxy(AbstractScript script) {
+    public LogProxy(LANScript script) {
 
         if (script != null) {
 

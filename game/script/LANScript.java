@@ -7,7 +7,6 @@ import org.tribot.api2007.Login;
 import org.tribot.api2007.MessageListener;
 import org.tribot.api2007.Skills;
 import org.tribot.api2007.types.RSItem;
-import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.util.ThreadSettings;
 import org.tribot.script.Script;
 import org.tribot.script.interfaces.*;
@@ -20,6 +19,7 @@ import scripts.lanapi.game.concurrency.Condition;
 import scripts.lanapi.game.concurrency.observers.inventory.InventoryListener;
 import scripts.lanapi.core.patterns.StrategyList;
 import scripts.lanapi.game.concurrency.observers.inventory.InventoryObserver;
+import scripts.lanapi.game.helpers.SkillsHelper;
 import scripts.lanapi.game.painting.AbstractPaintInfo;
 import scripts.lanapi.game.painting.PaintHelper;
 import scripts.lanapi.game.persistance.Vars;
@@ -35,11 +35,8 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class AbstractScript extends Script implements Painting, MouseActions, MousePainting, MouseSplinePainting,
+public abstract class LANScript extends Script implements Painting, MouseActions, MousePainting, MouseSplinePainting,
         EventBlockingOverride, Ending, Breaking, MessageListening07, InventoryListener, DynamicSignatures {
-
-    private boolean quitting = false;
-    private boolean inventory_observer_running = false;
 
     protected boolean has_arguments = false;
     protected LogProxy log;
@@ -47,42 +44,48 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
     protected boolean show_paint = false;
     protected GUI gui = null;
     protected BufferedImage icon = null;
-    protected AbstractPaintInfo paint_info = null;
-    protected Color mouse_color = null;
+    public AbstractPaintInfo paint_info = null;
+    protected Color mouse_color = Color.BLACK;
     protected InventoryObserver observer = null;
 
+    private boolean quitting = false;
+    private boolean inventory_observer_running = false;
     private final Pattern skillup_regex = Pattern.compile("(?<=\\ba\\s)\\w+"); // Pattern.compile("(?<=\\ba\\s)(\\w+).*\\b([0-9]{1,2})");
-
     private SignatureThread signatures;
 
     /**
-     * Creates a AbstractScript which is a wrapper around Tribot's Script class.
-     * It handles a lot of repetitive code and ties LanAPI into it.
+     * Returns if the script is quitting. IE, finishing the last loop and disposing of any objects.
+     * @return
      */
-    public AbstractScript() {
-        Vars.get().add("script", this);
-
-        this.paint_info = getPaintInfo();
-        this.log = new LogProxy(this);
-
-        if (paint_info != null)
-            this.mouse_color = paint_info.getPrimaryColor();
-
-        String signature_url = this.signatureServerUrl();
-        if (signature_url != null) {
-            Signature.get().setUrl(signature_url);
-            signatures = new SignatureThread();
-            signatures.setData(this);
-            signatures.start();
-        }
+    public boolean isQuitting() {
+        return this.quitting;
     }
 
+    /**
+     * Sets if the script is quitting. IE, finishing the last loop and disposing of any objects.
+     */
+    public void setQuitting(boolean value) {
+        this.quitting = value;
+    }
 
+    /**
+     * Returns if this script is being run locally or on the repository.
+     * @return
+     */
+    public boolean isLocal() {
+        return this.getRepoID() == -1;
+    }
 
     /**
      * This method is called once when the script starts and we are logged ingame, just before the paint/gui shows.
      */
     public void onScriptStart() {}
+
+    /**
+     * This method is called when the GUI closes when starting the script.
+     * This is never called if you do not have a GUI.
+     */
+    public void onGUIClosed() {}
 
     /**
      * Return a JavaFX gui, it will automatically be shown and the script will wait until it closes.
@@ -129,7 +132,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
         if (state) {
 
             if (this.observer == null) {
-                this.observer =  new InventoryObserver(new Condition(() -> !Banking.isBankScreenOpen()));
+                this.observer = new InventoryObserver(new Condition(() -> !Banking.isBankScreenOpen()));
                 this.observer.addListener(this);
             }
 
@@ -148,6 +151,25 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
     @Override
     public void run() {
 
+        Vars.get().add("script", this);
+
+        this.paint_info = this.getPaintInfo();
+        this.log = new LogProxy(this);
+        this.icon = this.getNotificationIcon();
+        this.gui = this.getGUI();
+
+
+        if (this.paint_info != null)
+            this.mouse_color = paint_info.getPrimaryColor();
+
+        String signature_url = this.signatureServerUrl();
+        if (signature_url != null) {
+            Signature.get().setUrl(signature_url);
+            this.signatures = new SignatureThread();
+            this.signatures.setData(this);
+            this.signatures.start();
+        }
+
         log.debug("Hey, thanks for trying LanAPI! These debug messages won't show if you upload this script to the repository.");
         log.debug("You can use log.debug() to write messages like this. Or log.info() to write a normal message!");
 
@@ -160,19 +182,26 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             Login.login();
         }
 
-        onScriptStart();
+        SkillsHelper.setStartSkills();
+        this.show_paint = true;
 
-        icon = getNotificationIcon();
-        gui = getGUI();
-        show_paint = true;
+        this.onScriptStart();
 
-        if (!has_arguments && gui != null) {
+        if (!this.has_arguments && this.gui != null) {
 
-            gui.show();
+            this.gui.show();
 
-            while (gui.isOpen())
+            PaintHelper.status_text = "GUI is open";
+            while (this.gui.isOpen())
                 sleep(250);
+
+            if (this.isQuitting()) // a gui is able to quit the script.
+                return;
+
+            this.onGUIClosed();
         }
+
+        PaintHelper.status_text = "Preparing script..";
 
         boolean use_notifications = Vars.get().get("enableNotifications", false);
 
@@ -197,43 +226,20 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
     }
 
     /**
-     * Returns if the script is quitting. IE, finishing the last loop and disposing of any objects.
-     * @return
-     */
-    public boolean isQuitting() {
-        return this.quitting;
-    }
-
-    /**
-     * Sets if the script is quitting. IE, finishing the last loop and disposing of any objects.
-     */
-    public void setQuitting(boolean value) {
-        this.quitting = value;
-    }
-
-    /**
-     * Returns if this script is being run locally or on the repository.
-     * @return
-     */
-    public boolean isLocal() {
-        return this.getRepoID() == -1;
-    }
-
-    /**
      * This is the entry point for a script's paint. You shouldn't have to do anything here, please provide a PaintInfo object in #getPaintInfo instead.
      * @param g1
      */
     @Override
     public void onPaint(Graphics g1) {
 
-        if (paint_info == null)
+        if (this.paint_info == null)
             return;
 
         Graphics2D g = (Graphics2D) g1;
 
-        if (show_paint) {
+        if (this.show_paint) {
             g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-            paint_info.draw(g);
+            this.paint_info.draw(g);
         }
     }
 
@@ -253,8 +259,10 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
             this.signatures.end();
         }
 
-        if (gui != null)
-            gui.close();
+        this.setInventoryObserverState(false);
+
+        if (this.gui != null)
+            this.gui.close();
     }
 
     /**
@@ -291,7 +299,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
 
             if (s.contains("Congratulations, you just advanced")) {
 
-                Matcher match = skillup_regex.matcher(s);
+                Matcher match = this.skillup_regex.matcher(s);
 
                 if (match.find()) {
                     String skill_name = match.group(0);
@@ -385,7 +393,7 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
      */
     @Override
     public void paintMouse(Graphics g, Point mouse_pos, Point drag_pos) {
-        PaintHelper.drawMouse(g, mouse_pos, drag_pos, mouse_color);
+        PaintHelper.drawMouse(g, mouse_pos, drag_pos, this.mouse_color);
     }
 
     /**
@@ -406,13 +414,13 @@ public abstract class AbstractScript extends Script implements Painting, MouseAc
      */
     @Override
     public void paintMouseSpline(Graphics g, ArrayList<Point> points) {
-        PaintHelper.drawMouseTrail(g, points, mouse_color);
+        PaintHelper.drawMouseTrail(g, points, this.mouse_color);
     }
 
     /**
      * This is called by tribot when the user or script moves the mouse. You shouldn't have to do anything here.
      * @param point
-     * @param isBot
+     * @param is_bot
      */
     @Override
     public void mouseMoved(Point point, boolean is_bot) {

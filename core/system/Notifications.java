@@ -3,7 +3,7 @@ package scripts.lanapi.core.system;
 import scripts.lanapi.core.gui.client.FrameManager;
 import scripts.lanapi.core.gui.GUI;
 import scripts.lanapi.core.logging.LogProxy;
-import scripts.lanapi.game.script.AbstractScript;
+import scripts.lanapi.game.script.LANScript;
 
 import java.awt.*;
 import java.awt.image.BufferedImage;
@@ -28,7 +28,7 @@ public class Notifications {
         preferences = value;
     }
 
-    public static boolean init(AbstractScript script) {
+    public static boolean init(LANScript script) {
 
         if (_isInitialized || !SystemTray.isSupported())
             return false;

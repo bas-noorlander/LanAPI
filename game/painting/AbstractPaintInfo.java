@@ -3,7 +3,7 @@ package scripts.lanapi.game.painting;
 import org.tribot.api.Screen;
 import org.tribot.api.Timing;
 import scripts.lanapi.game.persistance.Vars;
-import scripts.lanapi.game.script.AbstractScript;
+import scripts.lanapi.game.script.LANScript;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
@@ -16,24 +16,24 @@ import java.util.List;
 public abstract class AbstractPaintInfo {
 
     // Fonts
-    protected Font titleFont, defaultFont, statusFont;
+    protected Font title_font, default_font, status_font;
 
     // Values
-    private final int generalPadding = 10;
-    private final int lineDistance = 20;
+    private final int general_padding = 10;
+    private final int line_distance = 20;
 
     // Shapes
-    private final int backgroundRadius = 10;
+    private final int background_radius = 10;
     private final Rectangle viewport = Screen.getViewport();
 
     // Colors
-    protected final Color blackTransparent = new Color(0, 0, 0, 139);
-    private final Color shadowColor = new Color(24, 24, 24);
-    protected final Color primary;
-    protected final Color secondary;
+    protected final Color black_transparent = new Color(0, 0, 0, 139);
+    private final Color shadow_color = new Color(24, 24, 24);
+    public final Color primary;
+    public final Color secondary;
 
     // Script reference
-    private final AbstractScript script;
+    private final LANScript script;
 
     /**
      * Return the primary color of your script. This will determine cursor color etc.
@@ -93,9 +93,9 @@ public abstract class AbstractPaintInfo {
     public AbstractPaintInfo() {
 
         // Load fonts
-        this.titleFont = PaintHelper.getFont("https://dl.dropboxusercontent.com/u/21676524/RS/SourceSansPro-Semibold.ttf", 35f);
-        this.defaultFont = PaintHelper.getFont("https://dl.dropboxusercontent.com/u/21676524/RS/SourceSansPro-Regular.ttf", 13f);
-        this.statusFont = this.titleFont != null ? this.titleFont.deriveFont(14f) : null;
+        this.title_font = PaintHelper.getFont("https://dl.dropboxusercontent.com/u/21676524/RS/SourceSansPro-Semibold.ttf", 35f);
+        this.default_font = PaintHelper.getFont("https://dl.dropboxusercontent.com/u/21676524/RS/SourceSansPro-Regular.ttf", 13f);
+        this.status_font = this.title_font != null ? this.title_font.deriveFont(14f) : null;
 
         // Colors
         this.primary = this.getPrimaryColor();
@@ -112,41 +112,41 @@ public abstract class AbstractPaintInfo {
 
         PaintBuilder title = paintTitle();
 
-        Rectangle2D titleBounds = PaintHelper.getStringBounds(g, this.titleFont, title);
+        Rectangle2D title_bounds = PaintHelper.getStringBounds(g, this.title_font, title);
 
         long runtime = this.script.getRunningTime();
         PaintBuilder texts = getText(runtime);
 
-        int textLines = (int) Math.max(Math.ceil((texts.getAll().size() / 2) + 1), 1);
+        int text_lines = (int) Math.max(Math.ceil((texts.getAll().size() / 2) + 1), 1);
 
-        int viewportRight = viewport.x + viewport.width;
+        int viewport_right = viewport.x + viewport.width;
 
-        int titleOffsetFromBottom = (textLines * lineDistance) + (generalPadding * 5);
-        int titleOffsetFromRight = (int) (titleBounds.getWidth() + generalPadding);
+        int title_offset_from_bottom = (text_lines * line_distance) + (general_padding * 5);
+        int title_offset_from_right = (int) (title_bounds.getWidth() + general_padding);
 
-        int titleX = viewportRight - titleOffsetFromRight;
-        int titleY = (viewport.y + viewport.height) - titleOffsetFromBottom;
-        int titleHeight = (int) titleBounds.getHeight();
+        int title_x = viewport_right - title_offset_from_right;
+        int title_y = (viewport.y + viewport.height) - title_offset_from_bottom;
+        int title_height = (int) title_bounds.getHeight();
 
         // We have all the data to draw our paint!
 
         // Title
-        PaintHelper.drawShadowedText(title, this.shadowColor, new Point(titleX, titleY), this.titleFont, g);
+        PaintHelper.drawShadowedText(title, this.shadow_color, new Point(title_x, title_y), this.title_font, g);
 
         // Background
-        RoundRectangle2D roundRect = new RoundRectangle2D.Double(titleX, titleY + generalPadding, titleBounds.getWidth(), (textLines * lineDistance) + (generalPadding * 3), this.backgroundRadius, this.backgroundRadius);
-        g.setColor(this.blackTransparent);
-        g.fillRoundRect((int) roundRect.getX(), (int) roundRect.getY(), (int) roundRect.getWidth(), (int) roundRect.getHeight(), (int) roundRect.getArcWidth(), (int) roundRect.getArcHeight());
+        RoundRectangle2D round_rect = new RoundRectangle2D.Double(title_x, title_y + general_padding, title_bounds.getWidth(), (text_lines * line_distance) + (general_padding * 3), this.background_radius, this.background_radius);
+        g.setColor(this.black_transparent);
+        g.fillRoundRect((int) round_rect.getX(), (int) round_rect.getY(), (int) round_rect.getWidth(), (int) round_rect.getHeight(), (int) round_rect.getArcWidth(), (int) round_rect.getArcHeight());
 
         // free or premium tag
         String tag = this.isScriptPremium() ? "PREMIUM" : "FREE";
-        int tagWidth = PaintHelper.getStringWidth(g, this.statusFont, tag);
+        int tag_width = PaintHelper.getStringWidth(g, this.status_font, tag);
         g.setColor(Color.white);
-        g.setFont(this.statusFont);
-        g.drawString(tag, viewportRight - generalPadding - tagWidth, titleY - titleHeight - 3);
+        g.setFont(this.status_font);
+        g.drawString(tag, viewport_right - general_padding - tag_width, title_y - title_height - 3);
 
-        int textXStart = titleX + generalPadding;
-        int textYStart = titleY + (generalPadding*3);
+        int text_x_start = title_x + general_padding;
+        int text_y_start = title_y + (general_padding*3);
 
         // Runtime
         PaintBuilder pb =
@@ -158,7 +158,7 @@ public abstract class AbstractPaintInfo {
                             .setText(Timing.msToString(runtime))
                         .end();
 
-        PaintHelper.drawPaintBuilder(g, this.defaultFont, new Point(textXStart, textYStart), pb);
+        PaintHelper.drawPaintBuilder(g, this.default_font, new Point(text_x_start, text_y_start), pb);
 
         // And all the scripter-defined texts
         boolean alternate = true;
@@ -171,18 +171,18 @@ public abstract class AbstractPaintInfo {
 
             PaintString ps = all.get(i-1);
 
-            int x = alternate ? textXStart + (int) (titleBounds.getWidth() / 2) : textXStart;
-            y = textYStart + (this.lineDistance * (int) Math.floor(i / 2));
+            int x = alternate ? text_x_start + (int) (title_bounds.getWidth() / 2) : text_x_start;
+            y = text_y_start + (this.line_distance * (int) Math.floor(i / 2));
 
-            PaintHelper.drawPaintString(g, new Point(x, y), this.defaultFont, ps);
+            PaintHelper.drawPaintString(g, new Point(x, y), this.default_font, ps);
 
             alternate = !alternate;
         }
 
         // And lastly, the status text
         g.setColor(this.secondary);
-        g.setFont(this.statusFont);
-        g.drawString(PaintHelper.status_text, textXStart, y + this.lineDistance);
+        g.setFont(this.status_font);
+        g.drawString(PaintHelper.status_text, text_x_start, y + this.line_distance);
 
         this.customDrawAfter(g);
 
