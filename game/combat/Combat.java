@@ -123,7 +123,7 @@ public abstract class Combat extends org.tribot.api2007.Combat {
 
                 GameTab.open(TABS.INVENTORY);
 
-                final int preEatAmount = Inventory.find(Filters.Items.actionsContains("Eat")).length;
+                final int preEatAmount = food.length;
 
                 if (Clicking.click(food[0])) {
 
