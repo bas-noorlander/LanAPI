@@ -106,6 +106,45 @@ public abstract class Combat extends org.tribot.api2007.Combat {
 
         return false;
     }
+    
+    /**
+     * Checks if we have food and are in need of eating.
+     * Eats any available food in inventory.
+     * 
+     * @return true if we ate something, false otherwise
+     */
+    public static boolean checkAndEatAny() {
+
+        RSItem[] food = Inventory.find(Filters.Items.actionsContains("Eat"));
+
+        if (food.length > 0) {
+
+            if (getHPRatio() <= Antiban.getEatPercentage()) {
+
+                GameTab.open(TABS.INVENTORY);
+
+                final int preEatAmount = food.length;
+
+                if (Clicking.click(food[0])) {
+
+                    if (Timing.waitCondition(new Condition() {
+                        @Override
+                        public boolean active() {
+                            General.sleep(50, 150);
+                            return preEatAmount > Inventory.find(Filters.Items.actionsContains("Eat")).length;
+                        }
+                    }, General.random(700, 1200))) {
+
+                        Antiban.generateEatPercentage();
+
+                        return true;
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
 
     private static boolean doAttack(final RSNPC npc) {
         Clickable menuNode = Hovering.getHoveringItem();
