@@ -363,8 +363,7 @@ public class Inventory extends org.tribot.api2007.Inventory {
                 col = 0;
             }
 
-            List<RSItem> itemList = new ArrayList<>();
-            itemList.addAll(Arrays.asList(getItemsInRectangle(row, col, surroundingWidth, surroundingHeight, getAll())));
+            List<RSItem> itemList = new ArrayList<>(Arrays.asList(getItemsInRectangle(row, col, surroundingWidth, surroundingHeight, getAll())));
             itemList.remove(rsItem);
 
             return itemList.toArray(new RSItem[itemList.size()]);
