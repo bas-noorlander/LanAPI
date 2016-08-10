@@ -86,27 +86,27 @@ public class Inventory extends org.tribot.api2007.Inventory {
     }
     
     /**
-	 * Gets row of given item in inventory.
-	 *
-	 * @param rsItem
-	 * @return row of item (0-6) or if item null or not in inventory -1
-	 */
-	public static int getItemRow(final RSItem rsItem) {
-	    
-		return (rsItem != null && hasItem(rsItem)) ? getItemRowUnsafe(rsItem) : -1;
-	}
+     * Gets row of given item in inventory.
+     * 
+     * @param rsItem
+     * @return row of item (0-6) or if item null or not in inventory -1
+     */
+    public static int getItemRow(final RSItem rsItem) {
+        
+        return (rsItem != null && hasItem(rsItem)) ? getItemRowUnsafe(rsItem) : -1;
+    }
 
-	/**
-	 * Gets row of given item in inventory.
-	 * Doesn't check for null or if item is in inventory.
-	 *
-	 * @param rsItem
-	 * @return row of item (0-6)
-	 */
-	private static int getItemRowUnsafe(final RSItem rsItem) {
-	    
-		return (rsItem.getIndex() - getItemColumnUnsafe(rsItem)) / 4;
-	}
+    /**
+     * Gets row of given item in inventory.
+     * Doesn't check for null or if item is in inventory.
+     *
+     * @param rsItem
+     * @return row of item (0-6)
+     */
+    private static int getItemRowUnsafe(final RSItem rsItem) {
+        
+        return (rsItem.getIndex() - getItemColumnUnsafe(rsItem)) / 4;
+    }
 
 	/**
 	 * Gets column of given item in inventory.
