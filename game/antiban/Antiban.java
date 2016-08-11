@@ -72,7 +72,7 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
      * Generates a new percentage to eat at. This should be used right after a successful eat.
      */
     public static void generateEatPercentage() {
-        get().eatPercentage = get().generateRunActivation();
+        get().eatPercentage = get().generateEatAtHP();
     }
 
     /**
@@ -88,7 +88,7 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
      * Generates a new energy percentage to run at. This should be used right after run has been toggled on.
      */
     public static void generateRunPercentage() {
-        get().runPercentage = get().generateEatAtHP();
+        get().runPercentage = get().generateRunActivation();
     }
 
     /**
