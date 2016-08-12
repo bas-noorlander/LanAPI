@@ -11,7 +11,6 @@ import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.RSModel;
 import org.tribot.api2007.types.RSNPC;
 import org.tribot.api2007.types.RSNPCDefinition;
-import org.tribot.api2007.types.RSObject;
 import scripts.lanapi.core.logging.LogProxy;
 import scripts.lanapi.game.movement.Movement;
 
@@ -26,15 +25,20 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
 
     static LogProxy log = new LogProxy("NPCsHelper");
 
-
     public static String getName(final RSNPC npc) {
-        RSNPCDefinition definition = npc.getDefinition();
-        if (definition != null) {
-            String definitionName = definition.getName();
-            if (definitionName != null) {
-                return definitionName;
-            }
-        }
+
+        if (npc != null) {
+            RSNPCDefinition definition = npc.getDefinition();
+            if (definition != null) {
+                String definitionName = definition.getName();
+                if (definitionName != null) {
+                    return definitionName;
+                } else
+                    General.println("def name is null");
+            } else
+                General.println("npc def is null");
+        } else
+            General.println("npc is null");
 
         return null;
     }

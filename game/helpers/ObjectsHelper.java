@@ -19,11 +19,14 @@ import java.awt.*;
 public class ObjectsHelper { // Sadly, tribot's Objects class is declared final and cannot be extended.
 
     public static String getName(final RSObject object) {
-        RSObjectDefinition definition = object.getDefinition();
-        if (definition != null) {
-            String definitionName = definition.getName();
-            if (definitionName != null) {
-                return definitionName;
+
+        if (object != null) {
+            RSObjectDefinition definition = object.getDefinition();
+            if (definition != null) {
+                String definitionName = definition.getName();
+                if (definitionName != null) {
+                    return definitionName;
+                }
             }
         }
 
