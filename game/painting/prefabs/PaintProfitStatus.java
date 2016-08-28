@@ -11,7 +11,7 @@ import java.awt.*;
 /**
  * @author Laniax
  */
-public class PaintProfitStatus extends PaintString{
+public class PaintProfitStatus extends PaintString {
 
     public PaintProfitStatus() {
         LANScript script = Vars.get().get("script");

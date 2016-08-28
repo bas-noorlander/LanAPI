@@ -1,0 +1,3 @@
+[submodule "game/entityselector"]
+	path = game/entityselector
+	url = https://github.com/Laniax/Entity-Selector

@@ -13,12 +13,14 @@ import scripts.lanapi.game.combat.Combat;
 import scripts.lanapi.game.combat.Hovering;
 import scripts.lanapi.game.helpers.ChooseOptionHelper;
 
+import java.util.function.BooleanSupplier;
+
 /**
  * @author Laniax
  */
-public class Condition extends org.tribot.api.types.generic.Condition implements BooleanLambda {
+public class Condition extends org.tribot.api.types.generic.Condition {
 
-    private BooleanLambda lambda;
+    private BooleanSupplier lambda;
     private Bag bag;
 
     /**
@@ -36,7 +38,7 @@ public class Condition extends org.tribot.api.types.generic.Condition implements
      * Example: new Condition(() -> return Inventory.isEmpty());
      * @param lambda
      */
-    public Condition(BooleanLambda lambda) {
+    public Condition(BooleanSupplier lambda) {
         super();
         this.lambda = lambda;
     }
@@ -57,7 +59,7 @@ public class Condition extends org.tribot.api.types.generic.Condition implements
      * Sets/replace the lambda.
      * @param lambda
      */
-    public void setLambda(BooleanLambda lambda) {
+    public void setLambda(BooleanSupplier lambda) {
         this.lambda = lambda;
     }
 
@@ -65,7 +67,7 @@ public class Condition extends org.tribot.api.types.generic.Condition implements
     public boolean active() {
         if (lambda != null) {
             General.sleep(50, 100);
-            return lambda.active();
+            return lambda.getAsBoolean();
         }
 
         throw new RuntimeException("You have to override the active() method for a Condition object or specify a lambda in the constructor.");

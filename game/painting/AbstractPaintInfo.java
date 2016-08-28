@@ -1,7 +1,10 @@
 package scripts.lanapi.game.painting;
 
+import org.tribot.api.General;
 import org.tribot.api.Screen;
 import org.tribot.api.Timing;
+import org.tribot.api2007.Game;
+import scripts.lanapi.core.patterns.IStrategy;
 import scripts.lanapi.game.persistance.Vars;
 import scripts.lanapi.game.script.LANScript;
 
@@ -9,6 +12,8 @@ import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.awt.geom.RoundRectangle2D;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Laniax
@@ -19,11 +24,11 @@ public abstract class AbstractPaintInfo {
     protected Font title_font, default_font, status_font;
 
     // Values
-    private final int general_padding = 10;
-    private final int line_distance = 20;
+    protected final int general_padding = 10;
+    protected final int line_distance = 20;
 
     // Shapes
-    private final int background_radius = 10;
+    protected final int background_radius = 10;
     private final Rectangle viewport = Screen.getViewport();
 
     // Colors
@@ -83,7 +88,7 @@ public abstract class AbstractPaintInfo {
 
     /**
      * A custom draw function that is only called when the script is run locally.
-     * This is called after everything has rendered.
+     * This is called after everything else has been painted.
      *
      * @param g
      */
@@ -152,10 +157,10 @@ public abstract class AbstractPaintInfo {
         PaintBuilder pb =
                 new PaintBuilder()
                         .add()
-                            .setColor(Color.white)
-                            .setText("Runtime ")
-                            .setColor(this.secondary)
-                            .setText(Timing.msToString(runtime))
+                        .setColor(Color.white)
+                        .setText("Runtime ")
+                        .setColor(this.secondary)
+                        .setText(Timing.msToString(runtime))
                         .end();
 
         PaintHelper.drawPaintBuilder(g, this.default_font, new Point(text_x_start, text_y_start), pb);

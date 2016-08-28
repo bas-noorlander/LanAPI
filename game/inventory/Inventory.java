@@ -4,6 +4,10 @@ import org.tribot.api.types.generic.Filter;
 import org.tribot.api2007.types.RSItem;
 import scripts.lanapi.game.filters.Filters;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * @author Laniax
  */

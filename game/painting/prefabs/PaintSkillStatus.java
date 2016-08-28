@@ -3,7 +3,6 @@ package scripts.lanapi.game.painting.prefabs;
 import org.tribot.api2007.Skills;
 import scripts.lanapi.core.types.StringUtils;
 import scripts.lanapi.game.helpers.SkillsHelper;
-import scripts.lanapi.game.painting.PaintBuilder;
 import scripts.lanapi.game.painting.PaintHelper;
 import scripts.lanapi.game.painting.PaintString;
 import scripts.lanapi.game.persistance.Vars;

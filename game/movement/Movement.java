@@ -11,13 +11,12 @@ import org.tribot.api2007.types.RSTile;
 import org.tribot.api2007.util.DPathNavigator;
 import scripts.lanapi.core.dynamic.Bag;
 import scripts.lanapi.game.antiban.Antiban;
-import scripts.lanapi.game.combat.*;
 import scripts.lanapi.game.combat.Combat;
-import scripts.lanapi.game.concurrency.BooleanLambda;
 import scripts.lanapi.game.concurrency.Condition;
 import scripts.lanapi.game.painting.PaintHelper;
 
 import java.util.ArrayList;
+import java.util.function.BooleanSupplier;
 
 /**
  * Helper class that manages movement logic.
@@ -201,7 +200,7 @@ public class Movement {
         return false;
     }
 
-    public static Condition getWalkingCondition(BooleanLambda lambda) {
+    public static Condition getWalkingCondition(BooleanSupplier lambda) {
 
         return new Condition() {
 
@@ -220,7 +219,7 @@ public class Movement {
                     notMovingSince = 0;
                 }
 
-                return lambda.active();
+                return lambda.getAsBoolean();
 
             }
         };
