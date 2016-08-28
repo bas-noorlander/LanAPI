@@ -64,17 +64,16 @@ public class Movement {
     }
     
     /**
-	 * Checks if a position is on the same plane as player.
-	 *
-	 * @param pos to check
-	 * @return true if on same plane as player, false if not
-	 */
-	public static boolean isOnPlayerPlane(Positionable pos) {
-		RSTile ourPosition = Player.getPosition();
-		RSTile targetPosition = pos.getPosition();
-		return ourPosition != null && targetPosition != null ? ourPosition.getPlane() == targetPosition.getPlane() : false;
-	}
-
+     * Checks if a position is on the same plane as player.
+     * @param pos to check
+     * @return true if on same plane as player, false if not
+     */
+     public static boolean isOnPlayerPlane(Positionable pos) {
+     	RSTile ourPosition = Player.getPosition();
+     	RSTile targetPosition = pos.getPosition();
+     	return ourPosition != null && targetPosition != null ? ourPosition.getPlane() == targetPosition.getPlane() : false;
+     }
+     
     /**
      * Gets all the walkable tiles in the {@link RSArea}.
      *
