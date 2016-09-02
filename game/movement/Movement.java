@@ -62,7 +62,19 @@ public class Movement {
 
         return chunk.contains(pos);
     }
-
+    
+    /**
+     * Checks if a position is on the same plane as player.
+     * @param pos to check
+     * @return true if on same plane as player, false if not
+     */
+     public static boolean isOnPlayerPlane(Positionable pos) {
+         
+     	RSTile ourPosition = Player.getPosition();
+     	RSTile targetPosition = pos.getPosition();
+     	return ourPosition != null && targetPosition != null && ourPosition.getPlane() == targetPosition.getPlane();
+     }
+     
     /**
      * Gets all the walkable tiles in the {@link RSArea}.
      *
@@ -158,7 +170,7 @@ public class Movement {
 
         nav.setStoppingCondition(getWalkingCondition(posToWalk));
 
-        if (isInLoadedRegion(posToWalk)) {
+        if (isInLoadedRegion(posToWalk) && isOnPlayerPlane(posToWalk)) {
 
             if (Antiban.getWalkingPreference(Player.getPosition().distanceTo(posToWalk)) == WalkingPreference.SCREEN) {
 
@@ -190,7 +202,7 @@ public class Movement {
             if (!WebWalking.walkTo(posToWalk, new Condition() {
                 @Override
                 public boolean active() {
-                    return isInLoadedRegion(finalPosToWalk);
+                    return isInLoadedRegion(finalPosToWalk) && isOnPlayerPlane(posToWalk);
                 }
             }, 1000)) {
                 return nav.traverse(posToWalk);
