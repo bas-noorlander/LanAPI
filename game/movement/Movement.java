@@ -69,9 +69,10 @@ public class Movement {
      * @return true if on same plane as player, false if not
      */
      public static boolean isOnPlayerPlane(Positionable pos) {
+         
      	RSTile ourPosition = Player.getPosition();
      	RSTile targetPosition = pos.getPosition();
-     	return ourPosition != null && targetPosition != null ? ourPosition.getPlane() == targetPosition.getPlane() : false;
+     	return ourPosition != null && targetPosition != null && ourPosition.getPlane() == targetPosition.getPlane();
      }
      
     /**
