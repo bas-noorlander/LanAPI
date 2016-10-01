@@ -24,13 +24,14 @@ import java.net.URL;
  */
 public class GUI extends Application {
 
-    LogProxy log = new LogProxy("GUI");
+    private LogProxy log = new LogProxy("GUI");
 
     private final URL fxml;
     private final URL stylesheet;
 
     private Stage stage;
     private Scene scene;
+    private AbstractGUIController controller;
     private boolean decorated = true;
 
     private boolean isOpen = false;
@@ -107,6 +108,8 @@ public class GUI extends Application {
             return;
         }
 
+        log.debug("Opening GUI");
+
         this.stage = stage;
 
         LANScript script = Vars.get().get("script");
@@ -114,7 +117,7 @@ public class GUI extends Application {
         if (script != null)
             stage.setTitle(script.getScriptName());
 
-        stage.setAlwaysOnTop(true);
+//        stage.setAlwaysOnTop(true);
 
         Platform.setImplicitExit(false);
 
@@ -125,7 +128,7 @@ public class GUI extends Application {
 
         Parent box = loader.load();
 
-        AbstractGUIController controller = loader.getController();
+        controller = loader.getController();
 
         if (controller == null) {
             log.error("Please add a controller to your fxml!");
@@ -144,6 +147,12 @@ public class GUI extends Application {
             scene.getStylesheets().add(this.stylesheet.toExternalForm());
 
         stage.setScene(scene);
+
+    }
+
+    public <T extends AbstractGUIController> T getController() {
+
+        return (T) this.controller;
 
     }
 

@@ -21,6 +21,10 @@ public class BankingHelper { // Sadly, tribot's Banking class is declared final 
 
     private static Condition bankCondition = new Condition(BankingHelper::isBankItemsLoaded);
 
+    public static boolean openBank() {
+        return Banking.openBank() && BankingHelper.waitUntilBankItemsLoaded();
+    }
+
     public enum Widgets {
         SWAP(16, "Swap"), INSERT(18, "Insert"), ITEM(21, "Item"), NOTE(23, "Note");
 

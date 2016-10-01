@@ -94,7 +94,7 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
      */
     public static RSObject[] findNear(final String action, final boolean contains) {
         Filter<RSObject> filter = contains ? Filters.Objects.actionsContains(action) : Filters.Objects.actionsNotContains(action);
-        return Objects.find(19, filter);
+        return Objects.findNearest(19, filter);
     }
 
     /**
@@ -287,18 +287,21 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
      */
     public static boolean hasAction(final RSObject obj, final String action) {
 
-        RSObjectDefinition definition = obj.getDefinition();
+        if (obj != null) {
 
-        if (definition != null) {
+            RSObjectDefinition definition = obj.getDefinition();
 
-            String[] actions = definition.getActions();
+            if (definition != null) {
 
-            for (String a : actions) {
+                String[] actions = definition.getActions();
 
-                if (a.equals(action))
-                    return true;
+                for (String a : actions) {
+
+                    if (a.equals(action))
+                        return true;
+                }
+
             }
-
         }
 
         return false;

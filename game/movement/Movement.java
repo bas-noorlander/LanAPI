@@ -58,7 +58,7 @@ public class Movement {
     public static boolean isInLoadedRegion(Positionable pos) {
 
         final RSTile base = new RSTile(Game.getBaseX(), Game.getBaseY());
-        final RSArea chunk = new RSArea(base, new RSTile(base.getX() + 103, base.getY() + 103));
+        final RSArea chunk = new RSArea(base, new RSTile(base.getX() + 98, base.getY() + 98));
 
         return chunk.contains(pos);
     }
@@ -119,14 +119,16 @@ public class Movement {
     }
 
     public static void setUseCustomDoors(RSObject[] doors) {
+
         nav.overrideDoorCache(true, doors);
     }
 
     public static void setUseDefaultDoors() {
+
         nav.overrideDoorCache(false, null);
     }
 
-    public static void setExcludeTiles(final Positionable[] tiles) {
+    public static void setExcludeTiles(final Positionable... tiles) {
 
         nav.setExcludeTiles(tiles);
     }
@@ -136,14 +138,20 @@ public class Movement {
         return nav.getExcludeTiles();
     }
 
-    /**
-     * Walks to the position using either DPathNavigator for close by precision or WebWalking for greater lengths.
-     * <p>
-     * Checks if run can be toggled.
-     *
-     * @param posToWalk
-     * @return if successfully reached destination or not.
-     */
+    public static boolean walkTo(int x, int y, int plane) {
+
+        return walkTo(new RSTile(x, y, plane));
+    }
+
+
+        /**
+         * Walks to the position using either DPathNavigator for close by precision or WebWalking for greater lengths.
+         * <p>
+         * Checks if run can be toggled.
+         *
+         * @param posToWalk
+         * @return if successfully reached destination or not.
+         */
     public static boolean walkTo(Positionable posToWalk) {
 
         if (posToWalk instanceof RSTile)
@@ -157,6 +165,7 @@ public class Movement {
         Antiban.activateRun();
 
         nav.setStoppingCondition(getWalkingCondition(posToWalk));
+        nav.setStoppingConditionCheckDelay(50);
 
         if (isInLoadedRegion(posToWalk)) {
 
@@ -174,25 +183,42 @@ public class Movement {
                 RSArea area = new RSArea(posToWalk, 5);
                 RSTile[] walkables = getAllWalkableTiles(area);
 
-                if (walkables.length == 0)
+                if (walkables.length == 0) {
                     return false;
+                }
 
                 Sorting.sortByDistance(walkables, posToWalk, true);
                 posToWalk = walkables[0];
             }
 
-            return nav.traverse(posToWalk);
+            if (!nav.traverse(posToWalk)) {
+                final Positionable finalPosToWalk = posToWalk;
+
+                Condition region_condition = new Condition(() -> isInLoadedRegion(finalPosToWalk));
+
+                if (!WebWalking.walkTo(posToWalk, new Condition() {
+                    @Override
+                    public boolean active() {
+                        return region_condition.active() && getWalkingCondition(finalPosToWalk).active();
+                    }
+                }, 10000)) {
+                    return nav.traverse(posToWalk);
+                }
+            } else
+                return true;
 
         } else {
 
             final Positionable finalPosToWalk = posToWalk;
 
+            Condition region_condition = new Condition(() -> isInLoadedRegion(finalPosToWalk));
+
             if (!WebWalking.walkTo(posToWalk, new Condition() {
                 @Override
                 public boolean active() {
-                    return isInLoadedRegion(finalPosToWalk);
+                    return region_condition.active() && getWalkingCondition(finalPosToWalk).active();
                 }
-            }, 1000)) {
+            }, 10000)) {
                 return nav.traverse(posToWalk);
             }
         }

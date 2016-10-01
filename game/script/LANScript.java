@@ -32,6 +32,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,6 +48,8 @@ public abstract class LANScript extends Script implements Painting, MouseActions
     public AbstractPaintInfo paint_info = null;
     protected Color mouse_color = Color.BLACK;
     protected InventoryObserver observer = null;
+
+    public Thread thread;
 
     private boolean quitting = false;
     private boolean inventory_observer_running = false;
@@ -141,23 +144,23 @@ public abstract class LANScript extends Script implements Painting, MouseActions
 
         } else if (this.observer != null) {
             this.observer.end();
-            this.inventory_observer_running = false;
-        }
+
+        this.inventory_observer_running = false;
     }
+}
 
     /**
      * This is the entry point of a tribot script. You shouldn't have to change anything here.
      */
     @Override
     public void run() {
-
         Vars.get().add("script", this);
+        this.thread = Thread.currentThread();
 
         this.paint_info = this.getPaintInfo();
         this.log = new LogProxy(this);
         this.icon = this.getNotificationIcon();
         this.gui = this.getGUI();
-
 
         if (this.paint_info != null)
             this.mouse_color = paint_info.getPrimaryColor();
@@ -427,15 +430,26 @@ public abstract class LANScript extends Script implements Painting, MouseActions
         PaintHelper.moveMouseTrail(point);
     }
 
-    // Stubs
     public OVERRIDE_RETURN overrideMouseEvent(MouseEvent e) {
+        if (e.getID() == MouseEvent.MOUSE_CLICKED) {
+
+            for (Map.Entry<Integer, Shape> set : this.paint_info.getAllClickableShapes()) {
+                if (set.getValue().contains(e.getPoint())) {
+                    this.paint_info.onShapeClicked(set.getKey());
+                    e.consume();
+
+                    return OVERRIDE_RETURN.DISMISS;
+                }
+            }
+        }
+
         return OVERRIDE_RETURN.PROCESS;
     }
+
+    // Stubs
     public void mouseReleased(Point point, int button, boolean is_bot) {}
     public void mouseDragged(Point point, int button, boolean is_bot) {}
     public OVERRIDE_RETURN overrideKeyEvent(KeyEvent e) {return OVERRIDE_RETURN.SEND;}
     public void inventoryItemRemoved(RSItem item, int count) {}
     public void inventoryItemAdded(RSItem item, int count) {}
-
-
 }

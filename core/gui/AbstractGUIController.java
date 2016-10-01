@@ -6,6 +6,7 @@ import scripts.lanapi.core.logging.LogProxy;
 /**
  * @author Laniax
  */
+
 public abstract class AbstractGUIController implements Initializable {
 
     protected LogProxy log = new LogProxy("AbstractGUIController");
@@ -21,6 +22,4 @@ public abstract class AbstractGUIController implements Initializable {
     public GUI getGUI() {
         return this.gui;
     }
-
-
 }

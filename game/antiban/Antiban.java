@@ -234,7 +234,7 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
 
         log.info("Sleeping for %d ms.", reactionTime);
 
-        PaintHelper.status_text = "Antiban Delay";
+        PaintHelper.status_text = "Antiban Delay ("+Math.round(reactionTime / 1000)+"sec)";
 
         try {
             get().sleep(reactionTime);
