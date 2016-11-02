@@ -183,7 +183,6 @@ public abstract class AbstractPaintInfo {
 
         int text_lines = (int) Math.max(Math.ceil((texts.getAll().size() / 2) + 1), 1);
 
-
         int title_offset_from_bottom = (text_lines * line_distance) + (general_padding * 5);
         int title_offset_from_right = (int) (title_bounds.getWidth() + general_padding);
 
@@ -215,9 +214,10 @@ public abstract class AbstractPaintInfo {
 
         // We have all the data to draw our paint!
 
+        g.setClip(viewport);
+
         if (showReportBugButton() && (is_transitioning || !is_hidden)) {
 
-            g.setClip(viewport);
             g.setColor(this.primary);
             int box_x = (viewport.x + viewport.width) - (general_padding * 3) - bug_report_width;
 
@@ -341,7 +341,7 @@ public abstract class AbstractPaintInfo {
 
                 PaintString ps = all.get(i - 1);
 
-                int x = alternate ? text_x_start + (int) (title_bounds.getWidth() / 2) : text_x_start;
+                int x = alternate ? (text_x_start + (int) (title_bounds.getWidth() / 2) - this.general_padding) : text_x_start;
                 y = text_y_start + (this.line_distance * (int) Math.floor(i / 2));
 
                 PaintHelper.drawPaintString(g, new Point(x, y), this.default_font, ps);
@@ -353,13 +353,13 @@ public abstract class AbstractPaintInfo {
             g.setColor(this.secondary);
             g.setFont(this.status_font);
             g.drawString(PaintHelper.status_text, text_x_start, y + this.line_distance);
-
-            this.customDrawAfter(g);
-
-            if (this.script.isLocal())
-                this.debugDraw(g);
         }
 
         g.setClip(null);
+
+        this.customDrawAfter(g);
+
+        if (this.script.isLocal())
+            this.debugDraw(g);
     }
 }

@@ -2,6 +2,7 @@ package scripts.lanapi.game.painting;
 
 import org.tribot.api.Screen;
 import org.tribot.api2007.Projection;
+import org.tribot.api2007.types.RSArea;
 import org.tribot.api2007.types.RSTile;
 import scripts.lanapi.core.collections.Pair;
 
@@ -60,9 +61,43 @@ public class PaintHelper {
         drawPaintBuilder(g, font, pos, pb, null);
     }
 
+    public static void drawRSAreaOnMinimap(Graphics2D g, RSArea area, boolean fill) {
+
+        Polygon poly = new Polygon();
+
+        for (RSTile t : area.getAllTiles()) {
+
+            Point minimap_point = Projection.tileToMinimap(t);
+
+            if (minimap_point != null && Projection.isInMinimap(minimap_point))
+                poly.addPoint(minimap_point.x, minimap_point.y);
+        }
+
+//        if (poly.npoints == 0)
+//            return;
+
+        if (fill) {
+            g.fillPolygon(poly);
+        }
+
+        g.drawPolygon(poly);
+
+    }
+
     public static void drawPaintBuilder(Graphics2D g, Font font, Point pos, PaintBuilder pb, Color override_color) {
+        int y = 0;
+        int x = 0;
+
         for (PaintString ps : pb.getAll()) {
-            drawPaintString(g, pos, font, ps, override_color);
+
+            if (ps.getY() != Integer.MIN_VALUE) {
+                y = ps.getY();
+            }
+
+            if (ps.getX() != Integer.MIN_VALUE) {
+                x = ps.getX();
+            }
+            drawPaintString(g, new Point(pos.x + x, pos.y + y), font, ps, override_color);
         }
     }
 
@@ -72,11 +107,30 @@ public class PaintHelper {
 
     public static void drawPaintString(Graphics2D g, Point pos, Font font, PaintString ps, Color override_color) {
         int x = pos.x;
+        int y = pos.y;
+
         g.setFont(font);
+
         for (Pair<String, Color> set : ps.getAll()) {
+
             g.setColor(override_color == null ? set.getValue() : override_color);
-            g.drawString(set.getKey(), x, pos.y);
+            g.drawString(set.getKey(), x, y);
             x += PaintHelper.getStringWidth(g, font, set.getKey());
+
+
+//            g.setColor(override_color == null ? set.getValue() : override_color);
+//
+////            if (ps.getX() != Integer.MIN_VALUE) {
+////                x = (pos.x + ps.getX());
+////            } else {
+//                x += PaintHelper.getStringWidth(g, font, set.getKey());
+////            }
+//
+////            if (ps.getY() != Integer.MIN_VALUE) {
+////                y = pos.y + ps.getY();
+////            } else
+//
+//            g.drawString(set.getKey(), x, y);
         }
     }
 

@@ -9,8 +9,11 @@ import org.tribot.api2007.*;
 import org.tribot.api2007.GameTab.TABS;
 import org.tribot.api2007.ext.Filters;
 import org.tribot.api2007.types.*;
+import scripts.entityselector.Entities;
+import scripts.entityselector.finders.prefabs.ItemEntity;
 import scripts.lanapi.core.logging.LogProxy;
 import scripts.lanapi.game.antiban.Antiban;
+import scripts.lanapi.game.camera.LANCamera;
 import scripts.lanapi.game.concurrency.Condition;
 import scripts.lanapi.game.movement.Movement;
 import scripts.lanapi.game.painting.PaintHelper;
@@ -76,9 +79,18 @@ public abstract class Combat extends org.tribot.api2007.Combat {
      */
     public static boolean checkAndEat(final String foodName) {
 
-        RSItem[] food = Inventory.find(Filters.Items.nameEquals(foodName));
+        if (foodName == null)
+            return false;
 
-        if (food.length > 0) {
+        RSItem food = Entities.find(ItemEntity::new)
+                .nameContains(foodName)
+                .actionsContains("Eat", "Drink")
+                .custom((rsItem -> {
+                    RSItemDefinition itemDefinition = rsItem.getDefinition();
+                    return itemDefinition == null || !itemDefinition.isNoted();
+                })).getFirstResult();
+
+        if (food != null) {
 
             if (getHPRatio() <= Antiban.getEatPercentage()) {
 
@@ -86,7 +98,7 @@ public abstract class Combat extends org.tribot.api2007.Combat {
 
                 final int preEatAmount = Inventory.getCount(foodName);
 
-                if (Clicking.click(food[0])) {
+                if (Clicking.click(food)) {
 
                     if (Timing.waitCondition(new Condition() {
                         @Override
@@ -185,7 +197,7 @@ public abstract class Combat extends org.tribot.api2007.Combat {
             return;
 
         if (!npc.isOnScreen())
-            Camera.turnToTile(npc);
+            LANCamera.get().turnToTile(npc);
 
         PaintHelper.status_text = "Attacking";
 

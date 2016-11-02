@@ -2,6 +2,8 @@ package scripts.lanapi.network;
 
 import scripts.lanapi.core.dynamic.Bag;
 import scripts.lanapi.core.io.json.Json;
+import scripts.lanapi.core.io.json.JsonObject;
+import scripts.lanapi.core.io.json.JsonValue;
 import scripts.lanapi.network.exceptions.ItemPriceNotFoundException;
 
 import java.io.IOException;
@@ -41,7 +43,19 @@ public class ItemPrice {
             URL url = new URL("https://api.rsbuddy.com/grandExchange?a=guidePrice&i=" + itemId);
             try (InputStreamReader reader = new InputStreamReader(url.openStream())) {
 
-                int price = Json.parse(reader).asObject().get("overall").asInt();
+                JsonObject response = Json.parse(reader).asObject();
+
+                int price = response.get("overall").asInt();
+
+                if (price == 0) {
+                    // Price is 0, there is a chance this item is not tradeable.
+                    // throw an error if all the other values are null as well.
+                    if (response.get("buying").asInt() == 0 && response.get("buyingQuantity").asInt() == 0 && response.get("selling").asInt() == 0 && response.get("sellingQuantity").asInt() == 0) {
+                        ItemPriceNotFoundException ex = new ItemPriceNotFoundException(itemId, "Item is not tradeable");
+                        map.put(itemId, ex);
+                        throw ex;
+                    }
+                }
 
                 cache.addOrUpdate(String.valueOf(itemId), price);
 

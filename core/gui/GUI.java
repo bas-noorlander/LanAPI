@@ -108,8 +108,6 @@ public class GUI extends Application {
             return;
         }
 
-        log.debug("Opening GUI");
-
         this.stage = stage;
 
         LANScript script = Vars.get().get("script");

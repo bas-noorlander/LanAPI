@@ -9,6 +9,7 @@ import org.tribot.api2007.types.RSModel;
 import org.tribot.api2007.types.RSObject;
 import org.tribot.api2007.types.RSObjectDefinition;
 import org.tribot.api2007.types.RSTile;
+import scripts.lanapi.game.camera.LANCamera;
 import scripts.lanapi.game.movement.Movement;
 
 import java.awt.*;
@@ -267,7 +268,7 @@ public class ObjectsHelper { // Sadly, tribot's Objects class is declared final 
         if (model != null) {
             Point modelCenter = model.getCentrePoint();
             if (modelCenter != null && !Projection.isInViewport(modelCenter)) {
-                Camera.turnToTile(object);
+                LANCamera.get().turnToTile(object);
             }
         }
 

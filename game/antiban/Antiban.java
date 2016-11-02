@@ -306,6 +306,13 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
      */
     public static boolean activateRun() {
 
+        if (Movement.isOverrideWalk()) {
+            WebWalking.setUseRun(false);
+            return !Game.isRunOn() || Options.setRunOn(false);
+        }
+
+        WebWalking.setUseRun(true);
+
         if (!Game.isRunOn() && Game.getRunEnergy() >= getRunPercentage()) {
 
             PaintHelper.status_text = "Antiban - Activate Run";
@@ -325,29 +332,45 @@ public class Antiban extends org.tribot.api.util.abc.ABCUtil {
      */
     public static void doIdleActions() {
 
-        if (get().shouldCheckTabs())
+        if (get().shouldCheckTabs()) {
+            PaintHelper.status_text = "Antiban";
             get().checkTabs();
+        }
 
-        if (get().shouldCheckXP())
+        if (get().shouldCheckXP()) {
+            PaintHelper.status_text = "Antiban";
             get().checkXP();
+        }
 
-        if (get().shouldExamineEntity())
+        if (get().shouldExamineEntity()) {
+            PaintHelper.status_text = "Antiban";
             get().examineEntity();
+        }
 
-        if (get().shouldMoveMouse())
+        if (get().shouldMoveMouse()) {
+            PaintHelper.status_text = "Antiban";
             get().moveMouse();
+        }
 
-        if (get().shouldPickupMouse())
+        if (get().shouldPickupMouse()) {
+            PaintHelper.status_text = "Antiban";
             get().pickupMouse();
+        }
 
-        if (get().shouldRightClick())
+        if (get().shouldRightClick()) {
+            PaintHelper.status_text = "Antiban";
             get().rightClick();
+        }
 
-        if (get().shouldRotateCamera())
+        if (get().shouldRotateCamera()) {
+            PaintHelper.status_text = "Antiban";
             get().rotateCamera();
+        }
 
-        if (get().shouldLeaveGame())
+        if (get().shouldLeaveGame()) {
+            PaintHelper.status_text = "Antiban";
             get().leaveGame();
+        }
     }
 
     /**

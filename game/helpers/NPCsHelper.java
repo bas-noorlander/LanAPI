@@ -16,6 +16,7 @@ import org.tribot.api2007.types.RSModel;
 import org.tribot.api2007.types.RSNPC;
 import org.tribot.api2007.types.RSNPCDefinition;
 import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.camera.LANCamera;
 import scripts.lanapi.game.concurrency.Condition;
 import scripts.lanapi.game.movement.Movement;
 
@@ -30,6 +31,8 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
 
     static LogProxy log = new LogProxy("NPCsHelper");
 
+    private static String last_message;
+
     public static String getName(final RSNPC npc) {
 
         if (npc != null) {
@@ -39,9 +42,9 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
                 if (definitionName != null) {
                     return definitionName;
                 } else
-                    General.println("def name is null");
+                    General.println("NPC doesn't have a name.");
             } else
-                General.println("npc def is null");
+                General.println("NPC Definition is null. Restart Tribot to fix this.");
         } else
             General.println("npc is null");
 
@@ -182,7 +185,7 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
             if (Player.getPosition().distanceTo(npc) > 12 || !Movement.canReach(npc))
                 Movement.walkTo(npc.getPosition());
             else
-                CameraHelper.get().turnToTile(npc);
+                LANCamera.get().turnToTile(npc);
         }
 
         if (npc.isClickable() && Clicking.click("Talk-to", npc)) {
@@ -206,9 +209,19 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
 
         talkContinue();
 
+        Timing.waitCondition(new Condition() {
+            @Override
+            public boolean active() {
+                return NPCChat.getOptions() != null;
+            }
+        }, General.random(1000, 2000));
+
         boolean result = NPCChat.selectOption(option, true);
 
-        talkContinue();
+        General.sleep(General.randomSD(100, 40));
+
+        if (result)
+            talkContinue();
 
         return result;
     }
@@ -230,28 +243,30 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
 
             log.debug("Npc chat: '%s'.", str);
 
+            setLastDialogMessage(str);
+
             if (NPCChat.clickContinue(true)) {
-                General.sleep(General.randomSD(40, 150, 80));
+                General.sleep(General.randomSD(70, 150, 30));
             }
 
             str = NPCChat.getMessage();
             options = NPCChat.getOptions();
         }
 
-        Timing.waitCondition(new Condition() {
-            @Override
-            public boolean active() {
-                return NPCChat.getOptions() != null;
-            }
-        }, General.random(250, 500));
-
-        options = NPCChat.getOptions();
-
-        if (options != null) {
-            for (String op : options) {
-                log.debug("Npc chat option: '%s'.", op);
-            }
-        }
+//        Timing.waitCondition(new Condition() {
+//            @Override
+//            public boolean active() {
+//                return NPCChat.getOptions() != null;
+//            }
+//        }, General.random(250, 500));
+//
+//        options = NPCChat.getOptions();
+//
+//        if (options != null) {
+//            for (String op : options) {
+//                log.debug("Npc chat option: '%s'.", op);
+//            }
+//        }
 
         return true;
     }
@@ -261,17 +276,12 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
         if (npc == null)
             return false;
 
-        RSModel model = npc.getModel();
-
         if (!npc.isOnScreen() && Player.getPosition().distanceTo(npc) > 6) {
             Movement.walkTo(npc);
         }
 
-        if (model != null) {
-            Point modelCenter = model.getCentrePoint();
-            if (modelCenter != null && !Projection.isInViewport(modelCenter)) {
-                Camera.turnToTile(npc);
-            }
+        if (!npc.isOnScreen()) {
+            LANCamera.get().turnToTile(npc);
         }
 
         if (Clicking.hover(npc)) {
@@ -280,5 +290,13 @@ public class NPCsHelper { // Sadly, tribot's NPCs class is declared final and ca
         }
 
         return false;
+    }
+
+    public static String getLastDialogMessage() {
+        return last_message;
+    }
+
+    public static void setLastDialogMessage(String last_message) {
+        NPCsHelper.last_message = last_message;
     }
 }

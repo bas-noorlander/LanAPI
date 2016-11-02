@@ -2,10 +2,7 @@ package scripts.lanapi.game.script;
 
 import org.tribot.api.General;
 import org.tribot.api.Timing;
-import org.tribot.api2007.Banking;
-import org.tribot.api2007.Login;
-import org.tribot.api2007.MessageListener;
-import org.tribot.api2007.Skills;
+import org.tribot.api2007.*;
 import org.tribot.api2007.types.RSItem;
 import org.tribot.api2007.util.ThreadSettings;
 import org.tribot.script.Script;
@@ -15,6 +12,7 @@ import scripts.lanapi.game.antiban.Antiban;
 import scripts.lanapi.core.logging.LogProxy;
 import scripts.lanapi.core.system.Notifications;
 import scripts.lanapi.core.patterns.IStrategy;
+import scripts.lanapi.game.camera.LANCamera;
 import scripts.lanapi.game.concurrency.Condition;
 import scripts.lanapi.game.concurrency.observers.inventory.InventoryListener;
 import scripts.lanapi.core.patterns.StrategyList;
@@ -32,14 +30,16 @@ import java.awt.event.KeyEvent;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public abstract class LANScript extends Script implements Painting, MouseActions, MousePainting, MouseSplinePainting,
+public abstract class LANScript extends Script implements Painting, MouseActions, KeyActions, MousePainting, MouseSplinePainting, Arguments,
         EventBlockingOverride, Ending, Breaking, MessageListening07, InventoryListener, DynamicSignatures {
 
     protected boolean has_arguments = false;
+
     protected LogProxy log;
     protected boolean wait_for_gui = true;
     protected boolean show_paint = false;
@@ -154,6 +154,7 @@ public abstract class LANScript extends Script implements Painting, MouseActions
      */
     @Override
     public void run() {
+
         Vars.get().add("script", this);
         this.thread = Thread.currentThread();
 
@@ -180,7 +181,7 @@ public abstract class LANScript extends Script implements Painting, MouseActions
 
         ThreadSettings.get().setClickingAPIUseDynamic(true);
 
-        while (Login.getLoginState() != Login.STATE.INGAME) {
+        while (Login.getLoginState() != Login.STATE.INGAME || Game.getGameState() != 30) {
             sleep(250);
             Login.login();
         }
@@ -200,9 +201,11 @@ public abstract class LANScript extends Script implements Painting, MouseActions
 
             if (this.isQuitting()) // a gui is able to quit the script.
                 return;
-
-            this.onGUIClosed();
         }
+
+        this.onGUIClosed();
+
+        LANCamera.get().initialize();
 
         PaintHelper.status_text = "Preparing script..";
 
@@ -452,4 +455,8 @@ public abstract class LANScript extends Script implements Painting, MouseActions
     public OVERRIDE_RETURN overrideKeyEvent(KeyEvent e) {return OVERRIDE_RETURN.SEND;}
     public void inventoryItemRemoved(RSItem item, int count) {}
     public void inventoryItemAdded(RSItem item, int count) {}
+    public void passArguments(HashMap<String, String> hashMap) {}
+    public void keyTyped(int keycode, boolean is_bot) {}
+    public void keyReleased(int keycode, boolean is_bot) {}
+    public void keyPressed(int keycode, boolean is_bot) {}
 }

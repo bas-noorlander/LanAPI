@@ -29,6 +29,16 @@ public class Movement {
 
     private static final int NOT_MOVING_TIMEOUT = 2000;
 
+    private static boolean overrideWalk = false;
+
+    public static void setOverrideWalk(boolean value) {
+        overrideWalk = value;
+    }
+
+    public static boolean isOverrideWalk() {
+        return overrideWalk;
+    }
+
     static {
         nav.setStoppingConditionCheckDelay(50);
     }
@@ -120,7 +130,7 @@ public class Movement {
 
     public static void setUseCustomDoors(RSObject[] doors) {
 
-        nav.overrideDoorCache(true, doors);
+        nav.overrideDoorCache(doors.length > 0, doors.length > 0 ? doors : null);
     }
 
     public static void setUseDefaultDoors() {
@@ -199,6 +209,7 @@ public class Movement {
                 if (!WebWalking.walkTo(posToWalk, new Condition() {
                     @Override
                     public boolean active() {
+                        Combat.checkAndEat();
                         return region_condition.active() && getWalkingCondition(finalPosToWalk).active();
                     }
                 }, 10000)) {
@@ -216,6 +227,7 @@ public class Movement {
             if (!WebWalking.walkTo(posToWalk, new Condition() {
                 @Override
                 public boolean active() {
+                    Combat.checkAndEat();
                     return region_condition.active() && getWalkingCondition(finalPosToWalk).active();
                 }
             }, 10000)) {
@@ -234,6 +246,8 @@ public class Movement {
 
             @Override
             public boolean active() {
+
+                Combat.checkAndEat();
 
                 if (!Player.isMoving()) {
                     if (notMovingSince == 0) {
@@ -264,6 +278,8 @@ public class Movement {
         Bag bag = condition.getBag();
 
         condition.setLambda(() -> {
+
+            Combat.checkAndEat();
 
             long not_moving_since = bag.get("not_moving_since", 0L);
 
@@ -304,6 +320,7 @@ public class Movement {
         } else
             return Walking.walkPath(path, stoppingCondition, General.random(4000, 5000));
     }
+
 
 
 }

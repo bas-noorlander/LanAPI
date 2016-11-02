@@ -8,6 +8,7 @@ import org.tribot.api2007.Camera;
 import org.tribot.api2007.types.RSGroundItem;
 import org.tribot.api2007.types.RSItemDefinition;
 import scripts.lanapi.core.logging.LogProxy;
+import scripts.lanapi.game.camera.LANCamera;
 import scripts.lanapi.game.inventory.Inventory;
 import scripts.lanapi.game.movement.Movement;
 import scripts.lanapi.game.painting.PaintHelper;
@@ -89,7 +90,7 @@ public abstract class GroundItems extends org.tribot.api2007.GroundItems {
                     continue;
 
                 if (!item.isOnScreen())
-                    Camera.turnToTile(item);
+                    LANCamera.get().turnToTile(item);
 
                 item.setClickHeight(addHeight);
 

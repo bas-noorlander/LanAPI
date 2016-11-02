@@ -46,7 +46,7 @@ public class IOExtensions {
     }
 
     /**
-     * Serialize the object into the file.
+     * serialize the object into the file.
      *
      * @param obj        the object to serialize
      * @param outputFile the file where the data will be written in
